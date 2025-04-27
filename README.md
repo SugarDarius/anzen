@@ -5,10 +5,6 @@ A fast, framework validation agnostic, type-safe factory for creating Next.JS Ap
 - 🔒 Type-safe.
 - 🧹 Clean API.
 
-# Safe Route Handlers
-
-Create type-safe route handlers 👇🏻
-
 # Install
 
 ```sh
