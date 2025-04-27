@@ -19,8 +19,13 @@
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["next-env.d.ts", "src/**/*.ts"],
   "exclude": ["node_modules"]
 }
