@@ -2,7 +2,7 @@
   "name": "@anzen/monorepo",
   "license": "MIT",
   "type": "module",
-  "packageManager": "npm@11.2.0",
+  "packageManager": "npm@11.3.0",
   "workspaces": [
     "packages/*",
     "apps/*",
