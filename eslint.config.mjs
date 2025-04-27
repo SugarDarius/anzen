@@ -14,6 +14,7 @@ export default [
           varsIgnorePattern: '^_.*',
         },
       ],
+      '@typescript-eslint/no-namespace': 'off',
     },
   },
 ]
