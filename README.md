@@ -1,32 +1,29 @@
-A fast, framework validation agnostic, type-safe factories for Next.JS App Router.
+A fast, framework validation agnostic, type-safe factory for creating Next.JS App Router route handlers.
 
-- 🧠 Focused functionalities, use only features you want.
-- 🧹 Clean API.
 - 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
+- 🧠 Focused functionalities, use only features you want.
 - 🔒 Type-safe.
-
+- 🧹 Clean API.
 
 # Safe Route Handlers
 
 Create type-safe route handlers 👇🏻
 
-## Install
+# Install
 
 ```sh
-npm i @anzen/next-safe-route-handler
+npm i @sugardarius/anzen
 ```
 
-## Usage
+# Usage
 
 ```tsx
-import { createSafeRouteHAndler } from '@anzen/next-safe-route-handler'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
 
-export const GET = createSafeRouteHAndler(
-    {}, 
-    async (ctx, req): Promise<NextResponse> => {
+export const GET = createSafeRouteHandler(
+  {},
+  async (ctx, req): Promise<NextResponse> => {
     return NextResponse.json({}, { status: 200 })
-})
+  }
+)
 ```
-
-# Safe Server Actions
-🔜 Coming soon
