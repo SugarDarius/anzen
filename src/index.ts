@@ -1,1 +1,1 @@
-export {}
+export type { Awaitable } from './types'
