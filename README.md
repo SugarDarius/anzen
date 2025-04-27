@@ -18,8 +18,8 @@ import { createSafeRouteHandler } from '@sugardarius/anzen'
 
 export const GET = createSafeRouteHandler(
   {},
-  async (ctx, req): Promise<NextResponse> => {
-    return NextResponse.json({}, { status: 200 })
+  async (ctx, req): Promise<Response> => {
+    return Response.json({}, { status: 200 })
   }
 )
 ```

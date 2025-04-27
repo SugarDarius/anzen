@@ -44,14 +44,10 @@
     "lint:tsc": "tsc --noEmit",
     "format": "prettier --write src/"
   },
-  "peerDependencies": {
-    "next": "^14 || ^15"
-  },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
     "@types/node": "^22.15.2",
     "eslint": "^9.25.1",
-    "next": "^15.3.1",
     "prettier": "^3.5.3",
     "tsup": "^8.4.0",
     "turbo": "^2.5.2",
