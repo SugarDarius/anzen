@@ -1,0 +1,22 @@
+{
+  "name": "@anzen/monorepo",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "npm@11.2.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "playground/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "format": "turbo run format"
+  },
+  "engines": {
+    "node": ">=23.5.0"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.2"
+  }
+}
