@@ -1,5 +1,5 @@
 import { log } from './utils'
-import { parseWithDictionary } from './standard-schema'
+import { parseWithDictionary, type StandardSchemaV1 } from './standard-schema'
 import type {
   TSegmentsDict,
   CreateSafeRouteHandlerOptions,
@@ -15,6 +15,16 @@ export function createSafeRouteHandler<
   options: CreateSafeRouteHandlerOptions<TRouteDynamicSegments>,
   handlerFn: SafeRouteHandler<TRouteDynamicSegments>
 ): CreateSafeRouteHandlerReturnType {
+  const onValidationError =
+    options.onValidationError ??
+    ((
+      artifact: 'segments',
+      issues: readonly StandardSchemaV1.Issue[]
+    ): never => {
+      console.error(`🛑 Invalid properties for ${artifact}:`, issues)
+      throw new Error(`Invalid properties for ${artifact}`)
+    })
+
   return async function (
     req: Request,
     extras: RequestExtras
@@ -26,11 +36,7 @@ export function createSafeRouteHandler<
       const params = await extras.params // TODO
       const parsedSegments = parseWithDictionary(options.segments, params)
       if (parsedSegments.issues) {
-        return new Response('Invalid route segments', {
-          // TODO: update
-          status: 400,
-          statusText: 'Bad Request',
-        })
+        return onValidationError('segments', parsedSegments.issues)
       }
 
       segments = parsedSegments.value
