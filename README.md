@@ -17,7 +17,7 @@ npm i @sugardarius/anzen
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
 export const GET = createSafeRouteHandler(
-  {},
+  { name: 'My safe route handler' },
   async (ctx, req): Promise<Response> => {
     return Response.json({}, { status: 200 })
   }
