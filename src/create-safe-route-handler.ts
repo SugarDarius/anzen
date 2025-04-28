@@ -9,7 +9,7 @@ import type {
   SafeRouteHandlerContext,
 } from './types'
 
-export function createSafeRouterHandler<
+export function createSafeRouteHandler<
   TRouteDynamicSegments extends TSegmentsDict | undefined = undefined,
 >(
   options: CreateSafeRouteHandlerOptions<TRouteDynamicSegments>,
@@ -44,7 +44,7 @@ export function createSafeRouterHandler<
   }
 }
 
-// const GET = createSafeRouterHandler(
+// const GET = createSafeRouteHandler(
 //   { name: '', segments: {} },
 //   async (ctx, req) => {
 //     ctx.segments
