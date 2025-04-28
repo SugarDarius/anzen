@@ -17,6 +17,20 @@ export type BaseOptions = {
     artifact: 'segments' | 'body',
     issues: readonly StandardSchemaV1.Issue[]
   ) => never
+
+  /**
+   * Function to use to authorize the request.
+   * By default it always authorize the request.
+   *
+   * When returning a response, it will be used as the response for the request.
+   * Return a response when the request is not authorized.
+   */
+  authorize?: (
+    /**
+     * Original request
+     */
+    req: Request
+  ) => Awaitable<true | Response>
 }
 
 export type CreateSafeRouteHandlerOptions<

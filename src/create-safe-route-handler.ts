@@ -25,11 +25,18 @@ export function createSafeRouteHandler<
       throw new Error(`Invalid properties for ${artifact}`)
     })
 
+  const authorize = options.authorize ?? (() => true)
+
   return async function (
     req: Request,
     extras: RequestExtras
   ): Promise<Response> {
     log(`🔄 Running route handler '${options.name}'`)
+
+    const isAuthorizedRes = await authorize(req)
+    if (isAuthorizedRes !== true) {
+      return isAuthorizedRes
+    }
 
     let segments = undefined
     if (options.segments) {
