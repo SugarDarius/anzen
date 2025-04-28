@@ -18,7 +18,7 @@ export function createSafeRouteHandler<
   const onValidationError =
     options.onValidationError ??
     ((
-      artifact: 'segments',
+      artifact: 'segments' | 'body',
       issues: readonly StandardSchemaV1.Issue[]
     ): never => {
       console.error(`🛑 Invalid properties for ${artifact}:`, issues)
@@ -33,8 +33,9 @@ export function createSafeRouteHandler<
 
     let segments = undefined
     if (options.segments) {
-      const params = await extras.params // TODO
+      const params = await extras.params
       const parsedSegments = parseWithDictionary(options.segments, params)
+
       if (parsedSegments.issues) {
         return onValidationError('segments', parsedSegments.issues)
       }
@@ -49,11 +50,3 @@ export function createSafeRouteHandler<
     return await handlerFn(ctx, req)
   }
 }
-
-// const GET = createSafeRouteHandler(
-//   { name: '', segments: {} },
-//   async (ctx, req) => {
-//     ctx.segments
-//     return new Response('GET')
-//   }
-// )

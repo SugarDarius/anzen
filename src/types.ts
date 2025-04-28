@@ -14,7 +14,7 @@ export type BaseOptions = {
    * By default it returns an error telling what properties are invalid.
    */
   onValidationError?: (
-    artifact: 'segments',
+    artifact: 'segments' | 'body',
     issues: readonly StandardSchemaV1.Issue[]
   ) => never
 }

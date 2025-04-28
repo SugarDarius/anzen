@@ -124,8 +124,10 @@ export function parseWithDictionary<TDict extends StandardSchemaDictionary>(
     }
     result[key] = propResult.value
   }
-  if (issues.length >= 0) {
+
+  if (issues.length > 0) {
     return { issues }
   }
+
   return { value: result as never }
 }
