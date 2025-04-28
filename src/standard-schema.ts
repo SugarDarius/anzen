@@ -1,3 +1,5 @@
+import { ensureSynchronous } from './utils'
+
 /** The Standard Schema interface. */
 export interface StandardSchemaV1<Input = unknown, Output = Input> {
   /** The Standard Schema properties. */
@@ -69,61 +71,61 @@ export declare namespace StandardSchemaV1 {
   >['output']
 }
 
-// export type StandardSchemaDictionary<
-//   Input = Record<string, unknown>,
-//   Output extends Record<keyof Input, unknown> = Input,
-// > = {
-//   [K in keyof Input]-?: StandardSchemaV1<Input[K], Output[K]>
-// }
+export type StandardSchemaDictionary<
+  Input = Record<string, unknown>,
+  Output extends Record<keyof Input, unknown> = Input,
+> = {
+  [K in keyof Input]-?: StandardSchemaV1<Input[K], Output[K]>
+}
 
-// export namespace StandardSchemaDictionary {
-//   export type InferInput<T extends StandardSchemaDictionary> = {
-//     [K in keyof T]: StandardSchemaV1.InferInput<T[K]>
-//   }
-//   export type InferOutput<T extends StandardSchemaDictionary> = {
-//     [K in keyof T]: StandardSchemaV1.InferOutput<T[K]>
-//   }
-// }
+export namespace StandardSchemaDictionary {
+  export type InferInput<T extends StandardSchemaDictionary> = {
+    [K in keyof T]: StandardSchemaV1.InferInput<T[K]>
+  }
+  export type InferOutput<T extends StandardSchemaDictionary> = {
+    [K in keyof T]: StandardSchemaV1.InferOutput<T[K]>
+  }
+}
 
-// const hasDictKey = <T extends object, K extends PropertyKey>(
-//   obj: T,
-//   key: K
-// ): obj is T & Record<typeof key, unknown> => {
-//   return key in obj
-// }
+const hasDictKey = <T extends object, K extends PropertyKey>(
+  obj: T,
+  key: K
+): obj is T & Record<typeof key, unknown> => {
+  return key in obj
+}
 
-// export function parseWithDictionary<TDict extends StandardSchemaDictionary>(
-//   dictionary: TDict,
-//   value: Record<string, unknown>
-// ): StandardSchemaV1.Result<StandardSchemaDictionary.InferOutput<TDict>> {
-//   const result: Record<string, unknown> = {}
-//   const issues: StandardSchemaV1.Issue[] = []
+export function parseWithDictionary<TDict extends StandardSchemaDictionary>(
+  dictionary: TDict,
+  value: Record<string, unknown>
+): StandardSchemaV1.Result<StandardSchemaDictionary.InferOutput<TDict>> {
+  const result: Record<string, unknown> = {}
+  const issues: StandardSchemaV1.Issue[] = []
 
-//   for (const key in dictionary) {
-//     if (!hasDictKey(dictionary, key)) {
-//       continue
-//     }
-//     // NOTE: safe to assert as we're ensuring just before key isn't undefined
-//     const propResult = dictionary[key]!['~standard'].validate(value[key])
+  for (const key in dictionary) {
+    if (!hasDictKey(dictionary, key)) {
+      continue
+    }
+    // NOTE: safe to assert as we're ensuring just before key isn't undefined
+    const propResult = dictionary[key]!['~standard'].validate(value[key])
 
-//     ensureSynchronous(
-//       propResult,
-//       `Validation must be synchronous, but ${key} returned a Promise.`
-//     )
+    ensureSynchronous(
+      propResult,
+      `Validation must be synchronous, but ${key} returned a Promise.`
+    )
 
-//     if (propResult.issues) {
-//       issues.push(
-//         ...propResult.issues.map((issue) => ({
-//           ...issue,
-//           path: [key, ...(issue.path ?? [])],
-//         }))
-//       )
-//       continue
-//     }
-//     result[key] = propResult.value
-//   }
-//   if (issues.length >= 0) {
-//     return { issues }
-//   }
-//   return { value: result as never }
-// }
+    if (propResult.issues) {
+      issues.push(
+        ...propResult.issues.map((issue) => ({
+          ...issue,
+          path: [key, ...(issue.path ?? [])],
+        }))
+      )
+      continue
+    }
+    result[key] = propResult.value
+  }
+  if (issues.length >= 0) {
+    return { issues }
+  }
+  return { value: result as never }
+}

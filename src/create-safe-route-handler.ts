@@ -1,28 +1,50 @@
+import { parseWithDictionary } from './standard-schema'
 import type {
-  TRouteDynamicSegmentsSchema,
+  TSegmentsDict,
   CreateSafeRouteHandlerOptions,
   CreateSafeRouteHandlerReturnType,
   SafeRouteHandler,
   RequestExtras,
+  SafeRouteHandlerContext,
 } from './types'
 
 export function createSafeRouterHandler<
-  TRouteDynamicSegments extends TRouteDynamicSegmentsSchema,
+  TRouteDynamicSegments extends TSegmentsDict | undefined = undefined,
 >(
   options: CreateSafeRouteHandlerOptions<TRouteDynamicSegments>,
   handlerFn: SafeRouteHandler<TRouteDynamicSegments>
 ): CreateSafeRouteHandlerReturnType {
   return async function (
     req: Request,
-    _extras: RequestExtras
+    extras: RequestExtras
   ): Promise<Response> {
-    // TODO: add core logic here
-    return await handlerFn(
-      {
-        // TODO: update
-        routeDynamicSegments: {},
-      },
-      req
-    )
+    let segments = undefined
+    if (options.segments) {
+      const params = await extras.params // TODO
+      const parsedSegments = parseWithDictionary(options.segments, params)
+      if (parsedSegments.issues) {
+        return new Response('Invalid route segments', {
+          // TODO: update
+          status: 400,
+          statusText: 'Bad Request',
+        })
+      }
+
+      segments = parsedSegments.value
+    }
+
+    const ctx = {
+      ...(segments !== undefined ? { segments } : {}),
+    } as SafeRouteHandlerContext<TRouteDynamicSegments>
+
+    return await handlerFn(ctx, req)
   }
 }
+
+// const GET = createSafeRouterHandler(
+//   { name: '', segments: {} },
+//   async (ctx, req) => {
+//     ctx.segments
+//     return new Response('GET')
+//   }
+// )

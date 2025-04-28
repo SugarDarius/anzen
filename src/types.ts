@@ -1,22 +1,21 @@
-import type { StandardSchemaV1 } from './standard-schema'
-
-/** @internal */
-export type TRouteDynamicSegmentsSchema = StandardSchemaV1
+import type { StandardSchemaDictionary } from './standard-schema'
 
 // Public API types
 export type Awaitable<T> = T | Promise<T>
 
+export type TSegmentsDict = StandardSchemaDictionary
+
 export type CreateSafeRouteHandlerOptions<
-  TRouteDynamicSegments extends TRouteDynamicSegmentsSchema,
+  TSegments extends TSegmentsDict | undefined,
 > = {
   /**
    * Name for the route handler.
    */
-  name?: string
+  name: string
   /**
    * Dynamic route segments used in the route handler path.
    */
-  routeDynamicSegments: TRouteDynamicSegments
+  segments?: TSegments
 }
 
 export type RequestExtras = {
@@ -38,21 +37,17 @@ export type CreateSafeRouteHandlerReturnType = (
 ) => Promise<Response>
 
 export type SafeRouteHandlerContext<
-  TRouteDynamicSegments extends TRouteDynamicSegmentsSchema,
-> = {
-  /**
-   * Route handler dynamic segments
-   */
-  routeDynamicSegments: StandardSchemaV1.InferOutput<TRouteDynamicSegments>
-}
+  TSegments extends TSegmentsDict | undefined,
+> = TSegments extends TSegmentsDict
+  ? { segments: StandardSchemaDictionary.InferOutput<TSegments> }
+  : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    {}
 
-export type SafeRouteHandler<
-  TRouteDynamicSegments extends TRouteDynamicSegmentsSchema,
-> = (
+export type SafeRouteHandler<TSegments extends TSegmentsDict | undefined> = (
   /**
    * Safe route handler context
    */
-  ctx: SafeRouteHandlerContext<TRouteDynamicSegments>,
+  ctx: SafeRouteHandlerContext<TSegments>,
   /**
    * Original request
    */
