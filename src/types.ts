@@ -1,9 +1,23 @@
-import type { StandardSchemaDictionary } from './standard-schema'
+import type {
+  StandardSchemaDictionary,
+  StandardSchemaV1,
+} from './standard-schema'
 
 // Public API types
 export type Awaitable<T> = T | Promise<T>
 
 export type TSegmentsDict = StandardSchemaDictionary
+
+export type BaseOptions = {
+  /**
+   * Callback triggered when validations returned issues.
+   * By default it returns an error telling what properties are invalid.
+   */
+  onValidationError?: (
+    artifact: 'segments',
+    issues: readonly StandardSchemaV1.Issue[]
+  ) => never
+}
 
 export type CreateSafeRouteHandlerOptions<
   TSegments extends TSegmentsDict | undefined,
@@ -16,7 +30,7 @@ export type CreateSafeRouteHandlerOptions<
    * Dynamic route segments used in the route handler path.
    */
   segments?: TSegments
-}
+} & BaseOptions
 
 export type RequestExtras = {
   /**
@@ -39,7 +53,7 @@ export type CreateSafeRouteHandlerReturnType = (
 export type SafeRouteHandlerContext<
   TSegments extends TSegmentsDict | undefined,
 > = TSegments extends TSegmentsDict
-  ? { segments: StandardSchemaDictionary.InferOutput<TSegments> }
+  ? { readonly segments: StandardSchemaDictionary.InferOutput<TSegments> }
   : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     {}
 
