@@ -1,13 +1,13 @@
-import type { StandardSchemaDictionary } from './standard-schema'
+import type { StandardSchemaV1 } from './standard-schema'
 
 /** @internal */
-export type TRouteDynamicSegmentsDict = StandardSchemaDictionary
+export type TRouteDynamicSegmentsSchema = StandardSchemaV1
 
 // Public API types
 export type Awaitable<T> = T | Promise<T>
 
 export type CreateSafeRouteHandlerOptions<
-  TRouteDynamicSegments extends TRouteDynamicSegmentsDict,
+  TRouteDynamicSegments extends TRouteDynamicSegmentsSchema,
 > = {
   /**
    * Name for the route handler.
@@ -38,16 +38,16 @@ export type CreateSafeRouteHandlerReturnType = (
 ) => Promise<Response>
 
 export type SafeRouteHandlerContext<
-  TRouteDynamicSegments extends TRouteDynamicSegmentsDict,
+  TRouteDynamicSegments extends TRouteDynamicSegmentsSchema,
 > = {
   /**
    * Route handler dynamic segments
    */
-  routeDynamicSegments: StandardSchemaDictionary.InferOutput<TRouteDynamicSegments>
+  routeDynamicSegments: StandardSchemaV1.InferOutput<TRouteDynamicSegments>
 }
 
 export type SafeRouteHandler<
-  TRouteDynamicSegments extends TRouteDynamicSegmentsDict,
+  TRouteDynamicSegments extends TRouteDynamicSegmentsSchema,
 > = (
   /**
    * Safe route handler context

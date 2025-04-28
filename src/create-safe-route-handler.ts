@@ -1,5 +1,5 @@
 import type {
-  TRouteDynamicSegmentsDict,
+  TRouteDynamicSegmentsSchema,
   CreateSafeRouteHandlerOptions,
   CreateSafeRouteHandlerReturnType,
   SafeRouteHandler,
@@ -7,8 +7,7 @@ import type {
 } from './types'
 
 export function createSafeRouterHandler<
-  TRouteDynamicSegments extends
-    TRouteDynamicSegmentsDict = NonNullable<unknown>,
+  TRouteDynamicSegments extends TRouteDynamicSegmentsSchema,
 >(
   options: CreateSafeRouteHandlerOptions<TRouteDynamicSegments>,
   handlerFn: SafeRouteHandler<TRouteDynamicSegments>
