@@ -6,3 +6,9 @@ export function ensureSynchronous<T>(
     throw new Error(message)
   }
 }
+
+export function log(message: string): void {
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(message)
+  }
+}

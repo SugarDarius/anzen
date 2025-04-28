@@ -1,3 +1,4 @@
+import { log } from './utils'
 import { parseWithDictionary } from './standard-schema'
 import type {
   TSegmentsDict,
@@ -18,6 +19,8 @@ export function createSafeRouterHandler<
     req: Request,
     extras: RequestExtras
   ): Promise<Response> {
+    log(`🔄 Running route handler '${options.name}'`)
+
     let segments = undefined
     if (options.segments) {
       const params = await extras.params // TODO
