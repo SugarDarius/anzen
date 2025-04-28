@@ -1,7 +1,7 @@
 import type { StandardSchemaDictionary } from './standard-schema'
 
 /** @internal */
-type TRouteDynamicSegmentsDict = StandardSchemaDictionary
+export type TRouteDynamicSegmentsDict = StandardSchemaDictionary
 
 // Public API types
 export type Awaitable<T> = T | Promise<T>
@@ -19,6 +19,13 @@ export type CreateSafeRouteHandlerOptions<
   routeDynamicSegments: TRouteDynamicSegments
 }
 
+export type RequestExtras = {
+  /**
+   * Route dynamic segments as params
+   */
+  params: Awaitable<Record<string, string | string[] | undefined>>
+}
+
 export type CreateSafeRouteHandlerReturnType = (
   /**
    * Original request
@@ -27,9 +34,7 @@ export type CreateSafeRouteHandlerReturnType = (
   /**
    * Extras added by Next.js itself
    */
-  extras: {
-    params: Awaitable<Record<string, string | string[] | undefined>>
-  }
+  extras: RequestExtras
 ) => Promise<Response>
 
 export type SafeRouteHandlerContext<
@@ -43,13 +48,13 @@ export type SafeRouteHandlerContext<
 
 export type SafeRouteHandler<
   TRouteDynamicSegments extends TRouteDynamicSegmentsDict,
-> = {
+> = (
   /**
    * Safe route handler context
    */
-  ctx: SafeRouteHandlerContext<TRouteDynamicSegments>
+  ctx: SafeRouteHandlerContext<TRouteDynamicSegments>,
   /**
    * Original request
    */
   req: Request
-}
+) => Promise<Response>
