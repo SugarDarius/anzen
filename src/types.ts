@@ -16,16 +16,7 @@ export type CreateSafeRouteHandlerOptions<
   /**
    * Dynamic route segments used in the route handler path.
    */
-  routeDynamicSegments?: TRouteDynamicSegments
-}
-
-export type SafeRouteHandlerContext<
-  TRouteDynamicSegments extends TRouteDynamicSegmentsDict,
-> = {
-  /**
-   * Route handler dynamic segments
-   */
-  routeDynamicSegments: StandardSchemaDictionary.InferOutput<TRouteDynamicSegments>
+  routeDynamicSegments: TRouteDynamicSegments
 }
 
 export type CreateSafeRouteHandlerReturnType = (
@@ -40,3 +31,25 @@ export type CreateSafeRouteHandlerReturnType = (
     params: Awaitable<Record<string, string | string[] | undefined>>
   }
 ) => Promise<Response>
+
+export type SafeRouteHandlerContext<
+  TRouteDynamicSegments extends TRouteDynamicSegmentsDict,
+> = {
+  /**
+   * Route handler dynamic segments
+   */
+  routeDynamicSegments: StandardSchemaDictionary.InferOutput<TRouteDynamicSegments>
+}
+
+export type SafeRouteHandler<
+  TRouteDynamicSegments extends TRouteDynamicSegmentsDict,
+> = {
+  /**
+   * Safe route handler context
+   */
+  ctx: SafeRouteHandlerContext<TRouteDynamicSegments>
+  /**
+   * Original request
+   */
+  req: Request
+}
