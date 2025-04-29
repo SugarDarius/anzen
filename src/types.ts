@@ -62,7 +62,8 @@ export type RequestExtras = {
   /**
    * Route dynamic segments as params
    */
-  params: Awaitable<Record<string, string | string[] | undefined>>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  params: Promise<any> // Sticking to Next.js requirements for building
 }
 
 export type CreateSafeRouteHandlerReturnType = (
