@@ -39,7 +39,7 @@ export function createSafeRouteHandler<
 
     const authOrResponse = await authorize({ req, url })
     if (authOrResponse instanceof Response) {
-      log(`🛑 Request not authorized for route '${options.name}'`)
+      log(`🛑 Request not authorized for route handler '${options.name}'`)
       return authOrResponse
     }
 
