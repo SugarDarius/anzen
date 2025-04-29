@@ -45,7 +45,8 @@
     "format": "prettier --write src/"
   },
   "peerDependencies": {
-    "next": "^15"
+    "next": "^15",
+    "typescript": "^5"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
