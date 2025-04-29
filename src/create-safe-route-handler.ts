@@ -7,13 +7,15 @@ import type {
   SafeRouteHandler,
   RequestExtras,
   SafeRouteHandlerContext,
+  AuthContext,
 } from './types'
 
 export function createSafeRouteHandler<
+  AC extends AuthContext | undefined = undefined,
   TRouteDynamicSegments extends TSegmentsDict | undefined = undefined,
 >(
-  options: CreateSafeRouteHandlerOptions<TRouteDynamicSegments>,
-  handlerFn: SafeRouteHandler<TRouteDynamicSegments>
+  options: CreateSafeRouteHandlerOptions<AC, TRouteDynamicSegments>,
+  handlerFn: SafeRouteHandler<AC, TRouteDynamicSegments>
 ): CreateSafeRouteHandlerReturnType {
   const onValidationError =
     options.onValidationError ??
@@ -25,7 +27,7 @@ export function createSafeRouteHandler<
       throw new Error(`Invalid properties for ${artifact}`)
     })
 
-  const authorize = options.authorize ?? (() => true)
+  const authorize = options.authorize ?? (async () => undefined)
 
   return async function (
     req: Request,
@@ -33,9 +35,12 @@ export function createSafeRouteHandler<
   ): Promise<Response> {
     log(`🔄 Running route handler '${options.name}'`)
 
-    const isAuthorizedRes = await authorize(req)
-    if (isAuthorizedRes !== true) {
-      return isAuthorizedRes
+    const url = new URL(req.url)
+
+    const authOrResponse = await authorize({ req, url })
+    if (authOrResponse instanceof Response) {
+      log(`🛑 Request not authorized for route '${options.name}'`)
+      return authOrResponse
     }
 
     let segments = undefined
@@ -51,9 +56,23 @@ export function createSafeRouteHandler<
     }
 
     const ctx = {
+      ...(authOrResponse !== undefined ? { auth: authOrResponse } : {}),
       ...(segments !== undefined ? { segments } : {}),
-    } as SafeRouteHandlerContext<TRouteDynamicSegments>
+    } as SafeRouteHandlerContext<AC, TRouteDynamicSegments>
 
     return await handlerFn(ctx, req)
   }
 }
+
+// export const GET = createSafeRouteHandler(
+//   {
+//     name: 'Simple',
+//     authorize: async () => {
+//       return { user: 'aurelien'}
+//     },
+//   },
+//   async (ctx) => {
+//     ctx.auth.user
+//     return Response.json({ message: 'Hey 👋🏻' })
+//   }
+// )

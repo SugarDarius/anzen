@@ -3,12 +3,28 @@ import type {
   StandardSchemaV1,
 } from './standard-schema'
 
+/** @internal */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+type EmptyObjectType = {}
+
 // Public API types
 export type Awaitable<T> = T | Promise<T>
+export type AuthContext = Record<string, unknown>
 
 export type TSegmentsDict = StandardSchemaDictionary
 
-export type BaseOptions = {
+export type AuthFunction<AC extends AuthContext | undefined> = (input: {
+  /**
+   * Original request
+   */
+  readonly req: Request
+  /**
+   * Parsed request url
+   */
+  readonly url: URL
+}) => Awaitable<AC | Response>
+
+export type BaseOptions<AC extends AuthContext | undefined> = {
   /**
    * Callback triggered when validations returned issues.
    * By default it returns an error telling what properties are invalid.
@@ -25,15 +41,11 @@ export type BaseOptions = {
    * When returning a response, it will be used as the response for the request.
    * Return a response when the request is not authorized.
    */
-  authorize?: (
-    /**
-     * Original request
-     */
-    req: Request
-  ) => Awaitable<true | Response>
+  authorize?: AuthFunction<AC>
 }
 
 export type CreateSafeRouteHandlerOptions<
+  AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
 > = {
   /**
@@ -44,7 +56,7 @@ export type CreateSafeRouteHandlerOptions<
    * Dynamic route segments used in the route handler path.
    */
   segments?: TSegments
-} & BaseOptions
+} & BaseOptions<AC>
 
 export type RequestExtras = {
   /**
@@ -65,17 +77,25 @@ export type CreateSafeRouteHandlerReturnType = (
 ) => Promise<Response>
 
 export type SafeRouteHandlerContext<
+  AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
-> = TSegments extends TSegmentsDict
-  ? { readonly segments: StandardSchemaDictionary.InferOutput<TSegments> }
-  : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    {}
+> = (AC extends AuthContext
+  ? {
+      readonly auth: AC
+    }
+  : EmptyObjectType) &
+  (TSegments extends TSegmentsDict
+    ? { readonly segments: StandardSchemaDictionary.InferOutput<TSegments> }
+    : EmptyObjectType)
 
-export type SafeRouteHandler<TSegments extends TSegmentsDict | undefined> = (
+export type SafeRouteHandler<
+  AC extends AuthContext | undefined,
+  TSegments extends TSegmentsDict | undefined,
+> = (
   /**
    * Safe route handler context
    */
-  ctx: SafeRouteHandlerContext<TSegments>,
+  ctx: SafeRouteHandlerContext<AC, TSegments>,
   /**
    * Original request
    */
