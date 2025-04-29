@@ -43,6 +43,44 @@ The factory do not supports async validations. As required by the [Standard Sche
 
 If you define an async validation then the route handler will throw an error. It's the only case where an error is thrown.
 
+# Error handling
+
+By design the factory will catch any error thrown in the route handler will return a simple response with `500` status.
+
+You can customize the error response if you want to fine tune error response management.
+
+```tsx
+import { HttpError, DbUnknownError } from '~/lib/errors'
+import { db } from '~/lib/db'
+
+export const GET = createSafeRouteHandler(
+  {
+    onErrorResponse: async (err: unknown): Promise<Response> => {
+      if (err instanceof HttpError) {
+        return new Response(err.message, { status: err.status })
+      } else if (err instanceof DbUnknownError) {
+        return new Response(err.message, { status: err.status })
+      }
+
+      return new Response('Internal server error', { status: 500 })
+    },
+  },
+  async (): Promise<Response> => {
+    const [data, err] = await db.findUnique({ id: 'liveblocks' })
+
+    if (err) {
+      throw new DbUnknownError(err.message, 500)
+    }
+
+    if (data === null) {
+      throw new HttpError(400)
+    }
+
+    return Response.json({ data }, { status: 200 })
+  }
+)
+```
+
 # Fair use note
 
 Please note that if you're not using any of the proposed options in `createSafeRouteHandler` it means you're surely don't need it.
