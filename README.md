@@ -1,9 +1,10 @@
-A fast, framework validation agnostic, type-safe factory for creating Next.JS App Router route handlers.
+A flexible, framework validation agnostic, type-safe factory for creating Next.JS App Router route handlers.
 
 - 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
 - 🧠 Focused functionalities, use only features you want.
+- 🧹 Clean and flexible API.
 - 🔒 Type-safe.
-- 🧹 Clean API.
+- 🌱 Dependency free.
 
 # Install
 
@@ -34,7 +35,9 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
-# Fair use
+The example above shows how to use the factory to authorize your requests.
+
+# Fair use note
 
 Please note that if you're not using any of the proposed options in `createSafeRouteHandler` it means you're surely don't need it.
 
