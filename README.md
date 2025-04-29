@@ -37,6 +37,12 @@ export const GET = createSafeRouteHandler(
 
 The example above shows how to use the factory to authorize your requests.
 
+# Synchronous validation
+
+The factory do not supports async validations. As required by the [Standard Schema](https://github.com/standard-schema/standard-schema) common interface. In the context of a route handler it's not necessary.
+
+It you define an async validation then the route handler will throw an error. It's the only case where an error is thrown.
+
 # Fair use note
 
 Please note that if you're not using any of the proposed options in `createSafeRouteHandler` it means you're surely don't need it.
