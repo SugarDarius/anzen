@@ -56,6 +56,7 @@ export function createSafeRouteHandler<
     }
 
     const ctx = {
+      url,
       ...(authOrResponse !== undefined ? { auth: authOrResponse } : {}),
       ...(segments !== undefined ? { segments } : {}),
     } as SafeRouteHandlerContext<AC, TRouteDynamicSegments>

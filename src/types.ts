@@ -79,7 +79,12 @@ export type CreateSafeRouteHandlerReturnType = (
 export type SafeRouteHandlerContext<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
-> = (AC extends AuthContext
+> = {
+  /**
+   * Parsed request url
+   */
+  readonly url: URL
+} & (AC extends AuthContext
   ? {
       readonly auth: AC
     }
