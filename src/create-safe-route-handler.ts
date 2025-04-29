@@ -19,11 +19,12 @@ export function createSafeRouteHandler<
   handlerFn: SafeRouteHandler<AC, TRouteDynamicSegments>
 ): CreateSafeRouteHandlerReturnType {
   const log = createLogger(options.debug)
+  const name = options.name ?? 'unknown Route handler'
 
   const onErrorResponse =
     options.onErrorResponse ??
     ((err: unknown): Awaitable<Response> => {
-      log.error(`🛑 Unexpected error in route handler '${options.name}'`, err)
+      log.error(`🛑 Unexpected error in route handler '${name}'`, err)
       return new Response('Internal server error', {
         status: 500,
       })
@@ -32,10 +33,7 @@ export function createSafeRouteHandler<
   const onSegmentsValidationErrorResponse =
     options.onSegmentsValidationErrorResponse ??
     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
-      log.error(
-        `🛑 Invalid segments for route handler '${options.name}':`,
-        issues
-      )
+      log.error(`🛑 Invalid segments for route handler '${name}':`, issues)
       return new Response('Invalid segments', {
         status: 400,
       })
@@ -47,14 +45,14 @@ export function createSafeRouteHandler<
     req: Request,
     extras: RequestExtras
   ): Promise<Response> {
-    log.info(`🔄 Running route handler '${options.name}'`)
+    log.info(`🔄 Running route handler '${name}'`)
 
     log.info(`👉🏻 Request url: ${req.url}`)
     const url = new URL(req.url)
 
     const authOrResponse = await authorize({ req, url })
     if (authOrResponse instanceof Response) {
-      log.error(`🛑 Request not authorized for route handler '${options.name}'`)
+      log.error(`🛑 Request not authorized for route handler '${name}'`)
       return authOrResponse
     }
 

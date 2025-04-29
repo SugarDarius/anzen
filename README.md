@@ -15,11 +15,21 @@ npm i @sugardarius/anzen
 
 ```tsx
 import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
 
 export const GET = createSafeRouteHandler(
-  { name: 'My safe route handler' },
+  {
+    authorize: async ({ req }) => {
+      const session = await auth.getSession(req)
+      if (!session) {
+        return new Response(null, { status: 401 })
+      }
+
+      return session.user
+    },
+  },
   async (ctx, req): Promise<Response> => {
-    return Response.json({}, { status: 200 })
+    return Response.json({ user: ctx.auth.user }, { status: 200 })
   }
 )
 ```

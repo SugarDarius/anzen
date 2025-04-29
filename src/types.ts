@@ -58,8 +58,9 @@ export type CreateSafeRouteHandlerOptions<
 > = {
   /**
    * Name for the route handler.
+   * Use it for logging or monitoring purposes.
    */
-  name: string
+  name?: string
   /**
    * Dynamic route segments used in the route handler path.
    */
