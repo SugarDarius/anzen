@@ -1,8 +1,9 @@
-import { createLogger } from './utils'
+import { createLogger, ensureSynchronous } from './utils'
 import { parseWithDictionary, type StandardSchemaV1 } from './standard-schema'
 import type {
   TSegmentsDict,
   TSearchParamsDict,
+  TBodySchema,
   CreateSafeRouteHandlerOptions,
   CreateSafeRouteHandlerReturnType,
   SafeRouteHandler,
@@ -16,13 +17,15 @@ export function createSafeRouteHandler<
   AC extends AuthContext | undefined = undefined,
   TRouteDynamicSegments extends TSegmentsDict | undefined = undefined,
   TSearchParams extends TSearchParamsDict | undefined = undefined,
+  TBody extends TBodySchema | undefined = undefined,
 >(
   options: CreateSafeRouteHandlerOptions<
     AC,
     TRouteDynamicSegments,
-    TSearchParams
+    TSearchParams,
+    TBody
   >,
-  handlerFn: SafeRouteHandler<AC, TRouteDynamicSegments, TSearchParams>
+  handlerFn: SafeRouteHandler<AC, TRouteDynamicSegments, TSearchParams, TBody>
 ): CreateSafeRouteHandlerReturnType {
   const log = createLogger(options.debug)
   const name = options.name ?? 'unknown Route handler'
@@ -50,6 +53,15 @@ export function createSafeRouteHandler<
     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
       log.error(`🛑 Invalid search params for route handler '${name}':`, issues)
       return new Response('Invalid search params', {
+        status: 400,
+      })
+    })
+
+  const onBodyValidationErrorResponse =
+    options.onBodyValidationErrorResponse ??
+    ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
+      log.error(`🛑 Invalid body for route handler '${name}':`, issues)
+      return new Response('Invalid body', {
         status: 400,
       })
     })
@@ -99,12 +111,40 @@ export function createSafeRouteHandler<
       searchParams = parsedSearchParams.value
     }
 
+    let body = undefined
+    if (options.body) {
+      const contentType = req.headers.get('content-type')
+      if (contentType !== 'application/json') {
+        return new Response('Invalid content type for request body', {
+          status: 415,
+        })
+      }
+
+      const parsedBody = options.body['~standard'].validate(await req.json())
+      ensureSynchronous(
+        parsedBody,
+        'Request body validation must be synchronous'
+      )
+
+      if (parsedBody.issues) {
+        return await onBodyValidationErrorResponse(parsedBody.issues)
+      }
+
+      body = parsedBody.value
+    }
+
     const ctx = {
       url,
       ...(authOrResponse !== undefined ? { auth: authOrResponse } : {}),
       ...(segments !== undefined ? { segments } : {}),
       ...(searchParams !== undefined ? { searchParams } : {}),
-    } as SafeRouteHandlerContext<AC, TRouteDynamicSegments, TSearchParams>
+      ...(body !== undefined ? { body } : {}),
+    } as SafeRouteHandlerContext<
+      AC,
+      TRouteDynamicSegments,
+      TSearchParams,
+      TBody
+    >
 
     try {
       return await handlerFn(ctx, req)

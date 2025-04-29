@@ -4,6 +4,7 @@ export type {
   AuthFunction,
   TSegmentsDict,
   TSearchParamsDict,
+  TBodySchema,
   BaseOptions,
   CreateSafeRouteHandlerOptions,
   CreateSafeRouteHandlerReturnType,

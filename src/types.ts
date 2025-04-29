@@ -13,6 +13,8 @@ export type AuthContext = Record<string, unknown>
 export type TSegmentsDict = StandardSchemaDictionary
 export type TSearchParamsDict = StandardSchemaDictionary
 
+export type TBodySchema = StandardSchemaV1
+
 export type AuthFunction<AC extends AuthContext | undefined> = (input: {
   /**
    * Original request
@@ -57,6 +59,7 @@ export type CreateSafeRouteHandlerOptions<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
+  TBody extends TBodySchema | undefined,
 > = {
   /**
    * Name for the route handler.
@@ -76,7 +79,7 @@ export type CreateSafeRouteHandlerOptions<
   ) => Awaitable<Response>
 
   /**
-   * Search params used in the route handler path.
+   * Search params used in the route.
    */
   searchParams?: TSearchParams
   /**
@@ -84,6 +87,21 @@ export type CreateSafeRouteHandlerOptions<
    * By default it returns a simple `400` response and issues are logged into the console.
    */
   onSearchParamsValidationErrorResponse?: (
+    issues: readonly StandardSchemaV1.Issue[]
+  ) => Awaitable<Response>
+
+  /**
+   * Request body.
+   * Headers for the request must explicitly set the `Content-Type` to `application/json`.
+   * Otherwise a `415` response will be returned.
+   */
+  body?: TBody
+
+  /**
+   * Callback triggered when body validation returned issues.
+   * By default it returns a simple `400` response and issues are logged into the console.
+   */
+  onBodyValidationErrorResponse?: (
     issues: readonly StandardSchemaV1.Issue[]
   ) => Awaitable<Response>
 } & BaseOptions<AC>
@@ -112,6 +130,7 @@ export type SafeRouteHandlerContext<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
+  TBody extends TBodySchema | undefined,
 > = {
   /**
    * Parsed request url
@@ -129,17 +148,23 @@ export type SafeRouteHandlerContext<
     ? {
         readonly searchParams: StandardSchemaDictionary.InferOutput<TSearchParams>
       }
+    : EmptyObjectType) &
+  (TBody extends TBodySchema
+    ? {
+        readonly body: StandardSchemaV1.InferOutput<TBody>
+      }
     : EmptyObjectType)
 
 export type SafeRouteHandler<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
+  TBody extends TBodySchema | undefined,
 > = (
   /**
    * Safe route handler context
    */
-  ctx: SafeRouteHandlerContext<AC, TSegments, TSearchParams>,
+  ctx: SafeRouteHandlerContext<AC, TSegments, TSearchParams, TBody>,
   /**
    * Original request
    */
