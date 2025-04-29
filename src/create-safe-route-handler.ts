@@ -8,6 +8,7 @@ import type {
   RequestExtras,
   SafeRouteHandlerContext,
   AuthContext,
+  Awaitable,
 } from './types'
 
 export function createSafeRouteHandler<
@@ -17,14 +18,13 @@ export function createSafeRouteHandler<
   options: CreateSafeRouteHandlerOptions<AC, TRouteDynamicSegments>,
   handlerFn: SafeRouteHandler<AC, TRouteDynamicSegments>
 ): CreateSafeRouteHandlerReturnType {
-  const onValidationError =
-    options.onValidationError ??
-    ((
-      artifact: 'segments' | 'body',
-      issues: readonly StandardSchemaV1.Issue[]
-    ): never => {
-      console.error(`🛑 Invalid properties for ${artifact}:`, issues)
-      throw new Error(`Invalid properties for ${artifact}`)
+  const onSegmentsValidationErrorResponse =
+    options.onSegmentsValidationErrorResponse ??
+    ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
+      console.error(`🛑 Invalid segments:`, issues)
+      return new Response('Invalid segments', {
+        status: 400,
+      })
     })
 
   const authorize = options.authorize ?? (async () => undefined)
@@ -49,7 +49,7 @@ export function createSafeRouteHandler<
       const parsedSegments = parseWithDictionary(options.segments, params)
 
       if (parsedSegments.issues) {
-        return onValidationError('segments', parsedSegments.issues)
+        return onSegmentsValidationErrorResponse(parsedSegments.issues)
       }
 
       segments = parsedSegments.value

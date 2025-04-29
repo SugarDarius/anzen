@@ -25,15 +25,6 @@ export type AuthFunction<AC extends AuthContext | undefined> = (input: {
 
 export type BaseOptions<AC extends AuthContext | undefined> = {
   /**
-   * Callback triggered when validations returned issues.
-   * By default it returns an error telling what properties are invalid.
-   */
-  onValidationError?: (
-    artifact: 'segments' | 'body',
-    issues: readonly StandardSchemaV1.Issue[]
-  ) => never
-
-  /**
    * Function to use to authorize the request.
    * By default it always authorize the request.
    *
@@ -55,6 +46,13 @@ export type CreateSafeRouteHandlerOptions<
    * Dynamic route segments used in the route handler path.
    */
   segments?: TSegments
+  /**
+   * Callback triggered when dynamic segments validations returned issues.
+   * By default it returns a simple `400`
+   */
+  onSegmentsValidationErrorResponse?: (
+    issues: readonly StandardSchemaV1.Issue[]
+  ) => Awaitable<Response>
 } & BaseOptions<AC>
 
 export type RequestExtras = {
