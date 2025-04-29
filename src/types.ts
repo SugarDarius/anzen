@@ -63,7 +63,7 @@ export type CreateSafeRouteHandlerOptions<
 > = {
   /**
    * Name for the route handler.
-   * Use it for logging or monitoring purposes.
+   * Used when logging in development or when `debug` is enabled.
    */
   name?: string
   /**
