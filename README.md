@@ -25,7 +25,7 @@ export const GET = createSafeRouteHandler(
         return new Response(null, { status: 401 })
       }
 
-      return session.user
+      return { user: session.user }
     },
   },
   async (ctx, req): Promise<Response> => {
@@ -33,6 +33,12 @@ export const GET = createSafeRouteHandler(
   }
 )
 ```
+
+# Fair use
+
+Please note that if you're not using any of the proposed options in `createSafeRouteHandler` it means you're surely don't need it.
+
+Feel free to open an issue or a PR if you think a relevant option could be added 🙂
 
 # License
 
