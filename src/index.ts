@@ -1,5 +1,7 @@
 export type {
   Awaitable,
+  AuthContext,
+  AuthFunction,
   TSegmentsDict,
   BaseOptions,
   CreateSafeRouteHandlerOptions,

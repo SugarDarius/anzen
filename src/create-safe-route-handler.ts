@@ -69,11 +69,10 @@ export function createSafeRouteHandler<
 //   {
 //     name: 'Simple',
 //     authorize: async () => {
-//       return { user: 'aurelien'}
+//       return { user: 'aurelien' }
 //     },
 //   },
 //   async (ctx) => {
-//     ctx.auth.user
-//     return Response.json({ message: 'Hey 👋🏻' })
+//     return Response.json({ message: `Hello ${ctx.auth.user}` })
 //   }
 // )
