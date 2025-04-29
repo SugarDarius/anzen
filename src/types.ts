@@ -3,6 +3,9 @@ import type {
   StandardSchemaV1,
 } from './standard-schema'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+type EmptyObjectType = {}
+
 // Public API types
 export type Awaitable<T> = T | Promise<T>
 export type AuthContext = Record<string, unknown>
@@ -85,12 +88,10 @@ export type SafeRouteHandlerContext<
   ? {
       readonly auth: AC
     }
-  : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    {}) &
+  : EmptyObjectType) &
   (TSegments extends TSegmentsDict
     ? { readonly segments: StandardSchemaDictionary.InferOutput<TSegments> }
-    : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-      {})
+    : EmptyObjectType)
 
 export type SafeRouteHandler<
   AC extends AuthContext | undefined,
