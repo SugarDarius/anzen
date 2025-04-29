@@ -1,4 +1,4 @@
-import { log } from './utils'
+import { createLogger } from './utils'
 import { parseWithDictionary, type StandardSchemaV1 } from './standard-schema'
 import type {
   TSegmentsDict,
@@ -18,6 +18,8 @@ export function createSafeRouteHandler<
   options: CreateSafeRouteHandlerOptions<AC, TRouteDynamicSegments>,
   handlerFn: SafeRouteHandler<AC, TRouteDynamicSegments>
 ): CreateSafeRouteHandlerReturnType {
+  const log = createLogger(options.debug)
+
   const onSegmentsValidationErrorResponse =
     options.onSegmentsValidationErrorResponse ??
     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
@@ -33,13 +35,14 @@ export function createSafeRouteHandler<
     req: Request,
     extras: RequestExtras
   ): Promise<Response> {
-    log(`🔄 Running route handler '${options.name}'`)
+    log.info(`🔄 Running route handler '${options.name}'`)
 
+    log.info(`👉🏻 Request url: ${req.url}`)
     const url = new URL(req.url)
 
     const authOrResponse = await authorize({ req, url })
     if (authOrResponse instanceof Response) {
-      log(`🛑 Request not authorized for route handler '${options.name}'`)
+      log.error(`🛑 Request not authorized for route handler '${options.name}'`)
       return authOrResponse
     }
 

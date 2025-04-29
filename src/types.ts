@@ -32,6 +32,12 @@ export type BaseOptions<AC extends AuthContext | undefined> = {
    * Return a response when the request is not authorized.
    */
   authorize?: AuthFunction<AC>
+
+  /**
+   * Used this options to enable debug mode.
+   * It will add logs in the handler.
+   */
+  debug?: boolean
 }
 
 export type CreateSafeRouteHandlerOptions<
