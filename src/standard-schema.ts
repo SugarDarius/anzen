@@ -71,6 +71,10 @@ export declare namespace StandardSchemaV1 {
   >['output']
 }
 
+/**
+ * Thanks to `@t3-env/core` (👉🏻 https://github.com/t3-oss/t3-env/blob/main/packages/core/src/standard.ts)
+ * for this awesome dictionary schema.
+ */
 export type StandardSchemaDictionary<
   Input = Record<string, unknown>,
   Output extends Record<keyof Input, unknown> = Input,
