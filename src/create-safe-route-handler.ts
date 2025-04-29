@@ -153,15 +153,3 @@ export function createSafeRouteHandler<
     }
   }
 }
-
-// export const GET = createSafeRouteHandler(
-//   {
-//     name: 'Simple',
-//     authorize: async () => {
-//       return { user: 'aurelien' }
-//     },
-//   },
-//   async (ctx) => {
-//     return Response.json({ message: `Hello ${ctx.auth.user}` })
-//   }
-// )
