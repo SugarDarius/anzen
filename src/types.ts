@@ -34,6 +34,15 @@ export type BaseOptions<AC extends AuthContext | undefined> = {
   authorize?: AuthFunction<AC>
 
   /**
+   * Callback triggered when the request fails.
+   * By default it returns a simple `500` response and the error is logged into the console.
+   *
+   * Use it if your handler use custom errors and
+   * you want to manage them properly by returning a proper response.
+   */
+  onErrorResponse?: (err: unknown) => Awaitable<Response>
+
+  /**
    * Use this options to enable debug mode.
    * It will add logs in the handler to help you debug the request.
    *
@@ -57,7 +66,7 @@ export type CreateSafeRouteHandlerOptions<
   segments?: TSegments
   /**
    * Callback triggered when dynamic segments validations returned issues.
-   * By default it returns a simple `400`
+   * By default it returns a simple `400` response and issues are logged into the console.
    */
   onSegmentsValidationErrorResponse?: (
     issues: readonly StandardSchemaV1.Issue[]

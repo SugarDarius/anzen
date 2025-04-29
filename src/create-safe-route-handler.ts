@@ -20,10 +20,22 @@ export function createSafeRouteHandler<
 ): CreateSafeRouteHandlerReturnType {
   const log = createLogger(options.debug)
 
+  const onErrorResponse =
+    options.onErrorResponse ??
+    ((err: unknown): Awaitable<Response> => {
+      log.error(`🛑 Unexpected error in route handler '${options.name}'`, err)
+      return new Response('Internal server error', {
+        status: 500,
+      })
+    })
+
   const onSegmentsValidationErrorResponse =
     options.onSegmentsValidationErrorResponse ??
     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
-      console.error(`🛑 Invalid segments:`, issues)
+      log.error(
+        `🛑 Invalid segments for route handler '${options.name}':`,
+        issues
+      )
       return new Response('Invalid segments', {
         status: 400,
       })
@@ -52,7 +64,7 @@ export function createSafeRouteHandler<
       const parsedSegments = parseWithDictionary(options.segments, params)
 
       if (parsedSegments.issues) {
-        return onSegmentsValidationErrorResponse(parsedSegments.issues)
+        return await onSegmentsValidationErrorResponse(parsedSegments.issues)
       }
 
       segments = parsedSegments.value
@@ -64,7 +76,11 @@ export function createSafeRouteHandler<
       ...(segments !== undefined ? { segments } : {}),
     } as SafeRouteHandlerContext<AC, TRouteDynamicSegments>
 
-    return await handlerFn(ctx, req)
+    try {
+      return await handlerFn(ctx, req)
+    } catch (err) {
+      return await onErrorResponse(err)
+    }
   }
 }
 
