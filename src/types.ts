@@ -11,6 +11,7 @@ export type Awaitable<T> = T | Promise<T>
 export type AuthContext = Record<string, unknown>
 
 export type TSegmentsDict = StandardSchemaDictionary
+export type TSearchParamsDict = StandardSchemaDictionary
 
 export type AuthFunction<AC extends AuthContext | undefined> = (input: {
   /**
@@ -55,6 +56,7 @@ export type BaseOptions<AC extends AuthContext | undefined> = {
 export type CreateSafeRouteHandlerOptions<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
+  TSearchParams extends TSearchParamsDict | undefined,
 > = {
   /**
    * Name for the route handler.
@@ -70,6 +72,18 @@ export type CreateSafeRouteHandlerOptions<
    * By default it returns a simple `400` response and issues are logged into the console.
    */
   onSegmentsValidationErrorResponse?: (
+    issues: readonly StandardSchemaV1.Issue[]
+  ) => Awaitable<Response>
+
+  /**
+   * Search params used in the route handler path.
+   */
+  searchParams?: TSearchParams
+  /**
+   * Callback triggered when search params validations returned issues.
+   * By default it returns a simple `400` response and issues are logged into the console.
+   */
+  onSearchParamsValidationErrorResponse?: (
     issues: readonly StandardSchemaV1.Issue[]
   ) => Awaitable<Response>
 } & BaseOptions<AC>
@@ -93,9 +107,11 @@ export type CreateSafeRouteHandlerReturnType = (
   extras: RequestExtras
 ) => Promise<Response>
 
+// TODO: find better way to type it 👇🏻
 export type SafeRouteHandlerContext<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
+  TSearchParams extends TSearchParamsDict | undefined,
 > = {
   /**
    * Parsed request url
@@ -108,16 +124,22 @@ export type SafeRouteHandlerContext<
   : EmptyObjectType) &
   (TSegments extends TSegmentsDict
     ? { readonly segments: StandardSchemaDictionary.InferOutput<TSegments> }
+    : EmptyObjectType) &
+  (TSearchParams extends TSearchParamsDict
+    ? {
+        readonly searchParams: StandardSchemaDictionary.InferOutput<TSearchParams>
+      }
     : EmptyObjectType)
 
 export type SafeRouteHandler<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
+  TSearchParams extends TSearchParamsDict | undefined,
 > = (
   /**
    * Safe route handler context
    */
-  ctx: SafeRouteHandlerContext<AC, TSegments>,
+  ctx: SafeRouteHandlerContext<AC, TSegments, TSearchParams>,
   /**
    * Original request
    */

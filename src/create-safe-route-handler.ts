@@ -2,6 +2,7 @@ import { createLogger } from './utils'
 import { parseWithDictionary, type StandardSchemaV1 } from './standard-schema'
 import type {
   TSegmentsDict,
+  TSearchParamsDict,
   CreateSafeRouteHandlerOptions,
   CreateSafeRouteHandlerReturnType,
   SafeRouteHandler,
@@ -14,9 +15,14 @@ import type {
 export function createSafeRouteHandler<
   AC extends AuthContext | undefined = undefined,
   TRouteDynamicSegments extends TSegmentsDict | undefined = undefined,
+  TSearchParams extends TSearchParamsDict | undefined = undefined,
 >(
-  options: CreateSafeRouteHandlerOptions<AC, TRouteDynamicSegments>,
-  handlerFn: SafeRouteHandler<AC, TRouteDynamicSegments>
+  options: CreateSafeRouteHandlerOptions<
+    AC,
+    TRouteDynamicSegments,
+    TSearchParams
+  >,
+  handlerFn: SafeRouteHandler<AC, TRouteDynamicSegments, TSearchParams>
 ): CreateSafeRouteHandlerReturnType {
   const log = createLogger(options.debug)
   const name = options.name ?? 'unknown Route handler'
@@ -35,6 +41,15 @@ export function createSafeRouteHandler<
     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
       log.error(`🛑 Invalid segments for route handler '${name}':`, issues)
       return new Response('Invalid segments', {
+        status: 400,
+      })
+    })
+
+  const onSearchParamsValidationErrorResponse =
+    options.onSearchParamsValidationErrorResponse ??
+    ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
+      log.error(`🛑 Invalid search params for route handler '${name}':`, issues)
+      return new Response('Invalid search params', {
         status: 400,
       })
     })
@@ -68,11 +83,28 @@ export function createSafeRouteHandler<
       segments = parsedSegments.value
     }
 
+    let searchParams = undefined
+    if (options.searchParams) {
+      const parsedSearchParams = parseWithDictionary(
+        options.searchParams,
+        Object.fromEntries(url.searchParams.entries())
+      )
+
+      if (parsedSearchParams.issues) {
+        return await onSearchParamsValidationErrorResponse(
+          parsedSearchParams.issues
+        )
+      }
+
+      searchParams = parsedSearchParams.value
+    }
+
     const ctx = {
       url,
       ...(authOrResponse !== undefined ? { auth: authOrResponse } : {}),
       ...(segments !== undefined ? { segments } : {}),
-    } as SafeRouteHandlerContext<AC, TRouteDynamicSegments>
+      ...(searchParams !== undefined ? { searchParams } : {}),
+    } as SafeRouteHandlerContext<AC, TRouteDynamicSegments, TSearchParams>
 
     try {
       return await handlerFn(ctx, req)
