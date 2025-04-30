@@ -51,6 +51,7 @@
     "build": "tsup --minify",
     "dev:www": "turbo run dev --filter=www",
     "build:www": "turbo run build --filter=www",
+    "test": "vitest run --silent",
     "lint": "npm run lint:eslint && npm run lint:tsc",
     "lint:eslint": "eslint src/",
     "lint:tsc": "tsc --noEmit",
@@ -68,6 +69,7 @@
     "tsup": "^8.4.0",
     "turbo": "^2.5.2",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.31.1"
+    "typescript-eslint": "^8.31.1",
+    "vitest": "^3.1.2"
   }
 }
