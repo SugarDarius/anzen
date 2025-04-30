@@ -30,10 +30,22 @@
     "README.md",
     "LICENSE"
   ],
+  "author": {
+    "name": "Aurélien Dupays Dexemple",
+    "url": "https://aureliendupaysdexemple.com"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sugardarius/anzen.git"
   },
+  "bugs": {
+    "url": "https://github.com/sugardarius/anzen/issues"
+  },
+  "keywords": [
+    "nextjs",
+    "safe route handlers",
+    "framework agnostic validation"
+  ],
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup --minify",
