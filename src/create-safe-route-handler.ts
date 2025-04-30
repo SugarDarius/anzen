@@ -37,12 +37,12 @@ export function createSafeRouteHandler<
   >
 ): CreateSafeRouteHandlerReturnType {
   const log = createLogger(options.debug)
-  const name = options.name ?? 'unknown Route handler'
+  const id = options.id ?? '[id:unknown:route:handler]'
 
   const onErrorResponse =
     options.onErrorResponse ??
     ((err: unknown): Awaitable<Response> => {
-      log.error(`🛑 Unexpected error in route handler '${name}'`, err)
+      log.error(`🛑 Unexpected error in route handler '${id}'`, err)
       return new Response('Internal server error', {
         status: 500,
       })
@@ -51,7 +51,7 @@ export function createSafeRouteHandler<
   const onSegmentsValidationErrorResponse =
     options.onSegmentsValidationErrorResponse ??
     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
-      log.error(`🛑 Invalid segments for route handler '${name}':`, issues)
+      log.error(`🛑 Invalid segments for route handler '${id}':`, issues)
       return new Response('Invalid segments', {
         status: 400,
       })
@@ -60,7 +60,7 @@ export function createSafeRouteHandler<
   const onSearchParamsValidationErrorResponse =
     options.onSearchParamsValidationErrorResponse ??
     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
-      log.error(`🛑 Invalid search params for route handler '${name}':`, issues)
+      log.error(`🛑 Invalid search params for route handler '${id}':`, issues)
       return new Response('Invalid search params', {
         status: 400,
       })
@@ -69,7 +69,7 @@ export function createSafeRouteHandler<
   const onBodyValidationErrorResponse =
     options.onBodyValidationErrorResponse ??
     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
-      log.error(`🛑 Invalid body for route handler '${name}':`, issues)
+      log.error(`🛑 Invalid body for route handler '${id}':`, issues)
       return new Response('Invalid body', {
         status: 400,
       })
@@ -78,7 +78,7 @@ export function createSafeRouteHandler<
   const onFormDataValidationErrorResponse =
     options.onFormDataValidationErrorResponse ??
     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
-      log.error(`🛑 Invalid form data for route handler '${name}':`, issues)
+      log.error(`🛑 Invalid form data for route handler '${id}':`, issues)
       return new Response('Invalid form data', {
         status: 400,
       })
@@ -90,14 +90,14 @@ export function createSafeRouteHandler<
     req: Request,
     extras: RequestExtras
   ): Promise<Response> {
-    log.info(`🔄 Running route handler '${name}'`)
+    log.info(`🔄 Running route handler '${id}'`)
 
     log.info(`👉🏻 Request url: ${req.url}`)
     const url = new URL(req.url)
 
     const authOrResponse = await authorize({ req, url })
     if (authOrResponse instanceof Response) {
-      log.error(`🛑 Request not authorized for route handler '${name}'`)
+      log.error(`🛑 Request not authorized for route handler '${id}'`)
       return authOrResponse
     }
 
@@ -191,6 +191,7 @@ export function createSafeRouteHandler<
     }
 
     const ctx = {
+      id,
       url,
       ...(authOrResponse !== undefined ? { auth: authOrResponse } : {}),
       ...(segments !== undefined ? { segments } : {}),

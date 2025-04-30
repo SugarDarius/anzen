@@ -29,6 +29,15 @@ export type AuthFunction<AC extends AuthContext | undefined> = (input: {
 
 export type BaseOptions<AC extends AuthContext | undefined> = {
   /**
+   * ID for the route handler.
+   * Used when logging in development or when `debug` is enabled.
+   *
+   * You can also use it in the route handler definition to add extra logging
+   * or monitoring.
+   */
+  id?: string
+
+  /**
    * Function to use to authorize the request.
    * By default it always authorize the request.
    *
@@ -67,11 +76,6 @@ export type CreateSafeRouteHandlerOptions<
   TBody extends TBodySchema | undefined,
   TFormData extends TFormDataSchema | undefined,
 > = {
-  /**
-   * Name for the route handler.
-   * Used when logging in development or when `debug` is enabled.
-   */
-  name?: string
   /**
    * Dynamic route segments used in the route handler path.
    */
@@ -149,6 +153,10 @@ export type SafeRouteHandlerContext<
   TBody extends TBodySchema | undefined,
   TFormData extends TFormDataSchema | undefined,
 > = {
+  /**
+   * Route handler ID
+   */
+  readonly id: string
   /**
    * Parsed request url
    */
