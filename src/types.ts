@@ -14,6 +14,7 @@ export type TSegmentsDict = StandardSchemaDictionary
 export type TSearchParamsDict = StandardSchemaDictionary
 
 export type TBodySchema = StandardSchemaV1
+export type TFormDataSchema = StandardSchemaV1
 
 export type AuthFunction<AC extends AuthContext | undefined> = (input: {
   /**
@@ -60,6 +61,7 @@ export type CreateSafeRouteHandlerOptions<
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
+  TFormData extends TFormDataSchema | undefined,
 > = {
   /**
    * Name for the route handler.
@@ -104,6 +106,21 @@ export type CreateSafeRouteHandlerOptions<
   onBodyValidationErrorResponse?: (
     issues: readonly StandardSchemaV1.Issue[]
   ) => Awaitable<Response>
+
+  /**
+   * Request form data.
+   * Heads for the request must explicitly set the `Content-Type` to `multipart/form-data`.
+   * Otherwise a `415` response will be returned.
+   */
+  formData?: TFormData
+
+  /**
+   * Callback triggered when form data validation returned issues.
+   * By default it returns a simple `400` response and issues are logged into the console.
+   */
+  onFormDataValidationErrorResponse?: (
+    issues: readonly StandardSchemaV1.Issue[]
+  ) => Awaitable<Response>
 } & BaseOptions<AC>
 
 export type RequestExtras = {
@@ -131,6 +148,7 @@ export type SafeRouteHandlerContext<
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
+  TFormData extends TFormDataSchema | undefined,
 > = {
   /**
    * Parsed request url
@@ -153,6 +171,11 @@ export type SafeRouteHandlerContext<
     ? {
         readonly body: StandardSchemaV1.InferOutput<TBody>
       }
+    : EmptyObjectType) &
+  (TFormData extends TFormDataSchema
+    ? {
+        readonly formData: StandardSchemaV1.InferOutput<TFormData>
+      }
     : EmptyObjectType)
 
 export type SafeRouteHandler<
@@ -160,11 +183,12 @@ export type SafeRouteHandler<
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
+  TFormData extends TFormDataSchema | undefined,
 > = (
   /**
    * Safe route handler context
    */
-  ctx: SafeRouteHandlerContext<AC, TSegments, TSearchParams, TBody>,
+  ctx: SafeRouteHandlerContext<AC, TSegments, TSearchParams, TBody, TFormData>,
   /**
    * Original request
    */

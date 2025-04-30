@@ -1,16 +1,17 @@
 import { createLogger, ensureSynchronous } from './utils'
 import { parseWithDictionary, type StandardSchemaV1 } from './standard-schema'
 import type {
+  Awaitable,
+  AuthContext,
   TSegmentsDict,
   TSearchParamsDict,
   TBodySchema,
+  TFormDataSchema,
+  RequestExtras,
   CreateSafeRouteHandlerOptions,
   CreateSafeRouteHandlerReturnType,
   SafeRouteHandler,
-  RequestExtras,
   SafeRouteHandlerContext,
-  AuthContext,
-  Awaitable,
 } from './types'
 
 export function createSafeRouteHandler<
@@ -18,14 +19,22 @@ export function createSafeRouteHandler<
   TRouteDynamicSegments extends TSegmentsDict | undefined = undefined,
   TSearchParams extends TSearchParamsDict | undefined = undefined,
   TBody extends TBodySchema | undefined = undefined,
+  TFormData extends TFormDataSchema | undefined = undefined,
 >(
   options: CreateSafeRouteHandlerOptions<
     AC,
     TRouteDynamicSegments,
     TSearchParams,
-    TBody
+    TBody,
+    TFormData
   >,
-  handlerFn: SafeRouteHandler<AC, TRouteDynamicSegments, TSearchParams, TBody>
+  handlerFn: SafeRouteHandler<
+    AC,
+    TRouteDynamicSegments,
+    TSearchParams,
+    TBody,
+    TFormData
+  >
 ): CreateSafeRouteHandlerReturnType {
   const log = createLogger(options.debug)
   const name = options.name ?? 'unknown Route handler'
@@ -62,6 +71,15 @@ export function createSafeRouteHandler<
     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
       log.error(`🛑 Invalid body for route handler '${name}':`, issues)
       return new Response('Invalid body', {
+        status: 400,
+      })
+    })
+
+  const onFormDataValidationErrorResponse =
+    options.onFormDataValidationErrorResponse ??
+    ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<Response> => {
+      log.error(`🛑 Invalid form data for route handler '${name}':`, issues)
+      return new Response('Invalid form data', {
         status: 400,
       })
     })
@@ -133,17 +151,43 @@ export function createSafeRouteHandler<
       body = parsedBody.value
     }
 
+    let formData = undefined
+    if (options.formData) {
+      const contentType = req.headers.get('content-type')
+      if (!contentType?.startsWith('multipart/form-data')) {
+        return new Response('Invalid content type for request form data', {
+          status: 415,
+        })
+      }
+
+      const parsedFormData = options.formData['~standard'].validate(
+        await req.formData()
+      )
+      ensureSynchronous(
+        parsedFormData,
+        'Request form data validation must be synchronous'
+      )
+
+      if (parsedFormData.issues) {
+        return await onFormDataValidationErrorResponse(parsedFormData.issues)
+      }
+
+      formData = parsedFormData.value
+    }
+
     const ctx = {
       url,
       ...(authOrResponse !== undefined ? { auth: authOrResponse } : {}),
       ...(segments !== undefined ? { segments } : {}),
       ...(searchParams !== undefined ? { searchParams } : {}),
       ...(body !== undefined ? { body } : {}),
+      ...(formData !== undefined ? { formData } : {}),
     } as SafeRouteHandlerContext<
       AC,
       TRouteDynamicSegments,
       TSearchParams,
-      TBody
+      TBody,
+      TFormData
     >
 
     try {

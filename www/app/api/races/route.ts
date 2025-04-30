@@ -9,7 +9,8 @@ export const POST = createSafeRouteHandler(
       location: string,
     }),
   },
-  async (ctx) => {
+  async (ctx, req) => {
+    console.log('req', req)
     return Response.json({ race: ctx.body })
   }
 )
