@@ -179,10 +179,9 @@ export function createSafeRouteHandler<
         })
       }
 
-      const formDataEntries = (await req.formData()).entries()
       const parsedFormData = parseWithDictionary(
         options.formData,
-        Object.fromEntries(formDataEntries)
+        Object.fromEntries((await req.formData()).entries())
       )
 
       if (parsedFormData.issues) {
