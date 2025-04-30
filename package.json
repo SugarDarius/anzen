@@ -55,7 +55,7 @@
     "lint": "npm run lint:eslint && npm run lint:tsc && npm run lint:package",
     "lint:eslint": "eslint src/",
     "lint:tsc": "tsc --noEmit",
-    "lint:package": "publint --strict",
+    "lint:package": "publint --strict && attw --pack",
     "format": "prettier --write src/"
   },
   "peerDependencies": {
@@ -63,6 +63,7 @@
     "typescript": "^5"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.17.4",
     "@eslint/js": "^9.25.1",
     "@types/node": "^22.15.3",
     "eslint": "^9.25.1",
