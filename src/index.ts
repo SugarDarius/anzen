@@ -5,7 +5,7 @@ export type {
   TSegmentsDict,
   TSearchParamsDict,
   TBodySchema,
-  TFormDataSchema,
+  TFormDataDict,
   BaseOptions,
   RequestExtras,
   OnValidationErrorResponse,

@@ -10,7 +10,7 @@ import type {
   TSegmentsDict,
   TSearchParamsDict,
   TBodySchema,
-  TFormDataSchema,
+  TFormDataDict,
   RequestExtras,
   CreateSafeRouteHandlerOptions,
   CreateSafeRouteHandlerReturnType,
@@ -23,7 +23,7 @@ export function createSafeRouteHandler<
   TRouteDynamicSegments extends TSegmentsDict | undefined = undefined,
   TSearchParams extends TSearchParamsDict | undefined = undefined,
   TBody extends TBodySchema | undefined = undefined,
-  TFormData extends TFormDataSchema | undefined = undefined,
+  TFormData extends TFormDataDict | undefined = undefined,
 >(
   options: CreateSafeRouteHandlerOptions<
     AC,

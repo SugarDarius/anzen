@@ -12,9 +12,8 @@ export type AuthContext = Record<string, unknown>
 
 export type TSegmentsDict = StandardSchemaDictionary
 export type TSearchParamsDict = StandardSchemaDictionary
-
 export type TBodySchema = StandardSchemaV1
-export type TFormDataSchema = StandardSchemaDictionary
+export type TFormDataDict = StandardSchemaDictionary
 
 export type AuthFunction<AC extends AuthContext | undefined> = (input: {
   /**
@@ -74,7 +73,7 @@ export type CreateSafeRouteHandlerOptions<
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
-  TFormData extends TFormDataSchema | undefined,
+  TFormData extends TFormDataDict | undefined,
 > = {
   /**
    * Dynamic route segments used in the route handler path.
@@ -151,7 +150,7 @@ export type SafeRouteHandlerContext<
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
-  TFormData extends TFormDataSchema | undefined,
+  TFormData extends TFormDataDict | undefined,
 > = {
   /**
    * Route handler ID
@@ -167,7 +166,9 @@ export type SafeRouteHandlerContext<
     }
   : EmptyObjectType) &
   (TSegments extends TSegmentsDict
-    ? { readonly segments: StandardSchemaDictionary.InferOutput<TSegments> }
+    ? {
+        readonly segments: StandardSchemaDictionary.InferOutput<TSegments>
+      }
     : EmptyObjectType) &
   (TSearchParams extends TSearchParamsDict
     ? {
@@ -179,7 +180,7 @@ export type SafeRouteHandlerContext<
         readonly body: StandardSchemaV1.InferOutput<TBody>
       }
     : EmptyObjectType) &
-  (TFormData extends TFormDataSchema
+  (TFormData extends TFormDataDict
     ? {
         readonly formData: StandardSchemaDictionary.InferOutput<TFormData>
       }
@@ -190,7 +191,7 @@ export type SafeRouteHandler<
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
-  TFormData extends TFormDataSchema | undefined,
+  TFormData extends TFormDataDict | undefined,
 > = (
   /**
    * Safe route handler context
