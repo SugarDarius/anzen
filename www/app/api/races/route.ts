@@ -3,7 +3,7 @@ import { createSafeRouteHandler } from '@sugardarius/anzen'
 
 export const POST = createSafeRouteHandler(
   {
-    name: 'POST route',
+    id: 'POST route',
     body: object({
       name: string,
       location: string,

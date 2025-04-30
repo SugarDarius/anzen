@@ -3,7 +3,7 @@ import { createSafeRouteHandler } from '@sugardarius/anzen'
 
 export const GET = createSafeRouteHandler(
   {
-    name: 'Dynamic segments <decoders>',
+    id: 'Dynamic segments <decoders>',
     segments: {
       raceId: string,
     },
