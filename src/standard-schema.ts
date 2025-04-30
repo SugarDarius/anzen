@@ -71,6 +71,17 @@ export declare namespace StandardSchemaV1 {
   >['output']
 }
 
+export function validateWithSchema<TSchema extends StandardSchemaV1>(
+  schema: TSchema,
+  value: unknown,
+  errSyncMsg = 'Validation must be synchronous but schema returned a Promise.'
+): StandardSchemaV1.Result<StandardSchemaV1.InferOutput<TSchema>> {
+  const result = schema['~standard'].validate(value)
+  ensureSynchronous(result, errSyncMsg)
+
+  return result
+}
+
 /**
  * Thanks to `@t3-env/core` (👉🏻 https://github.com/t3-oss/t3-env/blob/main/packages/core/src/standard.ts)
  * for this awesome dictionary schema.

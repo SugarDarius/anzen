@@ -1,5 +1,9 @@
-import { createLogger, ensureSynchronous } from './utils'
-import { parseWithDictionary, type StandardSchemaV1 } from './standard-schema'
+import { createLogger } from './utils'
+import {
+  parseWithDictionary,
+  validateWithSchema,
+  type StandardSchemaV1,
+} from './standard-schema'
 import type {
   Awaitable,
   AuthContext,
@@ -144,9 +148,9 @@ export function createSafeRouteHandler<
         })
       }
 
-      const parsedBody = options.body['~standard'].validate(await req.json())
-      ensureSynchronous(
-        parsedBody,
+      const parsedBody = validateWithSchema(
+        options.body,
+        await req.json(),
         'Request body validation must be synchronous'
       )
 
@@ -175,11 +179,9 @@ export function createSafeRouteHandler<
         })
       }
 
-      const parsedFormData = options.formData['~standard'].validate(
-        await req.formData()
-      )
-      ensureSynchronous(
-        parsedFormData,
+      const parsedFormData = validateWithSchema(
+        options.formData,
+        await req.formData(),
         'Request form data validation must be synchronous'
       )
 
@@ -193,11 +195,11 @@ export function createSafeRouteHandler<
     const ctx = {
       id,
       url,
-      ...(authOrResponse !== undefined ? { auth: authOrResponse } : {}),
-      ...(segments !== undefined ? { segments } : {}),
-      ...(searchParams !== undefined ? { searchParams } : {}),
-      ...(body !== undefined ? { body } : {}),
-      ...(formData !== undefined ? { formData } : {}),
+      ...(authOrResponse ? { auth: authOrResponse } : {}),
+      ...(segments ? { segments } : {}),
+      ...(searchParams ? { searchParams } : {}),
+      ...(body ? { body } : {}),
+      ...(formData ? { formData } : {}),
     } as SafeRouteHandlerContext<
       AC,
       TRouteDynamicSegments,
