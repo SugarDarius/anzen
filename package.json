@@ -52,9 +52,10 @@
     "dev:www": "turbo run dev --filter=www",
     "build:www": "turbo run build --filter=www",
     "test": "vitest run --silent",
-    "lint": "npm run lint:eslint && npm run lint:tsc",
+    "lint": "npm run lint:eslint && npm run lint:tsc && npm run lint:package",
     "lint:eslint": "eslint src/",
     "lint:tsc": "tsc --noEmit",
+    "lint:package": "publint --strict",
     "format": "prettier --write src/"
   },
   "peerDependencies": {
@@ -66,6 +67,7 @@
     "@types/node": "^22.15.3",
     "eslint": "^9.25.1",
     "prettier": "^3.5.3",
+    "publint": "^0.3.12",
     "tsup": "^8.4.0",
     "turbo": "^2.5.2",
     "typescript": "^5.8.3",
