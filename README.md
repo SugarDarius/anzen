@@ -37,6 +37,26 @@ export const GET = createSafeRouteHandler(
 
 The example above shows how to use the factory to authorize your requests.
 
+# Framework validation agnostic
+
+By design the factory is framework validation agnostic 🌟. When doing your validations you can use whatever you want as framework validation as long as it implements the [Standard Schema](https://github.com/standard-schema/standard-schema) common interface. You can use your favorite validation library like [Zod](https://zod.dev/) or [decoders](https://decoders.cc/).
+
+```tsx
+import { object, string, number } from 'decoders'
+
+export const POST = createSafeRouteHandler(
+  {
+    body: object({
+      id: number,
+      name: string,
+    }),
+  },
+  async (ctx) => {
+    return Response.json({ body: ctx.body })
+  }
+)
+```
+
 # Synchronous validations
 
 The factory do not supports async validations. As required by the [Standard Schema](https://github.com/standard-schema/standard-schema) common interface. In the context of a route handler it's not necessary.
@@ -73,10 +93,10 @@ export const GET = createSafeRouteHandler(
     }
 
     if (data === null) {
-      throw new HttpError(400)
+      throw new HttpError(404)
     }
 
-    return Response.json({ data }, { status: 200 })
+    return Response.json({ data })
   }
 )
 ```
