@@ -56,6 +56,10 @@ export type BaseOptions<AC extends AuthContext | undefined> = {
   debug?: boolean
 }
 
+export type OnValidationErrorResponse = (
+  issues: readonly StandardSchemaV1.Issue[]
+) => Awaitable<Response>
+
 export type CreateSafeRouteHandlerOptions<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
@@ -76,9 +80,7 @@ export type CreateSafeRouteHandlerOptions<
    * Callback triggered when dynamic segments validations returned issues.
    * By default it returns a simple `400` response and issues are logged into the console.
    */
-  onSegmentsValidationErrorResponse?: (
-    issues: readonly StandardSchemaV1.Issue[]
-  ) => Awaitable<Response>
+  onSegmentsValidationErrorResponse?: OnValidationErrorResponse
 
   /**
    * Search params used in the route.
@@ -88,9 +90,7 @@ export type CreateSafeRouteHandlerOptions<
    * Callback triggered when search params validations returned issues.
    * By default it returns a simple `400` response and issues are logged into the console.
    */
-  onSearchParamsValidationErrorResponse?: (
-    issues: readonly StandardSchemaV1.Issue[]
-  ) => Awaitable<Response>
+  onSearchParamsValidationErrorResponse?: OnValidationErrorResponse
 
   /**
    * Request body.
@@ -103,9 +103,7 @@ export type CreateSafeRouteHandlerOptions<
    * Callback triggered when body validation returned issues.
    * By default it returns a simple `400` response and issues are logged into the console.
    */
-  onBodyValidationErrorResponse?: (
-    issues: readonly StandardSchemaV1.Issue[]
-  ) => Awaitable<Response>
+  onBodyValidationErrorResponse?: OnValidationErrorResponse
 
   /**
    * Request form data.
@@ -118,9 +116,7 @@ export type CreateSafeRouteHandlerOptions<
    * Callback triggered when form data validation returned issues.
    * By default it returns a simple `400` response and issues are logged into the console.
    */
-  onFormDataValidationErrorResponse?: (
-    issues: readonly StandardSchemaV1.Issue[]
-  ) => Awaitable<Response>
+  onFormDataValidationErrorResponse?: OnValidationErrorResponse
 } & BaseOptions<AC>
 
 export type RequestExtras = {
