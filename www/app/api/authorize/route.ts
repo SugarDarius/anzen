@@ -2,7 +2,7 @@ import { createSafeRouteHandler } from '@sugardarius/anzen'
 
 export const GET = createSafeRouteHandler(
   {
-    name: 'Authorized route',
+    id: 'Authorized route',
     authorize: async ({ req, url }) => {
       console.log('Authorizing request', { req, url })
       return { user: 'John Doe' }

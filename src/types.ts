@@ -5,6 +5,7 @@ import type {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 type EmptyObjectType = {}
+type UnwrapReadonlyObject<T> = T extends Readonly<infer U> ? U : T
 
 // Public API types
 export type Awaitable<T> = T | Promise<T>
@@ -167,12 +168,16 @@ export type SafeRouteHandlerContext<
   : EmptyObjectType) &
   (TSegments extends TSegmentsDict
     ? {
-        readonly segments: StandardSchemaDictionary.InferOutput<TSegments>
+        readonly segments: UnwrapReadonlyObject<
+          StandardSchemaDictionary.InferOutput<TSegments>
+        >
       }
     : EmptyObjectType) &
   (TSearchParams extends TSearchParamsDict
     ? {
-        readonly searchParams: StandardSchemaDictionary.InferOutput<TSearchParams>
+        readonly searchParams: UnwrapReadonlyObject<
+          StandardSchemaDictionary.InferOutput<TSearchParams>
+        >
       }
     : EmptyObjectType) &
   (TBody extends TBodySchema
@@ -182,7 +187,9 @@ export type SafeRouteHandlerContext<
     : EmptyObjectType) &
   (TFormData extends TFormDataDict
     ? {
-        readonly formData: StandardSchemaDictionary.InferOutput<TFormData>
+        readonly formData: UnwrapReadonlyObject<
+          StandardSchemaDictionary.InferOutput<TFormData>
+        >
       }
     : EmptyObjectType)
 

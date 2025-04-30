@@ -82,10 +82,8 @@ export function validateWithSchema<TSchema extends StandardSchemaV1>(
   return result
 }
 
-/**
- * Thanks to `@t3-env/core` (👉🏻 https://github.com/t3-oss/t3-env/blob/main/packages/core/src/standard.ts)
- * for this awesome dictionary schema.
- */
+// Thanks to `@t3-env/core` (👉🏻 https://github.com/t3-oss/t3-env/blob/main/packages/core/src/standard.ts)
+// for this awesome dictionary schema.
 export type StandardSchemaDictionary<
   Input = Record<string, unknown>,
   Output extends Record<keyof Input, unknown> = Input,
