@@ -179,10 +179,10 @@ export function createSafeRouteHandler<
         })
       }
 
-      const parsedFormData = validateWithSchema(
+      const formDataEntries = (await req.formData()).entries()
+      const parsedFormData = parseWithDictionary(
         options.formData,
-        await req.formData(),
-        'Request form data validation must be synchronous'
+        Object.fromEntries(formDataEntries)
       )
 
       if (parsedFormData.issues) {

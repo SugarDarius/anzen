@@ -14,7 +14,7 @@ export type TSegmentsDict = StandardSchemaDictionary
 export type TSearchParamsDict = StandardSchemaDictionary
 
 export type TBodySchema = StandardSchemaV1
-export type TFormDataSchema = StandardSchemaV1
+export type TFormDataSchema = StandardSchemaDictionary
 
 export type AuthFunction<AC extends AuthContext | undefined> = (input: {
   /**
@@ -181,7 +181,7 @@ export type SafeRouteHandlerContext<
     : EmptyObjectType) &
   (TFormData extends TFormDataSchema
     ? {
-        readonly formData: StandardSchemaV1.InferOutput<TFormData>
+        readonly formData: StandardSchemaDictionary.InferOutput<TFormData>
       }
     : EmptyObjectType)
 
