@@ -154,7 +154,10 @@ export function createSafeRouteHandler<
     let formData = undefined
     if (options.formData) {
       const contentType = req.headers.get('content-type')
-      if (!contentType?.startsWith('multipart/form-data')) {
+      if (
+        !contentType?.startsWith('multipart/form-data') &&
+        !contentType?.startsWith('application/x-www-form-urlencoded')
+      ) {
         return new Response('Invalid content type for request form data', {
           status: 415,
         })
