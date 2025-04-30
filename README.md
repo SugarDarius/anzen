@@ -6,13 +6,13 @@ A flexible, framework validation agnostic, type-safe factory for creating Next.J
 - 🔒 Type-safe.
 - 🌱 Dependency free.
 
-# Install
+## Install
 
 ```sh
 npm i @sugardarius/anzen
 ```
 
-# Usage
+## Usage
 
 ```tsx
 import { createSafeRouteHandler } from '@sugardarius/anzen'
@@ -37,7 +37,7 @@ export const GET = createSafeRouteHandler(
 
 The example above shows how to use the factory to authorize your requests.
 
-# Framework validation agnostic
+## Framework validation agnostic
 
 By design the factory is framework validation agnostic 🌟. When doing your validations you can use whatever you want as framework validation as long as it implements the [Standard Schema](https://github.com/standard-schema/standard-schema) common interface. You can use your favorite validation library like [Zod](https://zod.dev/) or [decoders](https://decoders.cc/).
 
@@ -57,13 +57,13 @@ export const POST = createSafeRouteHandler(
 )
 ```
 
-# Synchronous validations
+## Synchronous validations
 
 The factory do not supports async validations. As required by the [Standard Schema](https://github.com/standard-schema/standard-schema) common interface. In the context of a route handler it's not necessary.
 
 If you define an async validation then the route handler will throw an error. It's the only case where an error is thrown.
 
-# Error handling
+## Error handling
 
 By design the factory will catch any error thrown in the route handler will return a simple response with `500` status.
 
@@ -101,12 +101,12 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
-# Fair use note
+## Fair use note
 
 Please note that if you're not using any of the proposed options in `createSafeRouteHandler` it means you're surely don't need it.
 
 Feel free to open an issue or a PR if you think a relevant option could be added 🙂
 
-# License
+## License
 
 This project is licensed under the [MIT License](https://choosealicense.com/licenses/mit/).
