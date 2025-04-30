@@ -131,6 +131,12 @@ export function createSafeRouteHandler<
 
     let body = undefined
     if (options.body) {
+      if (!['POST', 'PUT', 'PATCH'].includes(req.method)) {
+        return new Response('Invalid method for request body', {
+          status: 405,
+        })
+      }
+
       const contentType = req.headers.get('content-type')
       if (contentType !== 'application/json') {
         return new Response('Invalid content type for request body', {
@@ -153,6 +159,12 @@ export function createSafeRouteHandler<
 
     let formData = undefined
     if (options.formData) {
+      if (!['POST', 'PUT', 'PATCH'].includes(req.method)) {
+        return new Response('Invalid method for request form data', {
+          status: 405,
+        })
+      }
+
       const contentType = req.headers.get('content-type')
       if (
         !contentType?.startsWith('multipart/form-data') &&

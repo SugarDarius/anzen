@@ -94,8 +94,9 @@ export type CreateSafeRouteHandlerOptions<
 
   /**
    * Request body.
-   * Headers for the request must explicitly set the `Content-Type` to `application/json`.
-   * Otherwise a `415` response will be returned.
+   *
+   * Returns a `405` response if the request method is not `POST`, 'PUT' or 'PATCH'.
+   * Returns a `415`response if the request does not explicitly set the `Content-Type` to `application/json`.
    */
   body?: TBody
 
@@ -107,8 +108,10 @@ export type CreateSafeRouteHandlerOptions<
 
   /**
    * Request form data.
-   * Heads for the request must explicitly set the `Content-Type` to `multipart/form-data`.
-   * Otherwise a `415` response will be returned.
+   *
+   * Returns a `405` response if the request method is not `POST`, 'PUT' or 'PATCH'.
+   * Returns a `415`response if the request does not explicitly set the `Content-Type` to `multipart/form-data`
+   * or to `application/x-www-form-urlencoded`.
    */
   formData?: TFormData
 
