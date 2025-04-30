@@ -56,4 +56,31 @@ describe('segments validation', () => {
     expect(response.status).toBe(400)
     expect(data).toBe('Invalid segments')
   })
+
+  test('returns a custom response for invalid segments', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        segments: { id: string, page: numeric },
+        onSegmentsValidationErrorResponse: (issues) => {
+          expect(issues.length).toBe(2)
+          return new Response('Custom error', { status: 400 })
+        },
+      },
+      async (ctx) => {
+        return Response.json(
+          { id: ctx.segments.id, page: ctx.segments.page },
+          { status: 200 }
+        )
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, {
+      params: paramsPromise({ ppid: 'suzuka', page: 'unknown' }),
+    })
+    const data = await response.text()
+
+    expect(response.status).toBe(400)
+    expect(data).toBe('Custom error')
+  })
 })
