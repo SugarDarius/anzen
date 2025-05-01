@@ -18,7 +18,8 @@ import type {
   SafeRouteHandlerContext,
 } from './types'
 
-const DEFAULT_ID = '[unknown:route:handler]'
+/* exported for testing only */
+export const DEFAULT_ID = '[unknown:route:handler]'
 
 export function createSafeRouteHandler<
   AC extends AuthContext | undefined = undefined,

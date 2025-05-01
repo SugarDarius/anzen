@@ -8,7 +8,7 @@ import {
   vi,
 } from 'vitest'
 import { string, numeric } from 'decoders'
-import { createSafeRouteHandler } from './create-safe-route-handler'
+import { DEFAULT_ID, createSafeRouteHandler } from './create-safe-route-handler'
 
 describe('default context', () => {
   test('provides default context', async () => {
@@ -17,7 +17,7 @@ describe('default context', () => {
         readonly id: string
         readonly url: URL
       }>()
-      expect(ctx.id).toBe('[unknown:route:handler]')
+      expect(ctx.id).toBe(DEFAULT_ID)
       expect(ctx.url).toBeInstanceOf(URL)
       expect(ctx.url.href).toBe('http://localhost:3000/')
 
@@ -45,7 +45,7 @@ describe('id customization', () => {
   test('should use default id if not provided', async () => {
     const GET = createSafeRouteHandler({}, async ({ id }) => {
       expectTypeOf(id).toEqualTypeOf<string>()
-      expect(id).toBe('[unknown:route:handler]')
+      expect(id).toBe(DEFAULT_ID)
       return Response.json({ message: 'Hello, world!' }, { status: 200 })
     })
 
@@ -53,7 +53,7 @@ describe('id customization', () => {
     await GET(request, { params: undefined })
 
     expect(logSpy).toHaveBeenCalledWith(
-      `🔄 Running route handler '[unknown:route:handler]'`
+      `🔄 Running route handler '${DEFAULT_ID}'`
     )
   })
 
