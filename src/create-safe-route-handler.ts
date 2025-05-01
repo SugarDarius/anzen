@@ -21,6 +21,42 @@ import type {
 /* exported for testing only */
 export const DEFAULT_ID = '[unknown:route:handler]'
 
+/**
+ * Creates a safe route handler with data validation and error handling
+ * for Next.js (>= 14) API route handlers.
+ *
+ * @param options - Options to configure the route handler.
+ * @param handlerFn - The route handler function.
+ *
+ * @returns A Next.js API route handler function.
+ *
+ * @example
+ * ```ts
+ * import { string } from 'decoders'
+ *import { createSafeRouteHandler } from '@sugardarius/anzen'
+ * import { auth } from '~/lib/auth'
+ *
+ * export const GET = createSafeRouteHandler(
+ *  {
+ *    id: 'my-safe-route-handler',
+ *    authorize: async ({ req }) => {
+ *      const session = await auth.getSession(req)
+ *      if (!session) {
+ *        return new Response(null, { status: 401 })
+ *      }
+ *
+ *      return { user: session.user }
+ *     },
+ *     segments: {
+ *       id: string,
+ *     },
+ *   },
+ *   async ({ auth, segments, }, req): Promise<Response> => {
+ *     return Response.json({ user: auth.user, segments }, { status: 200 })
+ *   }
+ *)
+ * ```
+ */
 export function createSafeRouteHandler<
   AC extends AuthContext | undefined = undefined,
   TRouteDynamicSegments extends TSegmentsDict | undefined = undefined,
