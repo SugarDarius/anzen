@@ -18,6 +18,8 @@ import type {
   SafeRouteHandlerContext,
 } from './types'
 
+const DEFAULT_ID = '[unknown:route:handler]'
+
 export function createSafeRouteHandler<
   AC extends AuthContext | undefined = undefined,
   TRouteDynamicSegments extends TSegmentsDict | undefined = undefined,
@@ -41,7 +43,7 @@ export function createSafeRouteHandler<
   >
 ): CreateSafeRouteHandlerReturnType {
   const log = createLogger(options.debug)
-  const id = options.id ?? '[unknown:route:handler]'
+  const id = options.id ?? DEFAULT_ID
 
   const onErrorResponse =
     options.onErrorResponse ??

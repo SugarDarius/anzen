@@ -1,4 +1,12 @@
-import { describe, test, expect, expectTypeOf } from 'vitest'
+import {
+  describe,
+  test,
+  expect,
+  expectTypeOf,
+  afterEach,
+  beforeEach,
+  vi,
+} from 'vitest'
 import { string, numeric } from 'decoders'
 import { createSafeRouteHandler } from './create-safe-route-handler'
 
@@ -22,6 +30,45 @@ describe('default context', () => {
 
     expect(response.status).toBe(200)
     expect(data).toEqual({ message: 'Hello, world!' })
+  })
+})
+
+describe('id customization', () => {
+  let logSpy: ReturnType<typeof vi.spyOn>
+  beforeEach(() => {
+    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+  })
+  afterEach(() => {
+    logSpy.mockRestore()
+  })
+
+  test('should use default id if not provided', async () => {
+    const GET = createSafeRouteHandler({}, async ({ id }) => {
+      expectTypeOf(id).toEqualTypeOf<string>()
+      expect(id).toBe('[unknown:route:handler]')
+      return Response.json({ message: 'Hello, world!' }, { status: 200 })
+    })
+
+    const request = new Request('http://localhost:3000/')
+    await GET(request, { params: undefined })
+
+    expect(logSpy).toHaveBeenCalledWith(
+      `🔄 Running route handler '[unknown:route:handler]'`
+    )
+  })
+
+  test('should use custom id if provided', async () => {
+    const id = 'custom-id'
+    const GET = createSafeRouteHandler({ id }, async ({ id }) => {
+      expectTypeOf(id).toEqualTypeOf<string>()
+      expect(id).toBe('custom-id')
+      return Response.json({ message: 'Hello, world!' }, { status: 200 })
+    })
+
+    const request = new Request('http://localhost:3000/')
+    await GET(request, { params: undefined })
+
+    expect(logSpy).toHaveBeenCalledWith(`🔄 Running route handler '${id}'`)
   })
 })
 
