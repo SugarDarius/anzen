@@ -29,8 +29,8 @@ export const GET = createSafeRouteHandler(
       return { user: session.user }
     },
   },
-  async (ctx, req): Promise<Response> => {
-    return Response.json({ user: ctx.auth.user }, { status: 200 })
+  async ({ auth }, req): Promise<Response> => {
+    return Response.json({ user: auth.user }, { status: 200 })
   }
 )
 ```
@@ -51,8 +51,8 @@ export const POST = createSafeRouteHandler(
       name: string,
     }),
   },
-  async (ctx) => {
-    return Response.json({ body: ctx.body })
+  async ({ body }) => {
+    return Response.json({ body })
   }
 )
 ```
