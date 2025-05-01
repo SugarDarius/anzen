@@ -25,6 +25,58 @@ describe('default context', () => {
   })
 })
 
+describe('authorize', () => {
+  test('should authorize the request and return auth context', async () => {
+    const user = {
+      id: 'ccd5cf55-de71-482b-bfee-ad450dbcd20e',
+      name: 'Rocky Balboa',
+    }
+
+    const GET = createSafeRouteHandler(
+      {
+        authorize: () => ({ user }),
+      },
+      async ({ auth }) => {
+        expectTypeOf(auth).toEqualTypeOf<{
+          user: {
+            id: string
+            name: string
+          }
+        }>()
+        expect(auth.user.id).toBe(user.id)
+        expect(auth.user.name).toBe(user.name)
+
+        return Response.json({ user: auth.user }, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, { params: undefined })
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toEqual({ user })
+  })
+
+  test('should return a 401 response for unauthorized requests', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        authorize: () => new Response('Unauthorized', { status: 401 }),
+      },
+      async () => {
+        return Response.json({ message: 'Hello, world!' }, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(401)
+    expect(data).toBe('Unauthorized')
+  })
+})
+
 describe('on error response', () => {
   test('returns a 500 response for unexpected errors', async () => {
     const GET = createSafeRouteHandler(
