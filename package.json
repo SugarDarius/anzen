@@ -59,7 +59,7 @@
     "format": "prettier --write src/"
   },
   "peerDependencies": {
-    "next": "^15",
+    "next": "^14 || ^15",
     "typescript": "^5"
   },
   "devDependencies": {

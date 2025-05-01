@@ -86,7 +86,7 @@ describe('segments validation', () => {
 
     const request = new Request('http://localhost:3000/')
     const response = await GET(request, {
-      params: paramsPromise({ ppid: 'suzuka', page: 'unknown' }),
+      params: Promise.resolve({ ppid: 'suzuka', page: 'unknown' }),
     })
     const data = await response.text()
 
@@ -113,7 +113,7 @@ describe('segments validation', () => {
 
     const request = new Request('http://localhost:3000/')
     const response = await GET(request, {
-      params: paramsPromise({ ppid: 'suzuka', page: 'unknown' }),
+      params: Promise.resolve({ ppid: 'suzuka', page: 'unknown' }),
     })
     const data = await response.text()
 
