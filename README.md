@@ -123,7 +123,7 @@ Feel free to open an issue or a PR if you think a relevant option could be added
 
 ## Credits
 
-Thanks to [@t3-oss/env-core][https://github.com/t3-oss/t3-env] for opening the implementation of `StandardSchemaDictionary` 🙏🏻
+Thanks to [@t3-oss/env-core](https://github.com/t3-oss/t3-env) for opening the implementation of `StandardSchemaDictionary` 🙏🏻
 
 ## License
 
