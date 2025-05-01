@@ -105,8 +105,26 @@ export const GET = createSafeRouteHandler(
 
 Please note that if you're not using any of the proposed options in `createSafeRouteHandler` it means you're surely don't need it.
 
-Feel free to open an issue or a PR if you think a relevant option could be added 🙂
+```tsx
+// Calling 👇🏻
+export const GET = createSafeRouteHandler({}, async () => {
+  return new Response(null, { status: 200 })
+})
+
+// is equal to declare the route handler this way 👇🏻
+export function GET() {
+  return new Response(null, { status: 200 })
+}
+// excepts `createSafeRouteHandler` will provide by default a native error catching
+// and will return a `500` response. That's the only advantage.
+```
+
+Feel free to open an issue or a PR if you think a relevant option could be added into the factory 🙂
 
 ## License
 
 This project is licensed under the [MIT License](https://choosealicense.com/licenses/mit/).
+
+```
+
+```
