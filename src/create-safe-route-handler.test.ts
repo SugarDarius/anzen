@@ -263,3 +263,68 @@ describe('segments validation', () => {
     expect(data).toBe('No segments provided')
   })
 })
+
+describe('search params validation', () => {
+  test('validates search params correctly', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        searchParams: { query: string, page: numeric },
+      },
+      async ({ searchParams }) => {
+        expectTypeOf(searchParams).toEqualTypeOf<{
+          query: string
+          page: number
+        }>()
+
+        return Response.json(searchParams, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/?query=luke&page=2')
+    const response = await GET(request, { params: undefined })
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toEqual({ query: 'luke', page: 2 })
+  })
+
+  test('returns a 400 response for invalid search params', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        searchParams: { query: string, page: numeric },
+      },
+      async ({ searchParams }) => {
+        return Response.json(searchParams, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/?q=luke&page=unknown')
+    const response = await GET(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(400)
+    expect(data).toBe('Invalid search params')
+  })
+
+  test('returns a custom response for invalid search params', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        searchParams: { query: string, page: numeric },
+        onSearchParamsValidationErrorResponse: (issues) => {
+          expect(issues.length).toBe(2)
+          return new Response('Custom error', { status: 400 })
+        },
+      },
+      async ({ searchParams }) => {
+        return Response.json(searchParams, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/?q=luke&page=unknown')
+    const response = await GET(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(400)
+    expect(data).toBe('Custom error')
+  })
+})
