@@ -2,6 +2,29 @@ import { describe, test, expect, expectTypeOf } from 'vitest'
 import { string, numeric } from 'decoders'
 import { createSafeRouteHandler } from './create-safe-route-handler'
 
+describe('default context', () => {
+  test('provides default context', async () => {
+    const GET = createSafeRouteHandler({}, async (ctx) => {
+      expectTypeOf(ctx).toEqualTypeOf<{
+        readonly id: string
+        readonly url: URL
+      }>()
+      expect(ctx.id).toBe('[unknown:route:handler]')
+      expect(ctx.url).toBeInstanceOf(URL)
+      expect(ctx.url.href).toBe('http://localhost:3000/')
+
+      return Response.json({ message: 'Hello, world!' }, { status: 200 })
+    })
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, { params: undefined })
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toEqual({ message: 'Hello, world!' })
+  })
+})
+
 describe('on error response', () => {
   test('returns a 500 response for unexpected errors', async () => {
     const GET = createSafeRouteHandler(

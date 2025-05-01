@@ -41,7 +41,7 @@ export function createSafeRouteHandler<
   >
 ): CreateSafeRouteHandlerReturnType {
   const log = createLogger(options.debug)
-  const id = options.id ?? '[id:unknown:route:handler]'
+  const id = options.id ?? '[unknown:route:handler]'
 
   const onErrorResponse =
     options.onErrorResponse ??
