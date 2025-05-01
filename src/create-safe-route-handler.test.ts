@@ -5,6 +5,43 @@ import { createSafeRouteHandler } from './create-safe-route-handler'
 const paramsPromise = (params: Record<string, unknown>) =>
   Promise.resolve(params)
 
+describe('on error response', () => {
+  test('returns a 500 response for unexpected errors', async () => {
+    const GET = createSafeRouteHandler(
+      { id: 'internal-server-error' },
+      async () => {
+        throw new Error('Unexpected error')
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, { params: Promise.resolve({}) })
+    const data = await response.text()
+
+    expect(response.status).toBe(500)
+    expect(data).toBe('Internal server error')
+  })
+
+  test('returns a custom response for unexpected errors', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        onErrorResponse: () =>
+          new Response('Custom error response', { status: 500 }),
+      },
+      async () => {
+        throw new Error('Unexpected error')
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, { params: Promise.resolve({}) })
+    const data = await response.text()
+
+    expect(response.status).toBe(500)
+    expect(data).toBe('Custom error response')
+  })
+})
+
 describe('segments validation', () => {
   test('validates segments correctly', async () => {
     const GET = createSafeRouteHandler(
