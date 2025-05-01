@@ -59,7 +59,7 @@ export type BaseOptions<AC extends AuthContext | undefined> = {
    * Use this options to enable debug mode.
    * It will add logs in the handler to help you debug the request.
    *
-   * By default it's `false` for in production builds.
+   * By default it's `false` for production builds.
    * In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
    */
   debug?: boolean
