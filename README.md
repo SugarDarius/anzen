@@ -121,10 +121,10 @@ export function GET() {
 
 Feel free to open an issue or a PR if you think a relevant option could be added into the factory 🙂
 
+## Credits
+
+Thanks to [@t3-oss/env-core][https://github.com/t3-oss/t3-env] for opening the implementation of `StandardSchemaDictionary` 🙏🏻
+
 ## License
 
 This project is licensed under the [MIT License](https://choosealicense.com/licenses/mit/).
-
-```
-
-```
