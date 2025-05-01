@@ -2,9 +2,6 @@ import { describe, test, expect, expectTypeOf } from 'vitest'
 import { string, numeric } from 'decoders'
 import { createSafeRouteHandler } from './create-safe-route-handler'
 
-const paramsPromise = (params: Record<string, unknown>) =>
-  Promise.resolve(params)
-
 describe('on error response', () => {
   test('returns a 500 response for unexpected errors', async () => {
     const GET = createSafeRouteHandler(
@@ -15,7 +12,7 @@ describe('on error response', () => {
     )
 
     const request = new Request('http://localhost:3000/')
-    const response = await GET(request, { params: Promise.resolve({}) })
+    const response = await GET(request, { params: undefined })
     const data = await response.text()
 
     expect(response.status).toBe(500)
@@ -34,7 +31,7 @@ describe('on error response', () => {
     )
 
     const request = new Request('http://localhost:3000/')
-    const response = await GET(request, { params: Promise.resolve({}) })
+    const response = await GET(request, { params: undefined })
     const data = await response.text()
 
     expect(response.status).toBe(500)
@@ -63,7 +60,7 @@ describe('segments validation', () => {
 
     const request = new Request('http://localhost:3000/')
     const response = await GET(request, {
-      params: paramsPromise({ id: 'suzuka', page: '256' }),
+      params: Promise.resolve({ id: 'suzuka', page: '256' }),
     })
     const data = await response.json()
 
@@ -119,5 +116,28 @@ describe('segments validation', () => {
 
     expect(response.status).toBe(400)
     expect(data).toBe('Custom error')
+  })
+
+  test('returns a 400 response for missing segments', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        segments: { id: string, page: numeric },
+      },
+      async (ctx) => {
+        return Response.json(
+          { id: ctx.segments.id, page: ctx.segments.page },
+          { status: 200 }
+        )
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, {
+      params: undefined,
+    })
+    const data = await response.text()
+
+    expect(response.status).toBe(400)
+    expect(data).toBe('No segments provided')
   })
 })

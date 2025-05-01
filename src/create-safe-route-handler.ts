@@ -94,6 +94,7 @@ export function createSafeRouteHandler<
     req: Request,
     extras: RequestExtras
   ): Promise<Response> {
+    console.log('extras', extras)
     log.info(`🔄 Running route handler '${id}'`)
 
     log.info(`👉🏻 Request url: ${req.url}`)
@@ -107,6 +108,10 @@ export function createSafeRouteHandler<
 
     let segments = undefined
     if (options.segments) {
+      if (extras.params === undefined) {
+        return new Response('No segments provided', { status: 400 })
+      }
+
       const params = await extras.params
       const parsedSegments = parseWithDictionary(options.segments, params)
 
