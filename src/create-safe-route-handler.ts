@@ -185,16 +185,16 @@ export function createSafeRouteHandler<
         })
       }
 
-      const contentType = req.headers.get('content-type')
-      if (contentType !== 'application/json') {
-        return new Response('Invalid content type for request body', {
-          status: 415,
-        })
+      let rawBody: unknown = {}
+      try {
+        rawBody = await req.json()
+      } catch (err) {
+        return await onErrorResponse(err)
       }
 
       const parsedBody = validateWithSchema(
         options.body,
-        await req.json(),
+        rawBody,
         'Request body validation must be synchronous'
       )
 

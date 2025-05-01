@@ -8,6 +8,7 @@ import {
   vi,
 } from 'vitest'
 import { string, numeric } from 'decoders'
+import { z } from 'zod'
 import { DEFAULT_ID, createSafeRouteHandler } from './create-safe-route-handler'
 
 describe('default context', () => {
@@ -161,7 +162,7 @@ describe('on error response', () => {
   })
 })
 
-describe('segments validation', () => {
+describe('route dynamic segments validation', () => {
   test('validates segments correctly', async () => {
     const GET = createSafeRouteHandler(
       {
@@ -264,7 +265,7 @@ describe('segments validation', () => {
   })
 })
 
-describe('search params validation', () => {
+describe('URL search params validation', () => {
   test('validates search params correctly', async () => {
     const GET = createSafeRouteHandler(
       {
@@ -326,5 +327,137 @@ describe('search params validation', () => {
 
     expect(response.status).toBe(400)
     expect(data).toBe('Custom error')
+  })
+})
+
+describe('request body validation', () => {
+  const bodySchema = z.object({
+    name: z.string(),
+    model: z.string(),
+    apiKey: z.string(),
+  })
+
+  test('validates body correctly', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        body: bodySchema,
+      },
+      async ({ body }) => {
+        expectTypeOf(body).toEqualTypeOf<{
+          name: string
+          model: string
+          apiKey: string
+        }>()
+
+        return Response.json(body, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'Luke Skywalker',
+        model: 'X-Wing',
+        apiKey: '1234567890',
+      }),
+    })
+    const response = await POST(request, { params: undefined })
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toEqual({
+      name: 'Luke Skywalker',
+      model: 'X-Wing',
+      apiKey: '1234567890',
+    })
+  })
+
+  test('returns a 400 response for invalid body', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        body: bodySchema,
+      },
+      async ({ body }) => {
+        return Response.json(body, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      body: JSON.stringify({
+        unknown: 'Betty Boop',
+      }),
+    })
+    const response = await POST(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(400)
+    expect(data).toBe('Invalid body')
+  })
+
+  test('returns a custom response for invalid body', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        body: bodySchema,
+        onBodyValidationErrorResponse: (issues) => {
+          expect(issues.length).toBe(3)
+          return new Response('Custom error', { status: 400 })
+        },
+      },
+      async ({ body }) => {
+        return Response.json(body, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      body: JSON.stringify({
+        unknown: 'Betty Boop',
+      }),
+    })
+    const response = await POST(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(400)
+    expect(data).toBe('Custom error')
+  })
+
+  test('returns a 500 for missing body', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        body: bodySchema,
+      },
+      async ({ body }) => {
+        return Response.json(body, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      // No body defined
+    })
+    const response = await POST(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(500)
+    expect(data).toBe('Internal server error')
+  })
+
+  test('returns a 405 for invalid method', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        body: bodySchema,
+      },
+      async ({ body }) => {
+        return Response.json(body, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(405)
+    expect(data).toBe('Invalid method for request body')
   })
 })
