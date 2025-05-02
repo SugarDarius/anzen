@@ -22,6 +22,22 @@ import type {
 export const DEFAULT_ID = '[unknown:route:handler]'
 
 /**
+ * @internal
+ *
+ * Reads the request body as JSON.
+ * If it fails, it calls the `onErrorResponse` callback.
+ */
+const readRequestBodyAsJson = async (req: Request): Promise<unknown> => {
+  const contentType = req.headers.get('content-type')
+  if (contentType?.startsWith('application/json')) {
+    return await req.json()
+  }
+
+  const text = await req.text()
+  return JSON.parse(text)
+}
+
+/**
  * Creates a safe route handler with data validation and error handling
  * for Next.js (>= 14) API route handlers.
  *
@@ -139,10 +155,9 @@ export function createSafeRouteHandler<
     req: Request,
     extras: RequestExtras
   ): Promise<Response> {
-    console.log('extras', extras)
     log.info(`🔄 Running route handler '${id}'`)
-
     log.info(`👉🏻 Request url: ${req.url}`)
+
     const url = new URL(req.url)
 
     const authOrResponse = await authorize({ req, url })
@@ -196,9 +211,9 @@ export function createSafeRouteHandler<
         })
       }
 
-      let body_unsafe: unknown = {}
+      let body_unsafe: unknown
       try {
-        body_unsafe = await req.json()
+        body_unsafe = await readRequestBodyAsJson(req)
       } catch (err) {
         return await onErrorResponse(err)
       }
