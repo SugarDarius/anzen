@@ -18,7 +18,7 @@ import type {
   SafeRouteHandlerContext,
 } from './types'
 
-/* exported for testing only */
+/** @internal exported for testing only */
 export const DEFAULT_ID = '[unknown:route:handler]'
 
 /**
@@ -95,6 +95,7 @@ export function createSafeRouteHandler<
     TFormData
   >
 ): CreateSafeRouteHandlerReturnType {
+  // NOTE: `body` and `formData` options are mutually exclusive 🎭
   if (options.body && options.formData) {
     throw new Error(
       'You cannot use both `body` and `formData` in the same route handler. They are both mutually exclusive.'
@@ -151,6 +152,7 @@ export function createSafeRouteHandler<
 
   const authorize = options.authorize ?? (async () => undefined)
 
+  // Next.js API Route handler declaration
   return async function (
     req: Request,
     extras: RequestExtras
@@ -251,7 +253,7 @@ export function createSafeRouteHandler<
 
       let formData_unsafe: FormData
       try {
-        formData_unsafe = await req.formData()
+        formData_unsafe = await req.formData() // NOTE: 🤔 maybe find a better way to counted the deprecation warning?
       } catch (err) {
         return await onErrorResponse(err)
       }
@@ -268,6 +270,7 @@ export function createSafeRouteHandler<
       formData = parsedFormData.value
     }
 
+    // Build safe route handler context
     const ctx = {
       id,
       url,
@@ -284,6 +287,7 @@ export function createSafeRouteHandler<
       TFormData
     >
 
+    // Let's catch any error that might happen in the handler
     try {
       return await handlerFn(ctx, req)
     } catch (err) {
