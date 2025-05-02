@@ -46,6 +46,9 @@
     "safe route handlers",
     "framework agnostic validation"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup --minify",
