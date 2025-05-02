@@ -1,4 +1,4 @@
-import { ensureSynchronous } from './utils'
+import { assertsSyncOperation } from './utils'
 
 /** The Standard Schema interface. */
 export interface StandardSchemaV1<Input = unknown, Output = Input> {
@@ -77,7 +77,7 @@ export function validateWithSchema<TSchema extends StandardSchemaV1>(
   errSyncMsg = 'Validation must be synchronous but schema returned a Promise.'
 ): StandardSchemaV1.Result<StandardSchemaV1.InferOutput<TSchema>> {
   const result = schema['~standard'].validate(value)
-  ensureSynchronous(result, errSyncMsg)
+  assertsSyncOperation(result, errSyncMsg)
 
   return result
 }
@@ -121,7 +121,7 @@ export function parseWithDictionary<TDict extends StandardSchemaDictionary>(
     // NOTE: safe to assert as we're ensuring just before key isn't undefined
     const propResult = dictionary[key]!['~standard'].validate(value[key])
 
-    ensureSynchronous(
+    assertsSyncOperation(
       propResult,
       `Validation must be synchronous, but ${key} returned a Promise.`
     )
