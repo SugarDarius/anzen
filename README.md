@@ -1,5 +1,3 @@
-## [Unreleased yet]
-
 A flexible, framework validation agnostic, type-safe factory for creating Next.JS App Router route handlers.
 
 - 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
