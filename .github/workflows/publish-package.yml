@@ -12,7 +12,7 @@ on:
           - major
 concurrency:
   group: ${{ github.workflow }}
-run-name: 'Release (increment: ${{ github.event.inputs.increment }}'
+run-name: 'Release ${{ github.event.inputs.increment }} version'
 jobs:
   release:
     runs-on: ubuntu-latest
