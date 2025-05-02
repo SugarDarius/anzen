@@ -5,6 +5,7 @@ A flexible, framework validation agnostic, type-safe factory for creating Next.J
 - 🧹 Clean and flexible API.
 - 🔒 Type-safe.
 - 🌱 Dependency free.
+- 🪶 Less than 100kB.
 
 ## Install
 
