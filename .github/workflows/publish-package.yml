@@ -11,13 +11,16 @@ on:
           - minor
           - major
       dry-run:
-        description: 'Run the release without publishing for testing (set to "true")'
+        description: 'Run the release without publishing for testing)'
         required: false
-        type: boolean
-        default: false
+        type: choice
+        options:
+          - yes
+          - no
+        default: no
 concurrency:
   group: ${{ github.workflow }}
-run-name: "Release new ${{ github.event.inputs.increment }} version (${{ github.event.inputs.dry-run == true && 'dry run' || '' }})"
+run-name: "Release new ${{ github.event.inputs.increment }} version (${{ github.event.inputs.dry-run == 'yes' && 'dry run' || '' }})"
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -43,7 +46,7 @@ jobs:
       - name: Release package
         run: |
           ARGS="${{ github.event.inputs.increment }}"
-          if [[ "${{ github.event.inputs.dry-run }}" == true ]]; then
+          if [[ "${{ github.event.inputs.dry-run }}" == "yes" ]]; then
             ARGS+=" --dry-run"
           fi
           npm run release -- $ARGS --ci
