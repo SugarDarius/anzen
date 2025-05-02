@@ -191,16 +191,16 @@ export function createSafeRouteHandler<
         })
       }
 
-      let rawBody: unknown = {}
+      let body_unsafe: unknown = {}
       try {
-        rawBody = await req.json()
+        body_unsafe = await req.json()
       } catch (err) {
         return await onErrorResponse(err)
       }
 
       const parsedBody = validateWithSchema(
         options.body,
-        rawBody,
+        body_unsafe,
         'Request body validation must be synchronous'
       )
 
@@ -229,16 +229,16 @@ export function createSafeRouteHandler<
         })
       }
 
-      let formDataRaw: FormData
+      let formData_unsafe: FormData
       try {
-        formDataRaw = await req.formData()
+        formData_unsafe = await req.formData()
       } catch (err) {
         return await onErrorResponse(err)
       }
 
       const parsedFormData = parseWithDictionary(
         options.formData,
-        Object.fromEntries(formDataRaw.entries())
+        Object.fromEntries(formData_unsafe.entries())
       )
 
       if (parsedFormData.issues) {
