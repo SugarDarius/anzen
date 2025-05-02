@@ -41,7 +41,7 @@ jobs:
         run: npm ci
       - name: Release package
         run: |
-          ARGS=""
+          ARGS="${{ github.event.inputs.increment }}"
           if [[ "${{ github.event.inputs.dry-run }}" == "true" ]]; then
             ARGS+=" --dry-run"
           fi
