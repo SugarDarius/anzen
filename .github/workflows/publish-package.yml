@@ -12,7 +12,7 @@ on:
           - major
 concurrency:
   group: ${{ github.workflow }}
-run-name: 'Release ${{ github.event.inputs.increment }} version'
+run-name: 'Release new ${{ github.event.inputs.increment }} version'
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -37,11 +37,7 @@ jobs:
         run: npm ci
       - name: Release package
         run: |
-          ARGS=""
-          if [[ "${{ github.event.inputs.increment }}" != "none" ]]; then
-            ARGS+="${{ github.event.inputs.increment }}"
-          fi
-          npm run release -- $ARGS --ci
+          npm run release -- ${{ github.event.inputs.increment }} --ci
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
