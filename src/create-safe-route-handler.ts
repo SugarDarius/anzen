@@ -79,6 +79,12 @@ export function createSafeRouteHandler<
     TFormData
   >
 ): CreateSafeRouteHandlerReturnType {
+  if (options.body && options.formData) {
+    throw new Error(
+      'You cannot use both `body` and `formData` in the same route handler. They are both mutually exclusive.'
+    )
+  }
+
   const log = createLogger(options.debug)
   const id = options.id ?? DEFAULT_ID
 

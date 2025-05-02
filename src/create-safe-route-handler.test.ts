@@ -330,6 +330,24 @@ describe('URL search params validation', () => {
   })
 })
 
+describe('exclusive `body` and `formData` validation', () => {
+  test('throws an errors for using both body and formData', () => {
+    expect(() => {
+      createSafeRouteHandler(
+        {
+          body: z.object({ name: z.string() }),
+          formData: { id: z.string() },
+        },
+        async () => {
+          return Response.json({ message: 'Hello, world!' }, { status: 200 })
+        }
+      )
+    }).toThrowErrorMatchingInlineSnapshot(
+      '[Error: You cannot use both `body` and `formData` in the same route handler. They are both mutually exclusive.]'
+    )
+  })
+})
+
 describe('request body validation', () => {
   const bodySchema = z.object({
     name: z.string(),

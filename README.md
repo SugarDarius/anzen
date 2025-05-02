@@ -61,7 +61,7 @@ export const POST = createSafeRouteHandler(
 
 The factory do not supports async validations. As required by the [Standard Schema](https://github.com/standard-schema/standard-schema) common interface we should avoid it. In the context of a route handler it's not necessary.
 
-If you define an async validation then the route handler will throw an error. It's the only case where an error is thrown.
+If you define an async validation then the route handler will throw an error.
 
 ## Error handling
 

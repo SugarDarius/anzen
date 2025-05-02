@@ -101,6 +101,10 @@ export type CreateSafeRouteHandlerOptions<
    *
    * Returns a `405` response if the request method is not `POST`, 'PUT' or 'PATCH'.
    * Returns a `415`response if the request does not explicitly set the `Content-Type` to `application/json`.
+   *
+   * IMPORTANT: The body is parsed as JSON, so it must be a valid JSON object!
+   * IMPORTANT: body shouldn't be used with `formData` at the same time. They are exclusive.
+   * Why making the distinction? `formData` is used as a schema dictionary whereas `body` is used as a classic schema.
    */
   body?: TBody
 
@@ -116,6 +120,9 @@ export type CreateSafeRouteHandlerOptions<
    * Returns a `405` response if the request method is not `POST`, 'PUT' or 'PATCH'.
    * Returns a `415`response if the request does not explicitly set the `Content-Type` to `multipart/form-data`
    * or to `application/x-www-form-urlencoded`.
+   *
+   * IMPORTANT: formData shouldn't be used with `body` at the same time. They are exclusive.
+   * Why making the distinction? `formData` is used as a schema dictionary whereas `body` is used as a classic schema.
    */
   formData?: TFormData
 
