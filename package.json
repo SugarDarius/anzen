@@ -59,7 +59,8 @@
     "lint:eslint": "eslint src/",
     "lint:tsc": "tsc --noEmit",
     "lint:package": "publint --strict && attw --pack",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "release": "release-it"
   },
   "peerDependencies": {
     "next": "^14 || ^15",
