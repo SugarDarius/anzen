@@ -844,3 +844,53 @@ describe('combined validations - ordered', () => {
     expect(data).toBe('Invalid body')
   })
 })
+
+describe('framework validation agnostic', () => {
+  test('validates correctly no matter what framework is used', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        segments: { accountId: string, projectId: string },
+        body: z.object({
+          name: z.string(),
+          systemPrompt: z.string(),
+          apiKey: z.string(),
+        }),
+      },
+      async ({ segments, body }) => {
+        return Response.json({ segments, body })
+      }
+    )
+
+    const request = new Request(
+      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/copilots',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Super Butler',
+          systemPrompt: 'You are an expert at being a butler for customers.',
+          apiKey: 'sk_ai_copilot_key',
+        }),
+      }
+    )
+    const response = await POST(request, {
+      params: Promise.resolve({
+        accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
+        projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
+      }),
+    })
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toEqual({
+      segments: {
+        accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
+        projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
+      },
+      body: {
+        name: 'Super Butler',
+        systemPrompt: 'You are an expert at being a butler for customers.',
+        apiKey: 'sk_ai_copilot_key',
+      },
+    })
+  })
+})
