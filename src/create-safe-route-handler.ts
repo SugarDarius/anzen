@@ -169,9 +169,14 @@ export function createSafeRouteHandler<
 
     let searchParams = undefined
     if (options.searchParams) {
+      const queryParams_unsafe = [...url.searchParams.keys()].map((k) => {
+        const values = url.searchParams.getAll(k)
+        return [k, values.length > 1 ? values : values[0]]
+      })
+
       const parsedSearchParams = parseWithDictionary(
         options.searchParams,
-        Object.fromEntries(url.searchParams.entries())
+        Object.fromEntries(queryParams_unsafe)
       )
 
       if (parsedSearchParams.issues) {

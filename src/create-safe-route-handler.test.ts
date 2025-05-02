@@ -7,7 +7,7 @@ import {
   beforeEach,
   vi,
 } from 'vitest'
-import { string, numeric, object } from 'decoders'
+import { string, numeric, object, array } from 'decoders'
 import { z } from 'zod'
 import { DEFAULT_ID, createSafeRouteHandler } from './create-safe-route-handler'
 
@@ -287,6 +287,31 @@ describe('URL search params validation', () => {
 
     expect(response.status).toBe(200)
     expect(data).toEqual({ query: 'luke', page: 2 })
+  })
+
+  test('validates search params correctly with arrays', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        searchParams: {
+          query: array(string),
+        },
+      },
+      async ({ searchParams }) => {
+        expectTypeOf(searchParams).toEqualTypeOf<{
+          query: string[]
+        }>()
+
+        return Response.json(searchParams, { status: 200 })
+      }
+    )
+
+    const request = new Request(
+      'http://localhost:3000/?query=luke&query=anakin'
+    )
+    const response = await GET(request, { params: undefined })
+    const data = await response.json()
+    expect(response.status).toBe(200)
+    expect(data).toEqual({ query: ['luke', 'anakin'] })
   })
 
   test('returns a 400 response for invalid search params', async () => {
