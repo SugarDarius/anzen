@@ -7,7 +7,7 @@ import {
   beforeEach,
   vi,
 } from 'vitest'
-import { string, numeric } from 'decoders'
+import { string, numeric, object } from 'decoders'
 import { z } from 'zod'
 import { DEFAULT_ID, createSafeRouteHandler } from './create-safe-route-handler'
 
@@ -671,5 +671,176 @@ describe('request form data validation', () => {
 
     expect(response.status).toBe(415)
     expect(data).toBe('Invalid content type for request form data')
+  })
+})
+
+describe('combined validations - ordered', () => {
+  test('validates segments and search params correctly', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        segments: { accountId: string, projectId: string },
+        searchParams: { query: string, page: numeric },
+      },
+      async ({ segments, searchParams }) => {
+        return Response.json({ segments, searchParams }, { status: 200 })
+      }
+    )
+
+    const request = new Request(
+      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/rooms?query=liveblocks&page=2'
+    )
+    const response = await GET(request, {
+      params: Promise.resolve({
+        accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
+        projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
+      }),
+    })
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toEqual({
+      segments: {
+        accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
+        projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
+      },
+      searchParams: { query: 'liveblocks', page: 2 },
+    })
+  })
+
+  test('returns a 400 response for invalid segments and valid search params', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        segments: { accountId: string, projectId: string },
+        searchParams: { query: string, page: numeric },
+      },
+      async ({ segments, searchParams }) => {
+        return Response.json({ segments, searchParams }, { status: 200 })
+      }
+    )
+
+    const request = new Request(
+      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/rooms?query=liveblocks&page=2'
+    )
+    const response = await GET(request, {
+      params: Promise.resolve({
+        accid: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
+        pjid: '141399a5-14c5-47aa-bc04-2a281380b6e3',
+      }),
+    })
+    const data = await response.text()
+
+    expect(response.status).toBe(400)
+    expect(data).toBe('Invalid segments')
+  })
+
+  test('returns a 400 response for valid segments and invalid search params', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        segments: { accountId: string, projectId: string },
+        searchParams: { query: string, page: numeric },
+      },
+      async ({ segments, searchParams }) => {
+        return Response.json({ segments, searchParams }, { status: 200 })
+      }
+    )
+
+    const request = new Request(
+      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/rooms?q=liveblocks&page=2'
+    )
+
+    const response = await GET(request, {
+      params: Promise.resolve({
+        accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
+        projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
+      }),
+    })
+    const data = await response.text()
+
+    expect(response.status).toBe(400)
+    expect(data).toBe('Invalid search params')
+  })
+
+  test('validates segments and body correctly', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        segments: { accountId: string, projectId: string },
+        body: object({
+          name: string,
+          systemPrompt: string,
+          apiKey: string,
+        }),
+      },
+      async ({ segments, body }) => {
+        return Response.json({ segments, body })
+      }
+    )
+
+    const request = new Request(
+      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/copilots',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Super Butler',
+          systemPrompt: 'You are an expert at being a butler for customers.',
+          apiKey: 'sk_ai_copilot_key',
+        }),
+      }
+    )
+    const response = await POST(request, {
+      params: Promise.resolve({
+        accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
+        projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
+      }),
+    })
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toEqual({
+      segments: {
+        accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
+        projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
+      },
+      body: {
+        name: 'Super Butler',
+        systemPrompt: 'You are an expert at being a butler for customers.',
+        apiKey: 'sk_ai_copilot_key',
+      },
+    })
+  })
+
+  test('returns a 400 for invalid body', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        segments: { accountId: string, projectId: string },
+        body: object({
+          name: string,
+          systemPrompt: string,
+          apiKey: string,
+        }),
+      },
+      async ({ segments, body }) => {
+        return Response.json({ segments, body })
+      }
+    )
+
+    const request = new Request(
+      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/copilots',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          foo: 'bar',
+        }),
+      }
+    )
+    const response = await POST(request, {
+      params: Promise.resolve({
+        accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
+        projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
+      }),
+    })
+
+    const data = await response.text()
+    expect(response.status).toBe(400)
+    expect(data).toBe('Invalid body')
   })
 })
