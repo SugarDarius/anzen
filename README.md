@@ -42,10 +42,14 @@ The example above shows how to use the factory to authorize your requests.
 By design the factory is framework validation agnostic 🌟. When doing your validations you can use whatever you want as framework validation as long as it implements the [Standard Schema](https://github.com/standard-schema/standard-schema) common interface. You can use your favorite validation library like [Zod](https://zod.dev/) or [decoders](https://decoders.cc/).
 
 ```tsx
+import { z } from 'zod'
 import { object, string, number } from 'decoders'
 
 export const POST = createSafeRouteHandler(
   {
+    // `zod` for segments dictionary validation
+    segments: { id: z.string() }
+    // `decoders` for body validation
     body: object({
       id: number,
       name: string,
@@ -63,7 +67,11 @@ The factory do not supports async validations. As required by the [Standard Sche
 
 If you define an async validation then the route handler will throw an error.
 
-## Error handling
+## API
+
+Check the API and the available options to configure the factory as you wish.
+
+### Error handling
 
 By design the factory will catch any error thrown in the route handler will return a simple response with `500` status.
 
@@ -120,6 +128,10 @@ export function GET() {
 ```
 
 Feel free to open an issue or a PR if you think a relevant option could be added into the factory 🙂
+
+## Contributing
+
+All contributions are welcome! 🙂 Feel free to open an issue if you find a bug or create a pull request if you have a feature request.
 
 ## Credits
 
