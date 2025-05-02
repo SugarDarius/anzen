@@ -104,7 +104,7 @@ export type CreateSafeRouteHandlerOptions<
    *
    * IMPORTANT: The body is parsed as JSON, so it must be a valid JSON object!
    * IMPORTANT: body shouldn't be used with `formData` at the same time. They are exclusive.
-   * Why making the distinction? `formData` is used as a schema dictionary whereas `body` is used as a classic schema.
+   * Why making the distinction? `formData` is used as a `StandardSchemaDictionary` whereas `body` is used as a `StandardSchemaV1`.
    */
   body?: TBody
 
@@ -122,7 +122,7 @@ export type CreateSafeRouteHandlerOptions<
    * or to `application/x-www-form-urlencoded`.
    *
    * IMPORTANT: formData shouldn't be used with `body` at the same time. They are exclusive.
-   * Why making the distinction? `formData` is used as a schema dictionary whereas `body` is used as a classic schema.
+   * Why making the distinction? `formData` is used as a `StandardSchemaDictionary` whereas `body` is used as a `StandardSchemaV1`.
    */
   formData?: TFormData
 
