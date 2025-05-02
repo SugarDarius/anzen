@@ -11,7 +11,7 @@ on:
           - minor
           - major
       dry-run:
-        description: 'Run the release without publishing for testing)'
+        description: 'Run the release without publishing for testing'
         required: false
         type: boolean
         default: false
