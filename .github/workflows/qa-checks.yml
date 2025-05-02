@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout commit
+        uses: actions/checkout@v4
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: 23
           cache: npm
@@ -29,10 +29,10 @@ jobs:
     needs: lint
     timeout-minutes: 5
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout commit
+        uses: actions/checkout@v4
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: 23
           cache: npm
@@ -45,10 +45,10 @@ jobs:
     needs: test
     timeout-minutes: 5
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout commit
+        uses: actions/checkout@v4
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: 23
           cache: npm
