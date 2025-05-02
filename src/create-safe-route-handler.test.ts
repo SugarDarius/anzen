@@ -461,3 +461,197 @@ describe('request body validation', () => {
     expect(data).toBe('Invalid method for request body')
   })
 })
+
+describe('request form data validation', () => {
+  test('validates form data correctly', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        // Form data is dictionary not a body object
+        formData: {
+          id: z.string(),
+          message: z.string(),
+        },
+      },
+      async ({ formData }) => {
+        expectTypeOf(formData).toEqualTypeOf<{
+          id: string
+          message: string
+        }>()
+
+        return Response.json(formData, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      body: new URLSearchParams({
+        id: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
+        message: 'This is a tweet!',
+      }),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+
+    const response = await POST(request, { params: undefined })
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toEqual({
+      id: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
+      message: 'This is a tweet!',
+    })
+  })
+
+  test('returns a 400 response for invalid form data', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        // Form data is dictionary not a body object
+        formData: {
+          id: z.string(),
+          message: z.string(),
+        },
+      },
+      async ({ formData }) => {
+        expectTypeOf(formData).toEqualTypeOf<{
+          id: string
+          message: string
+        }>()
+
+        return Response.json(formData, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      body: new URLSearchParams({
+        pid: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
+        unknown: 'This is a tweet!',
+      }),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+
+    const response = await POST(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(400)
+    expect(data).toBe('Invalid form data')
+  })
+
+  test('returns a custom response for invalid form data', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        formData: {
+          id: z.string(),
+          message: z.string(),
+        },
+        onFormDataValidationErrorResponse: (issues) => {
+          expect(issues.length).toBe(2)
+          return new Response('Custom error', { status: 400 })
+        },
+      },
+      async ({ formData }) => {
+        return Response.json(formData, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      body: new URLSearchParams({
+        pid: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
+        unknown: 'This is a tweet!',
+      }),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+
+    const response = await POST(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(400)
+    expect(data).toBe('Custom error')
+  })
+
+  test('returns a 500 for missing form data', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        formData: {
+          id: z.string(),
+          message: z.string(),
+        },
+      },
+      async ({ formData }) => {
+        return Response.json(formData, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data', // MISSING boundary!
+      },
+      body: '--foo\r\nContent-Disposition: form-data; name="x"\r\n\r\n1\r\n--foo--',
+    })
+
+    const response = await POST(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(500)
+    expect(data).toBe('Internal server error')
+  })
+
+  test('returns a 405 for invalid method', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        formData: {
+          id: z.string(),
+          message: z.string(),
+        },
+      },
+      async ({ formData }) => {
+        return Response.json(formData, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(405)
+    expect(data).toBe('Invalid method for request form data')
+  })
+
+  test('returns a 415 for invalid content type', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        formData: {
+          id: z.string(),
+          message: z.string(),
+        },
+      },
+      async ({ formData }) => {
+        return Response.json(formData, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      body: new URLSearchParams({
+        id: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
+        message: 'This is a tweet!',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    const response = await POST(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(415)
+    expect(data).toBe('Invalid content type for request form data')
+  })
+})

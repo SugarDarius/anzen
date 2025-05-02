@@ -223,9 +223,16 @@ export function createSafeRouteHandler<
         })
       }
 
+      let formDataRaw: FormData
+      try {
+        formDataRaw = await req.formData()
+      } catch (err) {
+        return await onErrorResponse(err)
+      }
+
       const parsedFormData = parseWithDictionary(
         options.formData,
-        Object.fromEntries((await req.formData()).entries())
+        Object.fromEntries(formDataRaw.entries())
       )
 
       if (parsedFormData.issues) {
