@@ -135,7 +135,8 @@ All contributions are welcome! 🙂 Feel free to open an issue if you find a bug
 
 ## Credits
 
-Thanks to [@t3-oss/env-core](https://github.com/t3-oss/t3-env) for opening the implementation of `StandardSchemaDictionary` 🙏🏻
+- Thanks to [@t3-oss/env-core](https://github.com/t3-oss/t3-env) for opening the implementation of `StandardSchemaDictionary` 🙏🏻
+- Thanks to [frimousse](https://github.com/liveblocks/frimousse) for opening the release & publish workflow 🙏🏻
 
 ## License
 
