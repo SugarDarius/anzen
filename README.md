@@ -16,10 +16,11 @@ npm i @sugardarius/anzen
 ## Usage
 
 ```tsx
+import { object, string, number } from 'decoders'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { auth } from '~/lib/auth'
 
-export const GET = createSafeRouteHandler(
+export const POST = createSafeRouteHandler(
   {
     authorize: async ({ req }) => {
       const session = await auth.getSession(req)
@@ -29,9 +30,13 @@ export const GET = createSafeRouteHandler(
 
       return { user: session.user }
     },
+    body: object({
+      foo: string,
+      bar: number,
+    }),
   },
-  async ({ auth }, req): Promise<Response> => {
-    return Response.json({ user: auth.user }, { status: 200 })
+  async ({ auth, body }, req): Promise<Response> => {
+    return Response.json({ user: auth.user, body }, { status: 200 })
   }
 )
 ```
@@ -56,8 +61,8 @@ export const POST = createSafeRouteHandler(
       name: string,
     }),
   },
-  async ({ body }) => {
-    return Response.json({ body })
+  async ({ segments, body }) => {
+    return Response.json({ segments, body })
   }
 )
 ```
