@@ -78,6 +78,27 @@ If you define an async validation then the route handler will throw an error.
 
 Check the API and the available options to configure the factory as you wish.
 
+### Base options
+
+When creating a safe route handler you can use a bunch of options which can help you achieve different tasks 👇🏻
+
+#### `id: string`
+
+Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
+
+```tsx
+export const POST = createSafeRouteHandler(
+  {
+    id: 'my-safe-route-handler',
+  },
+  async ({ id }) => {
+    return Response.json({ id })
+  }
+)
+```
+
+> By default the id is set to `[unknown:route:handler]`
+
 ### Error handling
 
 By design the factory will catch any error thrown in the route handler will return a simple response with `500` status.

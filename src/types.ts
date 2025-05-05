@@ -32,8 +32,7 @@ export type BaseOptions<AC extends AuthContext | undefined> = {
    * ID for the route handler.
    * Used when logging in development or when `debug` is enabled.
    *
-   * You can also use it in the route handler definition to add extra logging
-   * or monitoring.
+   * You can also use it to add extra logging or monitoring.
    */
   id?: string
 
