@@ -82,7 +82,7 @@ Check the API and the available options to configure the factory as you wish.
 
 When creating a safe route handler you can use a bunch of options which can help you achieve different tasks 👇🏻
 
-#### `id: string`
+#### `id?: string`
 
 Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
 
@@ -98,6 +98,8 @@ export const POST = createSafeRouteHandler(
 ```
 
 > By default the id is set to `[unknown:route:handler]`
+
+#### `authorize?: AuthFunction<AC>`
 
 ### Error handling
 
@@ -156,6 +158,10 @@ export function GET() {
 ```
 
 Feel free to open an issue or a PR if you think a relevant option could be added into the factory 🙂
+
+## Requirements
+
+The factory `createSafeRouteHandler` requires Next.js `v14` or `v15` and typescript `v5` as peer dependencies.
 
 ## Contributing
 
