@@ -80,11 +80,12 @@ Check the API and the available options to configure the factory as you wish.
 
 ### Base options
 
-When creating a safe route handler you can use a bunch of options which can help you achieve different tasks 👇🏻
+When creating a safe route handler you can use a bunch of options for helping you achieve different tasks 👇🏻
 
 #### `id?: string`
 
 Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
+By default the id is set to `[unknown:route:handler]`
 
 ```tsx
 export const POST = createSafeRouteHandler(
@@ -97,9 +98,75 @@ export const POST = createSafeRouteHandler(
 )
 ```
 
-> By default the id is set to `[unknown:route:handler]`
-
 #### `authorize?: AuthFunction<AC>`
+
+Function to use to authorize the request. By default it always authorize the request.
+
+When returning a response, it will be used as the response for the request. Return a response when the request is not authorized.
+
+```tsx
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+export const GET = createSafeRouteHandler(
+  {
+    authorize: async ({ req, url }) => {
+      console.log('url', url)
+      const session = await auth.getSession(req)
+      if (!session) {
+        return new Response(null, { status: 401 })
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({ auth, body }, req): Promise<Response> => {
+    return Response.json({ user: auth.user }, { status: 200 })
+  }
+)
+```
+
+#### `debug?: boolean`
+
+Use this options to enable debug mode. It will add logs in the handler to help you debug the request.
+
+By default it's set to `false` for production builds.
+In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
+
+```tsx
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler({ debug: true }, async () => {
+  return new Response(null, { status: 200 })
+})
+```
+
+### Route handler options
+
+You can configure route handler options to validation using a validation library dynamic route segments, URL query parameters, request json body or request form data body 👇🏻
+
+#### `segments?: TSegments`
+
+[Dynamic route segments](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#dynamic-route-segments) used for the route handler path. By design it will handler if the segments are a `Promise` or not.
+
+Please note the expected input is a `StandardSchemaDictionary`.
+
+```tsx
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler(
+  {
+    segments: {
+      accountId: z.string(),
+      projectId: z.string().optional(),
+    },
+  },
+  async ({ segments }) => {
+    return Response.json({ segments })
+  }
+)
+```
 
 ### Error handling
 
@@ -108,6 +175,7 @@ By design the factory will catch any error thrown in the route handler will retu
 You can customize the error response if you want to fine tune error response management.
 
 ```tsx
+import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { HttpError, DbUnknownError } from '~/lib/errors'
 import { db } from '~/lib/db'
 
@@ -137,6 +205,19 @@ export const GET = createSafeRouteHandler(
     return Response.json({ data })
   }
 )
+```
+
+### Using the request in the route handler
+
+The original `request` is cascaded in the route handler function if you need to access to it.
+
+```tsx
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler({}, async (ctx, req) => {
+  console.log('integrity', req.integrity)
+  return new Response(null, { status: 200 })
+})
 ```
 
 ## Fair use note

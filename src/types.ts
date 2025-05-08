@@ -58,7 +58,7 @@ export type BaseOptions<AC extends AuthContext | undefined> = {
    * Use this options to enable debug mode.
    * It will add logs in the handler to help you debug the request.
    *
-   * By default it's `false` for production builds.
+   * By default it's set to `false` for production builds.
    * In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
    */
   debug?: boolean
@@ -76,7 +76,10 @@ export type CreateSafeRouteHandlerOptions<
   TFormData extends TFormDataDict | undefined,
 > = {
   /**
-   * Dynamic route segments used in the route handler path.
+   * Dynamic route segments used for the route handler path.
+   * By design it will handler if the segments are a `Promise` or not.
+   *
+   * Please note the expected input is a `StandardSchemaDictionary`.
    */
   segments?: TSegments
   /**
@@ -87,6 +90,8 @@ export type CreateSafeRouteHandlerOptions<
 
   /**
    * Search params used in the route.
+   *
+   * Please note the expected input is a `StandardSchemaDictionary`.
    */
   searchParams?: TSearchParams
   /**
