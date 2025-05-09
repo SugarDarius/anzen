@@ -84,7 +84,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className='container mx-auto relative flex min-h-dvh flex-col px-8 max-w-6xl'>
+          <div className='container mx-auto relative flex min-h-dvh flex-col px-8 max-w-5xl'>
             <SiteHeader />
             {children}
           </div>
