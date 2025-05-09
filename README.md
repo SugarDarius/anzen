@@ -177,6 +177,30 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
+#### `onSegmentsValidationErrorResponse?: OnValidationErrorResponse`
+
+Callback triggered when dynamic segments validations returned issues. By default it returns a simple `400` response and issues are logged into the console.
+
+```tsx
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler(
+  {
+    segments: {
+      accountId: z.string(),
+      projectId: z.string().optional(),
+    },
+    onSegmentsValidationErrorResponse: (issues) => {
+      return Response.json({ issues }, { status: 400 })
+    },
+  },
+  async ({ segments }) => {
+    return Response.json({ segments })
+  }
+)
+```
+
 ### Error handling
 
 By design the factory will catch any error thrown in the route handler will return a simple response with `500` status.
