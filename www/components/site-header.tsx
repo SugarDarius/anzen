@@ -19,7 +19,19 @@ export function SiteHeader() {
             <span className='font-medium inline'>{siteConfig.npm.name}</span>
           </a>
         </div>
-        <div className='flex items-center space-x-2 md:space-x-4'></div>
+        <div className='flex items-center space-x-2 md:space-x-4'>
+          <a
+            href={siteConfig.github.url}
+            target='_blank'
+            rel='noreferrer'
+            className={cn(
+              buttonVariants({ variant: 'outline' }),
+              'w-fit rounded-full outline-offset-2'
+            )}
+          >
+            <span className='font-medium inline'>{siteConfig.github.name}</span>
+          </a>
+        </div>
       </div>
     </header>
   )

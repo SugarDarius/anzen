@@ -21,7 +21,7 @@ export const siteConfig = {
   },
   github: {
     url: 'https://github.com/SugarDarius/anzen',
-    name: '@sugardarius/anzen',
+    name: 'sugardarius/anzen',
   },
   authors: [
     {
