@@ -1,1 +1,27 @@
+```tsx
+import { object, string, number } from 'decoders'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+export const POST = createSafeRouteHandler(
+  {
+    authorize: async ({ req }) => {
+      const session = await auth.getSession(req)
+      if (!session) {
+        return new Response(null, { status: 401 })
+      }
+
+      return { user: session.user }
+    },
+    body: object({
+      foo: string,
+      bar: number,
+    }),
+  },
+  async ({ auth, body }, req): Promise<Response> => {
+    return Response.json({ user: auth.user, body }, { status: 200 })
+  }
+)
+```
+
 A flexible, framework validation agnostic, type-safe factory for creating [Next.JS App Router route handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers).

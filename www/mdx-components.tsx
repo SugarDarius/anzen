@@ -1,5 +1,8 @@
+import React from 'react'
 import type { MDXComponents } from 'mdx/types'
+
 import { cn } from '~/lib/utils'
+import { WindowFrame } from '~/components/content/window-frame'
 
 const components: MDXComponents = {
   a: ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
@@ -81,6 +84,23 @@ const components: MDXComponents = {
   ),
   hr: ({ ...props }: React.HTMLAttributes<HTMLHRElement>) => (
     <hr className='my-4 md:my-8' {...props} />
+  ),
+  pre: ({
+    children,
+    className,
+    ...props
+  }: React.HTMLAttributes<HTMLPreElement>) => (
+    <WindowFrame className='w-full my-6 max-w-5xl mx-auto' title='api/route.ts'>
+      <pre
+        className={cn(
+          'relative py-4 px-2 w-ful font-mono cursor-text outline-none bg-stone-950',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </pre>
+    </WindowFrame>
   ),
   ul: ({ className, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
     <ul className={cn('my-6 ml-6 list-disc', className)} {...props} />
