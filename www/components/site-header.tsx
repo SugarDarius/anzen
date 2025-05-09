@@ -5,11 +5,13 @@ import { siteConfig } from '~/config/site'
 
 import { GithubIcon } from '~/components/icons/github'
 import { buttonVariants } from '~/components/ui/button'
+import { RetroGrid } from '~/components/retro-grid'
 
 export function SiteHeader() {
   return (
     <header className='sticky z-50 bg-background/90 backdrop-blur top-0 w-full'>
-      <div className='container py-8 flex items-center justify-between'>
+      <RetroGrid />
+      <div className='container py-8 flex items-center justify-between relative'>
         <div className='flex items-center space-x-6'>
           <a
             href={siteConfig.npm.url}
