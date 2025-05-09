@@ -126,6 +126,15 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
+#### `onErrorResponse?: (err: unknown) => Awaitable<Response>`
+
+Callback triggered when the request fails.
+By default it returns a simple `500` response and the error is logged into the console.
+
+Use it if your handler use custom errors and you want to manage them properly by returning a proper response.
+
+You can read more about it under the [Error handling](#error-handling) section.
+
 #### `debug?: boolean`
 
 Use this options to enable debug mode. It will add logs in the handler to help you debug the request.
