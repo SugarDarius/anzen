@@ -107,7 +107,7 @@ export type CreateSafeRouteHandlerOptions<
    * Returns a `415`response if the request does not explicitly set the `Content-Type` to `application/json`.
    *
    * IMPORTANT: The body is parsed as JSON, so it must be a valid JSON object!
-   * IMPORTANT: body shouldn't be used with `formData` at the same time. They are exclusive.
+   * IMPORTANT: Body shouldn't be used with `formData` at the same time. They are exclusive.
    * Why making the distinction? `formData` is used as a `StandardSchemaDictionary` whereas `body` is used as a `StandardSchemaV1`.
    */
   body?: TBody
