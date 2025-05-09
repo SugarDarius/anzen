@@ -6,6 +6,8 @@ const components: MDXComponents = {
     <a
       className={cn('font-medium underline underline-offset-4', className)}
       {...props}
+      target='_blank'
+      rel='noreferrer noopenner'
     />
   ),
   blockquote: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
