@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.2.2",
     "@sugardarius/anzen": "file:..",
     "@t3-oss/env-nextjs": "^0.13.4",
     "class-variance-authority": "^0.7.1",

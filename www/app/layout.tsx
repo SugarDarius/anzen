@@ -6,6 +6,7 @@ import { baseUrl, siteConfig } from '~/config/site'
 
 import './globals.css'
 import { ThemeProvider } from '~/components/theme-provider'
+import { SiteHeader } from '~/components/site-header'
 
 const GeistSans = Geist({
   variable: '--font-geist-sans',
@@ -74,7 +75,7 @@ export default function RootLayout({
         className={cn(
           GeistSans.variable,
           GeistMono.variable,
-          'font-sans antialiased bg-background text-foreground'
+          'font-sans antialiased'
         )}
       >
         <ThemeProvider
@@ -83,7 +84,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className='container relative flex min-h-dvh flex-col'>
+          <div className='container mx-auto relative flex min-h-dvh flex-col px-8'>
+            <SiteHeader />
             {children}
           </div>
         </ThemeProvider>

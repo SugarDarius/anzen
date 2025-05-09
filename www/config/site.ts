@@ -11,9 +11,17 @@ export const siteConfig = {
       name: '@azeldvin',
     },
     github: {
-      url: 'https://github.com/SugarDarius/anzen',
+      url: 'https://github.com/SugarDarius',
       name: 'SugarDarius',
     },
+  },
+  npm: {
+    url: 'https://www.npmjs.com/package/@sugardarius/anzen',
+    name: '@sugardarius/anzen',
+  },
+  github: {
+    url: 'https://github.com/SugarDarius/anzen',
+    name: '@sugardarius/anzen',
   },
   authors: [
     {
