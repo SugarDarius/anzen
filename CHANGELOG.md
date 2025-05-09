@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [1.0.0] - 2025-05-09
+
 - Package public release (not officially announced).
 
 ## [0.1.2] - 2025-05-02
