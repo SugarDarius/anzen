@@ -174,11 +174,17 @@ export type SafeRouteHandlerContext<
   readonly url: URL
 } & (AC extends AuthContext
   ? {
+      /**
+       * Auth context
+       */
       readonly auth: AC
     }
   : EmptyObjectType) &
   (TSegments extends TSegmentsDict
     ? {
+        /**
+         * Validated route dynamic segments
+         */
         readonly segments: UnwrapReadonlyObject<
           StandardSchemaDictionary.InferOutput<TSegments>
         >
@@ -186,6 +192,9 @@ export type SafeRouteHandlerContext<
     : EmptyObjectType) &
   (TSearchParams extends TSearchParamsDict
     ? {
+        /**
+         * Validated search params
+         */
         readonly searchParams: UnwrapReadonlyObject<
           StandardSchemaDictionary.InferOutput<TSearchParams>
         >
@@ -193,11 +202,17 @@ export type SafeRouteHandlerContext<
     : EmptyObjectType) &
   (TBody extends TBodySchema
     ? {
+        /**
+         * Validated request body
+         */
         readonly body: StandardSchemaV1.InferOutput<TBody>
       }
     : EmptyObjectType) &
   (TFormData extends TFormDataDict
     ? {
+        /**
+         * Validated form data
+         */
         readonly formData: UnwrapReadonlyObject<
           StandardSchemaDictionary.InferOutput<TFormData>
         >
