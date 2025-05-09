@@ -4,6 +4,8 @@ import createMdx from '@next/mdx'
 const nextConfig: NextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
 }
-const withMdx = createMdx()
+const withMdx = createMdx({
+  extension: /\.mdx?$/,
+})
 
 export default withMdx(nextConfig)
