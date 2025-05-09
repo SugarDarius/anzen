@@ -5,6 +5,7 @@ import { cn } from '~/lib/utils'
 import { baseUrl, siteConfig } from '~/config/site'
 
 import './globals.css'
+import { ThemeProvider } from '~/components/theme-provider'
 
 const GeistSans = Geist({
   variable: '--font-geist-sans',
@@ -68,7 +69,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <body
         className={cn(
           GeistSans.variable,
@@ -76,7 +77,14 @@ export default function RootLayout({
           'font-sans antialiased bg-background text-foreground'
         )}
       >
-        {children}
+        <ThemeProvider
+          attribute='class'
+          defaultTheme='system'
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )
