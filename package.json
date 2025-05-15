@@ -67,7 +67,7 @@
     "typescript": "^5"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.0",
+    "@arethetypeswrong/cli": "^0.18.1",
     "@eslint/js": "^9.26.0",
     "@release-it/keep-a-changelog": "^7.0.0",
     "@types/node": "^22.15.18",
