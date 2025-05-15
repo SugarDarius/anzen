@@ -1,12 +1,14 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
+import './globals.css'
+
 import { cn } from '~/lib/utils'
 import { baseUrl, siteConfig } from '~/config/site'
 
-import './globals.css'
 import { ThemeProvider } from '~/components/theme-provider'
 import { SiteHeader } from '~/components/site-header'
+import { SiteFooter } from '~/components/site-footer'
 
 const GeistSans = Geist({
   variable: '--font-geist-sans',
@@ -87,6 +89,7 @@ export default function RootLayout({
           <div className='container mx-auto relative flex min-h-dvh flex-col px-8 max-w-5xl'>
             <SiteHeader />
             {children}
+            <SiteFooter />
           </div>
         </ThemeProvider>
       </body>
