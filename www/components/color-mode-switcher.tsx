@@ -36,7 +36,8 @@ export function ColorModeSwitcher() {
           className={cn(
             'inline-flex items-center justify-center',
             'rounded-full transition duration-200 ease-out size-8',
-            'bg-background hover:bg-accent data-active:bg-accent '
+            'bg-background hover:bg-accent data-active:bg-accent',
+            'cursor-pointer'
           )}
           onClick={() => setTheme(mode)}
           aria-label={label}

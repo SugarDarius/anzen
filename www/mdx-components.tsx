@@ -2,6 +2,7 @@ import type { MDXComponents } from 'mdx/types'
 
 import { cn } from '~/lib/utils'
 import { WindowFrame } from '~/components/content/window-frame'
+import { CodeBlockCommand } from '~/components/content/code-block-command'
 
 const components: MDXComponents = {
   a: ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
@@ -87,23 +88,46 @@ const components: MDXComponents = {
   pre: ({
     children,
     className,
+    __rawString__,
     ...props
-  }: React.HTMLAttributes<HTMLPreElement>) => (
-    <WindowFrame
-      className='w-full my-6 max-w-5xl mx-auto bg-stone-950 text-background dark:text-foreground'
-      title='api/route.ts'
-    >
-      <pre
-        className={cn(
-          'relative py-4 px-2 w-ful font-mono cursor-text outline-none bg-stone-950',
-          className
-        )}
-        {...props}
+  }: React.HTMLAttributes<HTMLPreElement> & { __rawString__?: string }) => {
+    const isNPMCommand =
+      __rawString__ &&
+      (__rawString__.startsWith('npm i') ||
+        __rawString__.startsWith('npm install'))
+
+    if (isNPMCommand) {
+      const npmCommand = __rawString__.trim()
+      const yarnCommand = npmCommand.replace('npm i', 'yarn add')
+      const pnpmCommand = npmCommand.replace('npm i', 'pnpm add')
+      const bunCommand = npmCommand.replace('npm i', 'bun add')
+
+      return (
+        <CodeBlockCommand
+          npmCommand={npmCommand}
+          yarnCommand={yarnCommand}
+          pnpmCommand={pnpmCommand}
+          bunCommand={bunCommand}
+        />
+      )
+    }
+    return (
+      <WindowFrame
+        className='w-full my-6 max-w-5xl mx-auto bg-stone-950 text-background dark:text-foreground'
+        title='api/route.ts'
       >
-        {children}
-      </pre>
-    </WindowFrame>
-  ),
+        <pre
+          className={cn(
+            'relative py-4 px-2 w-ful font-mono cursor-text outline-none bg-stone-950',
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </pre>
+      </WindowFrame>
+    )
+  },
   ul: ({ className, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
     <ul className={cn('my-6 ml-6 list-disc', className)} {...props} />
   ),
