@@ -23,7 +23,7 @@ const components: MDXComponents = {
   code: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
     <code
       className={cn(
-        'relative rounded px-[0.2rem] py-[0.2rem] font-mono text-sm',
+        'relative rounded p-[0.2rem] font-mono text-sm bg-muted',
         className
       )}
       {...props}
@@ -121,6 +121,7 @@ const components: MDXComponents = {
         <pre
           className={cn(
             'relative py-4 px-2 w-ful font-mono cursor-text outline-none bg-stone-950',
+            '[&_code]:!bg-transparent',
             className
           )}
           {...props}
@@ -132,7 +133,7 @@ const components: MDXComponents = {
   },
   p: ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
     <p
-      className={cn('leading-7 [&:not(:first-child)]:mt-6', className)}
+      className={cn('leading-7 [&:not(:first-child)]:mt-4', className)}
       {...props}
     />
   ),
