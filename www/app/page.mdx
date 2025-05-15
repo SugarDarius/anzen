@@ -162,7 +162,7 @@ You can configure route handler options to validation using a validation library
 
 Please note the expected input is a `StandardSchemaDictionary`.
 
-```tsx
+```tsx title="/api/accounts/[accountId]/projects/[projectId]/route.ts"
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 

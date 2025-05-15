@@ -91,8 +91,12 @@ const components: MDXComponents = {
     children,
     className,
     __rawString__,
+    __title__,
     ...props
-  }: React.HTMLAttributes<HTMLPreElement> & { __rawString__?: string }) => {
+  }: React.HTMLAttributes<HTMLPreElement> & {
+    __rawString__?: string
+    __title__?: string
+  }) => {
     const isNPMCommand =
       __rawString__ &&
       (__rawString__.startsWith('npm i') ||
@@ -116,7 +120,7 @@ const components: MDXComponents = {
     return (
       <WindowFrame
         className='w-full mt-6 max-w-5xl mx-auto bg-stone-950 text-background dark:text-foreground'
-        title='api/route.ts'
+        title={__title__ ?? 'api/route.ts'}
       >
         <pre
           className={cn(

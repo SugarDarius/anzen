@@ -27,7 +27,7 @@ const withMdx = createMdx({
             if (codeEl.tagName !== 'code') {
               return
             }
-
+            node.__meta__ = codeEl.data?.meta ?? ''
             node.__rawString__ = codeEl.children?.[0].value
           }
         })
@@ -46,8 +46,11 @@ const withMdx = createMdx({
             }
 
             preElement.properties['__rawString__'] = node.__rawString__
-            if (node.__codesrc__) {
-              preElement.properties['__codesrc__'] = node.__codesrc__
+            if (node.__meta__ && node.__meta__.length > 0) {
+              const titleMatch = node.__meta__.match(/title="([^"]+)"/)
+              const title = titleMatch ? titleMatch[1] : undefined
+
+              preElement.properties['__title__'] = title
             }
           }
         })
