@@ -3,6 +3,7 @@ import type { MDXComponents } from 'mdx/types'
 import { cn } from '~/lib/utils'
 import { WindowFrame } from '~/components/content/window-frame'
 import { CodeBlockCommand } from '~/components/content/code-block-command'
+import { Highlight } from '~/components/content/highlight'
 
 const components: MDXComponents = {
   a: ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
@@ -82,6 +83,7 @@ const components: MDXComponents = {
       {...props}
     />
   ),
+  Highlight,
   hr: ({ ...props }: React.HTMLAttributes<HTMLHRElement>) => (
     <hr className='my-4 md:my-8' {...props} />
   ),
@@ -113,7 +115,7 @@ const components: MDXComponents = {
     }
     return (
       <WindowFrame
-        className='w-full my-6 max-w-5xl mx-auto bg-stone-950 text-background dark:text-foreground'
+        className='w-full mt-6 max-w-5xl mx-auto bg-stone-950 text-background dark:text-foreground'
         title='api/route.ts'
       >
         <pre
@@ -128,8 +130,14 @@ const components: MDXComponents = {
       </WindowFrame>
     )
   },
+  p: ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
+    <p
+      className={cn('leading-7 [&:not(:first-child)]:mt-6', className)}
+      {...props}
+    />
+  ),
   ul: ({ className, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
-    <ul className={cn('my-6 ml-6 list-disc', className)} {...props} />
+    <ul className={cn('mt-6 ml-6 list-disc', className)} {...props} />
   ),
   ol: ({ className, ...props }: React.HTMLAttributes<HTMLOListElement>) => (
     <ol className={cn('my-6 ml-6 list-decimal', className)} {...props} />

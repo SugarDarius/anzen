@@ -1,3 +1,9 @@
+<Highlight>
+  A flexible, framework validation agnostic, type-safe factory for creating
+  [Next.JS App Router route
+  handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers).
+</Highlight>
+
 ```tsx
 import { object, string, number } from 'decoders'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
@@ -24,10 +30,40 @@ export const POST = createSafeRouteHandler(
 )
 ```
 
-A flexible, framework validation agnostic, type-safe factory for creating [Next.JS App Router route handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers).
+- 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
+- 🧠 Focused functionalities, use only features you want.
+- 🧹 Clean and flexible API.
+- 🔒 Type-safe.
+- 🌱 Dependency free.
+- 🪶 Less than 100kB unpacked.
 
 ## Install
 
 ```sh
 npm i @sugardarius/anzen
+```
+
+## Framework validation agnostic
+
+By design the factory is framework validation agnostic 🌟. When doing your validations you can use whatever you want as framework validation as long as it implements the [Standard Schema](https://github.com/standard-schema/standard-schema) common interface. You can use your favorite validation library like [Zod](https://zod.dev/) or [decoders](https://decoders.cc/).
+
+```tsx
+// (POST) /app/api/races/[id]/route.ts
+import { z } from 'zod'
+import { object, string, number } from 'decoders'
+
+export const POST = createSafeRouteHandler(
+  {
+    // `zod` for segments dictionary validation
+    segments: { id: z.string() }
+    // `decoders` for body object validation
+    body: object({
+      id: number,
+      name: string,
+    }),
+  },
+  async ({ segments, body }) => {
+    return Response.json({ segments, body })
+  }
+)
 ```
