@@ -1,7 +1,9 @@
+import { cn } from '~/lib/utils'
 import { siteConfig } from '~/config/site'
+
 import { GithubIcon } from '~/components/icons/github'
 import { buttonVariants } from '~/components/ui/button'
-import { cn } from '~/lib/utils'
+import { ColorModeSwitcher } from '~/components/color-mode-switcher'
 
 export function SiteFooter() {
   return (
@@ -29,6 +31,7 @@ export function SiteFooter() {
         >
           <GithubIcon className='size-3.5' />
         </a>
+        <ColorModeSwitcher />
       </div>
     </footer>
   )
