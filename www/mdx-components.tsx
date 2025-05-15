@@ -90,7 +90,10 @@ const components: MDXComponents = {
     className,
     ...props
   }: React.HTMLAttributes<HTMLPreElement>) => (
-    <WindowFrame className='w-full my-6 max-w-5xl mx-auto' title='api/route.ts'>
+    <WindowFrame
+      className='w-full my-6 max-w-5xl mx-auto bg-stone-950 text-background dark:text-foreground'
+      title='api/route.ts'
+    >
       <pre
         className={cn(
           'relative py-4 px-2 w-ful font-mono cursor-text outline-none bg-stone-950',
