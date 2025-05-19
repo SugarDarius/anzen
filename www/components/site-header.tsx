@@ -21,7 +21,7 @@ const ExternalLink = ({
       rel='noreferrer'
       className={cn(
         buttonVariants({ variant: 'outline' }),
-        'w-fit rounded-full outline-offset-2 items-center'
+        'w-fit rounded-full outline-offset-2 items-center dark:bg-background dark:hover:bg-accent'
       )}
     >
       {children}
