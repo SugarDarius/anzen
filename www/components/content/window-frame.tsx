@@ -1,12 +1,15 @@
 import { cn } from '~/lib/utils'
+import { CopyButton } from '~/components/ui/copy-button'
 
 export function WindowFrame({
   className,
   title,
+  value,
   children,
 }: {
   className?: string
   title?: string
+  value?: string
   children?: React.ReactNode
 }) {
   return (
@@ -25,6 +28,11 @@ export function WindowFrame({
         <div className='flex h-full w-full flex-row items-center justify-center'>
           <span className='text-xs'>{title ?? 'Untitled'}</span>
         </div>
+        {value ? (
+          <div className='absolute right-3 top-1.5'>
+            <CopyButton value={value} />
+          </div>
+        ) : null}
       </div>
       <div className='flex w-full flex-auto flex-col'>{children}</div>
     </div>

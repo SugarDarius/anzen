@@ -121,6 +121,7 @@ const components: MDXComponents = {
       <WindowFrame
         className='w-full mt-6 max-w-5xl mx-auto bg-stone-950 text-background dark:text-foreground'
         title={__title__ ?? 'api/route.ts'}
+        value={__rawString__}
       >
         <pre
           className={cn(
