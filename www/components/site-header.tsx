@@ -31,9 +31,9 @@ const ExternalLink = ({
 
 export function SiteHeader() {
   return (
-    <header className='sticky z-50 bg-background/95 backdrop-blur top-0 w-full'>
+    <header className='sticky z-50 bg-background/95 backdrop-blur top-0 w-full before:absolute before:left-[calc(var(--spacing)*8*-1)] before:w-[calc(100%+(var(--spacing)*(8*2)))] before:border-b before:border-b-muted before:-bottom-1'>
       <RetroGrid />
-      <div className='container py-8 flex items-center justify-between relative'>
+      <div className='container py-6 flex items-center justify-between relative'>
         <div className='flex items-center space-x-6'>
           <ExternalLink href={siteConfig.npm.url}>
             <BoxIcon className='size-4' />

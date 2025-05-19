@@ -7,7 +7,7 @@ import { ColorModeSwitcher } from '~/components/color-mode-switcher'
 
 export function SiteFooter() {
   return (
-    <footer className='container py-8 flex items-center justify-between relative'>
+    <footer className='container py-6 flex items-center justify-between relative before:absolute before:left-[calc(var(--spacing)*8*-1)] before:w-[calc(100%+(var(--spacing)*(8*2)))] before:border-b before:border-b-muted before:top-0 mt-6'>
       <span className='text-sm text-secondary-foreground'>
         &copy; 2025{' '}
         <a
