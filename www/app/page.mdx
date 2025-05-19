@@ -178,3 +178,262 @@ export const GET = createSafeRouteHandler(
   }
 )
 ```
+
+#### `onSegmentsValidationErrorResponse?: OnValidationErrorResponse`
+
+Callback triggered when dynamic segments validations returned issues. By default it returns a simple `400` response and issues are logged into the console.
+
+```tsx
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler(
+  {
+    segments: {
+      accountId: z.string(),
+      projectId: z.string().optional(),
+    },
+    onSegmentsValidationErrorResponse: (issues) => {
+      return Response.json({ issues }, { status: 400 })
+    },
+  },
+  async ({ segments }) => {
+    return Response.json({ segments })
+  }
+)
+```
+
+#### `searchParams?: TSearchParams`
+
+Search params used in the route.
+
+Please note the expected input is a `StandardSchemaDictionary`.
+
+```tsx
+import { string, numeric, optional } from 'decoders'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler(
+  {
+    searchParams: {
+      query: string,
+      page: optional(numeric),
+    },
+  },
+  async ({ searchParams }) => {
+    return Response.json({ searchParams })
+  }
+)
+```
+
+#### `onSearchParamsValidationErrorResponse?: OnValidationErrorResponse`
+
+Callback triggered when search params validations returned issues. By default it returns a simple `400` response and issues are logged into the console.
+
+```tsx
+import { string, numeric, optional } from 'decoders'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler(
+  {
+    searchParams: {
+      query: string,
+      page: optional(numeric),
+    },
+    onSearchParamsValidationErrorResponse: (issues) => {
+      return Response.json({ issues }, { status: 400 })
+    },
+  },
+  async ({ searchParams }) => {
+    return Response.json({ searchParams })
+  }
+)
+```
+
+#### `body?: TBody`
+
+Request body.
+
+Returns a `405` response if the request method is not `POST`, 'PUT' or 'PATCH'.
+
+Returns a `415`response if the request does not explicitly set the `Content-Type` to `application/json`.
+
+Please note the body is parsed as JSON, so it must be a valid JSON object. Body shouldn't be used with `formData` at the same time. They are **exclusive**.
+
+Why making the distinction? `formData` is used as a `StandardSchemaDictionary` whereas `body` is used as a `StandardSchemaV1`.
+
+```tsx
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const POST = createSafeRouteHandler(
+  {
+    body: z.object({
+      name: z.string(),
+      model: z.string(),
+      apiKey: z.string(),
+    }),
+  },
+  async ({ body }) => {
+    return Response.json({ body })
+  }
+)
+```
+
+#### `onBodyValidationErrorResponse?: OnValidationErrorResponse`
+
+Callback triggered when body validation returned issues. By default it returns a simple `400` response and issues are logged into the console.
+
+```tsx
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const POST = createSafeRouteHandler(
+  {
+    body: z.object({
+      name: z.string(),
+      model: z.string(),
+      apiKey: z.string(),
+    }),
+    onBodyValidationErrorResponse: (issues) => {
+      return Response.json({ issues }, { status: 400 })
+    },
+  },
+  async ({ body }) => {
+    return Response.json({ body })
+  }
+)
+```
+
+#### `formData?: TFormData`
+
+Request form data.
+
+Returns a `405` response if the request method is not `POST`, 'PUT' or 'PATCH'.
+
+Returns a `415`response if the request does not explicitly set the `Content-Type` to `multipart/form-data` or to `application/x-www-form-urlencoded`.
+
+Please note formData shouldn't be used with `body` at the same time. They are **exclusive**.
+
+Why making the distinction? `formData` is used as a `StandardSchemaDictionary` whereas `body` is used as a `StandardSchemaV1`.
+
+```tsx
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const POST = createSafeRouteHandler(
+  {
+    formData: {
+      id: z.string(),
+      message: z.string(),
+    },
+  },
+  async ({ formData }) => {
+    return Response.json({ formData })
+  }
+)
+```
+
+#### `onFormDataValidationErrorResponse?: OnValidationErrorResponse`
+
+Callback triggered when form data validation returned issues. By default it returns a simple `400` response and issues are logged into the console.
+
+```tsx
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const POST = createSafeRouteHandler(
+  {
+    formData: {
+      id: z.string(),
+      message: z.string(),
+    },
+    onFormDataValidationErrorResponse: (issues) => {
+      return Response.json({ issues }, { status: 400 })
+    },
+  },
+  async ({ formData }) => {
+    return Response.json({ formData })
+  }
+)
+```
+
+### Error handling
+
+By design the factory will catch any error thrown in the route handler will return a simple response with `500` status.
+
+You can customize the error response if you want to fine tune error response management.
+
+```tsx
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { HttpError, DbUnknownError } from '~/lib/errors'
+import { db } from '~/lib/db'
+
+export const GET = createSafeRouteHandler(
+  {
+    onErrorResponse: async (err: unknown): Promise<Response> => {
+      if (err instanceof HttpError) {
+        return new Response(err.message, { status: err.status })
+      } else if (err instanceof DbUnknownError) {
+        return new Response(err.message, { status: err.status })
+      }
+
+      return new Response('Internal server error', { status: 500 })
+    },
+  },
+  async (): Promise<Response> => {
+    const [data, err] = await db.findUnique({ id: 'liveblocks' })
+
+    if (err) {
+      throw new DbUnknownError(err.message, 500)
+    }
+
+    if (data === null) {
+      throw new HttpError(404)
+    }
+
+    return Response.json({ data })
+  }
+)
+```
+
+### Using the request in the route handler
+
+The original `request` is cascaded in the route handler function if you need to access to it.
+
+```tsx
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler({}, async (ctx, req) => {
+  console.log('integrity', req.integrity)
+  return new Response(null, { status: 200 })
+})
+```
+
+## Fair use note
+
+Please note that if you're not using any of the proposed options in `createSafeRouteHandler` it means you're surely don't need it.
+
+```tsx
+// Calling 👇🏻
+export const GET = createSafeRouteHandler({}, async () => {
+  return new Response(null, { status: 200 })
+})
+
+// is equal to declare the route handler this way 👇🏻
+export function GET() {
+  return new Response(null, { status: 200 })
+}
+// excepts `createSafeRouteHandler` will provide by default a native error catching
+// and will return a `500` response. That's the only advantage.
+```
+
+Feel free to open an issue or a PR if you think a relevant option could be added into the factory 🙂
+
+## Requirements
+
+The factory `createSafeRouteHandler` requires Next.js `v14` or `v15` and typescript `v5` as peer dependencies.
+
+## Credits
+
+- Thanks to [@t3-oss/env-core](https://github.com/t3-oss/t3-env) for opening the implementation of `StandardSchemaDictionary` 🙏🏻
