@@ -39,8 +39,10 @@ export async function SiteHeader() {
   const { version } = JSON.parse(pkg)
 
   return (
-    <header className='sticky z-50 bg-background/95 backdrop-blur top-0 w-full before:absolute before:left-[calc(var(--spacing)*8*-1)] before:w-[calc(100%+(var(--spacing)*(8*2)))] before:border-b before:border-b-muted before:-bottom-1'>
-      <RetroGrid />
+    <header className='sticky z-50 bg-background/95 backdrop-blur top-0 w-full before:absolute before:left-[calc(var(--spacing)*8*-1)] before:w-[calc(100%+(var(--spacing)*(8*2)))] before:border-b before:border-b-muted before:bottom-0'>
+      <div className='absolute inset-x-0 top-0 bottom-0.5'>
+        <RetroGrid />
+      </div>
       <div className='container py-6 flex items-center justify-between relative'>
         <div className='flex items-center space-x-6'>
           <ExternalLink href={siteConfig.npm.url}>
