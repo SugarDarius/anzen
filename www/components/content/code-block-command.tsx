@@ -1,11 +1,11 @@
 'use client'
-import { useCallback, useMemo, useState } from 'react'
-import { CheckIcon, ClipboardIcon } from 'lucide-react'
+
+import { useMemo, useState } from 'react'
 
 import { cn } from '~/lib/utils'
-import { useCopyToClipboard } from '~/hooks/use-copy-to-clipboard'
-import { Button } from '~/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
+
+import { CopyButton } from '~/components/ui/copy-button'
 
 type Tabs = 'npm' | 'yarn' | 'pnpm' | 'bun'
 
@@ -23,7 +23,6 @@ export function CodeBlockCommand({
   bunCommand: string
 }) {
   const [tab, setTab] = useState<Tabs>('npm')
-  const [copied, copy] = useCopyToClipboard()
 
   const tabs = useMemo(() => {
     return {
@@ -34,14 +33,7 @@ export function CodeBlockCommand({
     } as Record<string, string>
   }, [npmCommand, yarnCommand, pnpmCommand, bunCommand])
 
-  const copyCommand = useCallback((): void => {
-    const cmd = tabs[tab]
-    if (!cmd) {
-      return
-    }
-
-    copy(cmd)
-  }, [tab, copy, tabs])
+  const cmd = tabs[tab] ?? ''
 
   return (
     <div
@@ -87,15 +79,7 @@ export function CodeBlockCommand({
           )
         })}
       </Tabs>
-      <Button
-        size='icon'
-        variant='ghost'
-        className='absolute right-2.5 top-2 z-10 h-6 w-6 text-zinc-50 hover:bg-zinc-700 hover:text-zinc-50 [&_svg]:h-3 [&_svg]:w-3'
-        onClick={copyCommand}
-      >
-        <span className='sr-only'>Copy</span>
-        {copied ? <CheckIcon /> : <ClipboardIcon />}
-      </Button>
+      <CopyButton value={cmd} />
     </div>
   )
 }
