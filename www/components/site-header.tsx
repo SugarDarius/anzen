@@ -31,7 +31,7 @@ const ExternalLink = ({
 
 export function SiteHeader() {
   return (
-    <header className='sticky z-50 bg-background/90 backdrop-blur top-0 w-full'>
+    <header className='sticky z-50 bg-background/95 backdrop-blur top-0 w-full'>
       <RetroGrid />
       <div className='container py-8 flex items-center justify-between relative'>
         <div className='flex items-center space-x-6'>
