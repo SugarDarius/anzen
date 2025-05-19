@@ -15,7 +15,7 @@ const components: MDXComponents = {
     return (
       <a
         className={cn(
-          'font-medium underline underline-offset-4 [&:is(.mdx-subheading-link)]:underline [&:is(.mdx-subheading-link)]:decoration-dashed [&:is(.mdx-subheading-link)]:decoration-muted [&:is(.mdx-subheading-link)]:underline-offset-6 [&:is(.mdx-subheading-link)]:decoration-1 hover:[&:is(.mdx-subheading-link)]:decoration-muted-foreground transition-all',
+          'font-medium underline underline-offset-4 [&:is(.mdx-subheading-link)]:underline [&:is(.mdx-subheading-link)]:decoration-dashed [&:is(.mdx-subheading-link)]:decoration-muted [&:is(.mdx-subheading-link)]:underline-offset-6 decoration-1 hover:[&:is(.mdx-subheading-link)]:decoration-muted-foreground transition-all',
           className
         )}
         {...props}
