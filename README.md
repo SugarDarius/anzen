@@ -51,6 +51,7 @@ By design the factory is framework validation agnostic 🌟. When doing your val
 // (POST) /app/api/races/[id]/route.ts
 import { z } from 'zod'
 import { object, string, number } from 'decoders'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
 
 export const POST = createSafeRouteHandler(
   {
@@ -77,6 +78,40 @@ If you define an async validation then the route handler will throw an error.
 ## API
 
 Check the API and the available options to configure the factory as you wish.
+
+### Function signature
+
+```tsx
+import {
+  type CreateSafeRouteHandlerOptions,
+  type SafeRouteHandlerContext,
+  createSafeRouteHandler
+} from '@sugardarius/anzen'
+
+/**
+ * Returns a Next.js API route handler function.
+ */
+export const VERB = createSafeRouteHandler(
+  /**
+   * Options to configure the route handler
+   */
+  options: CreateSafeRouteHandlerOptions,
+  /**
+   * The route handler function.
+   */
+  async (
+    /**
+     * Context object providing:
+     *  auth context
+     *  validated segments, search params, body and form data
+     */
+    ctx: SafeRouteHandlerContext,
+    /**
+     * Original request
+     */
+    req: Request
+): Promise<Response> => Response.json({}))
+```
 
 ### Base options
 
