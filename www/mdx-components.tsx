@@ -6,14 +6,26 @@ import { CodeBlockCommand } from '~/components/content/code-block-command'
 import { Highlight } from '~/components/content/highlight'
 
 const components: MDXComponents = {
-  a: ({ className, ...props }: React.HTMLAttributes<HTMLAnchorElement>) => (
-    <a
-      className={cn('font-medium underline underline-offset-4', className)}
-      {...props}
-      target='_blank'
-      rel='noreferrer noopenner'
-    />
-  ),
+  a: ({
+    className,
+    href,
+    ...props
+  }: React.HTMLAttributes<HTMLAnchorElement> & { href: string }) => {
+    const isInternalLink = href.startsWith('/') || href.startsWith('#')
+    return (
+      <a
+        className={cn(
+          'font-medium underline underline-offset-4 [&:is(.mdx-subheading-link)]:underline [&:is(.mdx-subheading-link)]:decoration-dashed [&:is(.mdx-subheading-link)]:decoration-muted [&:is(.mdx-subheading-link)]:underline-offset-6 [&:is(.mdx-subheading-link)]:decoration-1 hover:[&:is(.mdx-subheading-link)]:decoration-muted-foreground transition-all',
+          className
+        )}
+        {...props}
+        {...(!isInternalLink
+          ? { target: '_blank', rel: 'noopener noreferrer' }
+          : {})}
+        href={href}
+      />
+    )
+  },
   blockquote: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
     <blockquote
       className={cn('mt-6 border-l-2 pl-6 italic', className)}
@@ -41,7 +53,7 @@ const components: MDXComponents = {
   h2: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h2
       className={cn(
-        'font-heading mt-12 scroll-m-20 border-b pb-2 text-2xl font-semibold tracking-tight first:mt-0',
+        'font-heading mt-12 scroll-m-20 pb-2 text-2xl font-semibold tracking-tight first:mt-0',
         className
       )}
       {...props}

@@ -3,6 +3,7 @@ import createMdx from '@next/mdx'
 
 import { visit } from 'unist-util-visit'
 import rehypePrettyCode, { type Options } from 'rehype-pretty-code'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeSlug from 'rehype-slug'
 
 const nextConfig: NextConfig = {
@@ -55,6 +56,15 @@ const withMdx = createMdx({
           }
         })
       },
+      [
+        rehypeAutolinkHeadings,
+        {
+          properties: {
+            className: 'mdx-subheading-link',
+          },
+          behavior: 'wrap',
+        },
+      ],
     ],
   },
 })
