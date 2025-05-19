@@ -26,7 +26,7 @@ const COLOR_MODES = [
 
 export function ColorModeSwitcher() {
   const { theme, setTheme } = useTheme()
-  const deferredTheme = useDeferredValue(theme, 'system')
+  const deferredTheme = useDeferredValue(theme, 'dark')
 
   return (
     <div className='flex items-center border rounded-full p-0.5 gap-0.5'>

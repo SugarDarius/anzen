@@ -82,11 +82,11 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute='class'
-          defaultTheme='system'
+          defaultTheme='dark'
           enableSystem
           disableTransitionOnChange
         >
-          <div className='container mx-auto relative flex min-h-dvh flex-col px-8 max-w-5xl'>
+          <div className='container mx-auto relative flex min-h-dvh flex-col px-8 max-w-5xl border-x border-x-muted'>
             <SiteHeader />
             {children}
             <SiteFooter />
