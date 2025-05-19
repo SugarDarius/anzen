@@ -1,3 +1,6 @@
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
+
 import { BoxIcon } from 'lucide-react'
 
 import { cn } from '~/lib/utils'
@@ -29,7 +32,11 @@ const ExternalLink = ({
   )
 }
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const pkg = await readFile(join(process.cwd(), '../package.json'), {
+    encoding: 'utf-8',
+  })
+  const { version } = JSON.parse(pkg)
   return (
     <header className='sticky z-50 bg-background/95 backdrop-blur top-0 w-full before:absolute before:left-[calc(var(--spacing)*8*-1)] before:w-[calc(100%+(var(--spacing)*(8*2)))] before:border-b before:border-b-muted before:-bottom-1'>
       <RetroGrid />
@@ -41,7 +48,7 @@ export function SiteHeader() {
               {siteConfig.npm.name}
             </span>{' '}
             <span className='text-xs text-muted-foreground font-semibold'>
-              v1.0.0
+              v{version}
             </span>
           </ExternalLink>
         </div>
