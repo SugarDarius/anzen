@@ -131,13 +131,13 @@ const components: MDXComponents = {
     }
     return (
       <WindowFrame
-        className='w-full mt-6 max-w-5xl mx-auto bg-stone-950 text-background dark:text-foreground'
+        className='w-full mt-6 max-w-5xl mx-auto'
         title={__title__ ?? 'api/route.ts'}
         value={__rawString__}
       >
         <pre
           className={cn(
-            'relative py-4 px-2 w-ful font-mono cursor-text outline-none bg-stone-950 dark:bg-stone-900',
+            'relative py-4 px-2 w-ful font-mono cursor-text outline-none bg-stone-900',
             '[&_code]:!bg-transparent',
             className
           )}
