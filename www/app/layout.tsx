@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
+import { Analytics } from '@vercel/analytics/react'
+
 import './globals.css'
 
 import { cn } from '~/lib/utils'
@@ -92,6 +94,7 @@ export default function RootLayout({
             <SiteFooter />
           </div>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   )

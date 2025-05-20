@@ -18,6 +18,7 @@
     "@sugardarius/anzen": "file:..",
     "@t3-oss/env-nextjs": "^0.13.4",
     "@types/mdx": "^2.0.13",
+    "@vercel/analytics": "^1.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "decoders": "^2.7.0",
