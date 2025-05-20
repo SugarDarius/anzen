@@ -32,7 +32,7 @@ export function WindowFrame({
           <div className='absolute right-3 top-1.5'>
             <CopyButton
               value={value}
-              className='text-zinc-900 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-50 dark:hover:bg-zinc-700 dark:hover:text-zinc-50'
+              className='text-stone-900 hover:text-stone-900 hover:bg-stone-200 dark:text-stone-50 dark:hover:bg-stone-700 dark:hover:text-stone-50'
             />
           </div>
         ) : null}
