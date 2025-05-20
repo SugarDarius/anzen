@@ -18,18 +18,20 @@ export function SiteFooter() {
         >
           MIT License
         </a>{' '}
-        by{' '}
-        {siteConfig.authors.map((author) => (
-          <a
-            key={author.name}
-            href={author.url}
-            target='_blank'
-            rel='noreferrer'
-            className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
-          >
-            {author.name}
-          </a>
-        ))}
+        <span className='hidden sm:inline'>
+          by{' '}
+          {siteConfig.authors.map((author) => (
+            <a
+              key={author.name}
+              href={author.url}
+              target='_blank'
+              rel='noreferrer'
+              className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
+            >
+              {author.name}
+            </a>
+          ))}
+        </span>
       </span>
       <div className='flex items-center gap-1.5'>
         <a

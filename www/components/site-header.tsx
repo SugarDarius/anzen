@@ -55,7 +55,7 @@ export async function SiteHeader() {
             </span>
           </ExternalLink>
         </div>
-        <div className='flex items-center space-x-2 md:space-x-4'>
+        <div className='hidden sm:flex items-center '>
           <ExternalLink href={siteConfig.github.url}>
             <GithubIcon className='size-3.5' />
             <span className='font-medium inline'>{siteConfig.github.name}</span>
