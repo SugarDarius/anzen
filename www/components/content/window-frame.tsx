@@ -37,7 +37,9 @@ export function WindowFrame({
           </div>
         ) : null}
       </div>
-      <div className='flex w-full flex-auto flex-col'>{children}</div>
+      <div className='flex w-full flex-auto flex-col overflow-x-auto bg-stone-900'>
+        {children}
+      </div>
     </div>
   )
 }

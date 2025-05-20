@@ -137,7 +137,7 @@ const components: MDXComponents = {
       >
         <pre
           className={cn(
-            'relative py-4 px-2 w-ful font-mono cursor-text outline-none bg-stone-900',
+            'relative py-4 px-2 w-ful font-mono cursor-text outline-none',
             '[&_code]:!bg-transparent',
             className
           )}
