@@ -24,7 +24,7 @@ const ExternalLink = ({
       rel='noreferrer'
       className={cn(
         buttonVariants({ variant: 'outline' }),
-        'w-fit rounded-full outline-offset-2 items-center dark:bg-background dark:hover:bg-accent'
+        'group w-fit rounded-full outline-offset-2 items-center dark:bg-background dark:hover:bg-accent'
       )}
     >
       {children}
@@ -50,8 +50,8 @@ export async function SiteHeader() {
             <span className='font-medium inline'>
               {siteConfig.npm.name}
             </span>{' '}
-            <span className='text-xs text-muted-foreground font-semibold'>
-              v{version}
+            <span className='text-[0.625rem] text-background font-semibold bg-foreground px-1 rounded-full'>
+              {version}
             </span>
           </ExternalLink>
         </div>
