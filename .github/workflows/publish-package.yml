@@ -50,3 +50,10 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  www-vercel-deploy:
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Triggers website deploy on Vercel
+        run: |
+          curl -X POST ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
