@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+- Update jsdoc.
+- Update README.md.
+- Public announcement.
+
 ## [1.0.0] - 2025-05-09
 
 - Package public release (not officially announced).
