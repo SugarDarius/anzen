@@ -24,13 +24,17 @@ export function CopyButton({
       size='icon'
       variant='ghost'
       className={cn(
-        'h-6 w-6 text-zinc-50 hover:bg-zinc-700 hover:text-zinc-50 [&_svg]:h-3 [&_svg]:w-3',
+        'h-6 w-6 text-zinc-50 hover:bg-zinc-700 hover:text-zinc-50',
         className
       )}
       onClick={handleCopy}
     >
       <span className='sr-only'>Copy</span>
-      {copied ? <CheckIcon /> : <ClipboardIcon />}
+      {copied ? (
+        <CheckIcon className='size-3.5' />
+      ) : (
+        <ClipboardIcon className='size-3.5' />
+      )}
     </Button>
   )
 }
