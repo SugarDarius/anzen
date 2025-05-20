@@ -1,6 +1,6 @@
 {
   "name": "@sugardarius/anzen",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A fast, framework validation agnostic, type-safe factory for creating Next.JS App Router route handlers.",
   "license": "MIT",
   "packageManager": "npm@11.3.0",
