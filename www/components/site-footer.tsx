@@ -38,7 +38,7 @@ export function SiteFooter() {
           rel='noreferrer'
           className={cn(
             buttonVariants({ variant: 'outline', size: 'icon' }),
-            'rounded-full outline-offset-2'
+            'rounded-full outline-offset-2 dark:bg-background dark:hover:bg-background'
           )}
         >
           <GithubIcon className='size-3.5' />
