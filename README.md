@@ -45,7 +45,7 @@ The example above shows how to use the factory to authorize your requests.
 
 ## Framework validation agnostic
 
-By design the factory is framework validation agnostic 🌟. When doing your validations you can use whatever you want as framework validation as long as it implements the [Standard Schema](https://github.com/standard-schema/standard-schema) common interface. You can use your favorite validation library like [Zod](https://zod.dev/) or [decoders](https://decoders.cc/).
+By design the factory is framework validation agnostic 🌟. When doing your validations you can use whatever you want as framework validation as long as it implements the [Standard Schema](https://github.com/standard-schema/standard-schema) common interface. You can use your favorite validation library like [Zod](https://zod.dev/), [Validbot](https://valibot.dev/) or [decoders](https://decoders.cc/).
 
 ```tsx
 // (POST) /app/api/races/[id]/route.ts
