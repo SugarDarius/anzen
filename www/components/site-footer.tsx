@@ -40,7 +40,8 @@ export function SiteFooter() {
           rel='noreferrer'
           className={cn(
             buttonVariants({ variant: 'outline', size: 'icon' }),
-            'rounded-full outline-offset-2 dark:bg-background dark:hover:bg-background'
+            'rounded-full outline-offset-2 dark:bg-background dark:hover:bg-accent',
+            'transition duration-200 ease-out'
           )}
         >
           <GithubIcon className='size-3.5' />
