@@ -288,7 +288,7 @@ export const GET = createSafeRouteHandler(
 
 Request body.
 
-Returns a `405` response if the request method is not `POST`, 'PUT' or 'PATCH'.
+Returns a `405` response if the request method is not `POST`, `PUT` or `PATCH`.
 
 Returns a `415`response if the request does not explicitly set the `Content-Type` to `application/json`.
 
@@ -343,7 +343,7 @@ export const POST = createSafeRouteHandler(
 
 Request form data.
 
-Returns a `405` response if the request method is not `POST`, 'PUT' or 'PATCH'.
+Returns a `405` response if the request method is not `POST`, `PUT` or `PATCH`.
 
 Returns a `415`response if the request does not explicitly set the `Content-Type` to `multipart/form-data` or to `application/x-www-form-urlencoded`.
 
