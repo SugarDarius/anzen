@@ -15,7 +15,7 @@ export function WindowFrame({
   return (
     <div
       className={cn(
-        'relative flex h-auto min-h-[240px] w-[466px] max-w-full flex-col overflow-hidden rounded-md border shadow-md',
+        'relative flex h-auto w-[466px] max-w-full flex-col overflow-hidden rounded-md border shadow-md',
         className
       )}
     >
