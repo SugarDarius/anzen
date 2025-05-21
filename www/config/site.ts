@@ -26,7 +26,7 @@ export const siteConfig = {
   authors: [
     {
       name: 'SugarDarius',
-      url: baseUrl,
+      url: 'https://github.com/SugarDarius',
     },
   ],
   creator: 'SugarDarius',
