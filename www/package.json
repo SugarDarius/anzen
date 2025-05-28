@@ -16,7 +16,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.1.12",
     "@sugardarius/anzen": "file:..",
-    "@t3-oss/env-nextjs": "^0.13.4",
+    "@t3-oss/env-nextjs": "^0.13.6",
     "@types/mdx": "^2.0.13",
     "@vercel/analytics": "^1.5.0",
     "class-variance-authority": "^0.7.1",
