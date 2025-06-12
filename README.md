@@ -313,6 +313,8 @@ export const POST = createSafeRouteHandler(
 )
 ```
 
+> When validating the body the request is cloned to let you consume the body in the original request (e.g second arguments of handler function).
+
 #### `onBodyValidationErrorResponse?: OnValidationErrorResponse`
 
 Callback triggered when body validation returned issues. By default it returns a simple `400` response and issues are logged into the console.
@@ -366,6 +368,8 @@ export const POST = createSafeRouteHandler(
   }
 )
 ```
+
+> When validating the form data the request is cloned to let you consume the form data in the original request (e.g second arguments of handler function).
 
 #### `onFormDataValidationErrorResponse?: OnValidationErrorResponse`
 
