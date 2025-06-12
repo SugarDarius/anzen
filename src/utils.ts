@@ -38,3 +38,28 @@ export function createLogger(debug: boolean = false) {
     },
   }
 }
+
+export function createExecutionClock() {
+  let startTime: number | null = null
+  let endTime: number | null = null
+
+  return {
+    start: (): void => {
+      startTime = performance.now()
+    },
+    stop: (): void => {
+      if (startTime === null) {
+        throw new Error('Execution clock was not started.')
+      }
+      endTime = performance.now()
+    },
+    get: (): string => {
+      if (!startTime || !endTime) {
+        throw new Error('Execution clock has not been started or stopped.')
+      }
+
+      const duration = endTime - startTime
+      return `${duration.toFixed(2)}ms`
+    },
+  }
+}

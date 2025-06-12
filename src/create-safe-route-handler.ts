@@ -1,4 +1,4 @@
-import { createLogger } from './utils'
+import { createLogger, createExecutionClock } from './utils'
 import {
   parseWithDictionary,
   validateWithSchema,
@@ -157,6 +157,9 @@ export function createSafeRouteHandler<
     req: Request,
     extras: RequestExtras
   ): Promise<Response> {
+    const executionClock = createExecutionClock()
+    executionClock.start()
+
     log.info(`🔄 Running route handler '${id}'`)
     log.info(`👉🏻 Request ${req.method} ${req.url}`)
 
@@ -289,8 +292,20 @@ export function createSafeRouteHandler<
 
     // Let's catch any error that might happen in the handler
     try {
-      return await handlerFn(ctx, req)
+      const response = await handlerFn(ctx, req)
+
+      executionClock.stop()
+      log.info(
+        `✅ Route handler '${id}' executed successfully in ${executionClock.get()}`
+      )
+
+      return response
     } catch (err) {
+      executionClock.stop()
+      log.error(
+        `🛑 Route handle '${id} failed to execute after ${executionClock.get()}'`
+      )
+
       return await onErrorResponse(err)
     }
   }
