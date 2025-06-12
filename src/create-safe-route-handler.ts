@@ -158,7 +158,7 @@ export function createSafeRouteHandler<
     extras: RequestExtras
   ): Promise<Response> {
     log.info(`🔄 Running route handler '${id}'`)
-    log.info(`👉🏻 Request url: ${req.url}`)
+    log.info(`👉🏻 Request ${req.method} ${req.url}`)
 
     const url = new URL(req.url)
 
