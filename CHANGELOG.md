@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+- Internal refactoring.
+- Route handler function execution time is now logged into the console.
+- Original request is now cloned when consuming the body for validation operations.
+
 ## [1.0.1] - 2025-05-20
 
 - Update jsdoc.
