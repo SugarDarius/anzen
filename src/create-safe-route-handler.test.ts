@@ -503,6 +503,30 @@ describe('request body validation', () => {
     expect(response.status).toBe(405)
     expect(data).toBe('Invalid method for request body')
   })
+
+  test('keeps the original request', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        body: bodySchema,
+      },
+      async ({ body }, req) => {
+        await expect(req.json()).resolves.toBeDefined()
+        return Response.json(body, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'Luke Skywalker',
+        model: 'X-Wing',
+        apiKey: '1234567890',
+      }),
+    })
+    const response = await POST(request, { params: undefined })
+
+    expect(response.status).toBe(200)
+  })
 })
 
 describe('request form data validation', () => {

@@ -207,6 +207,9 @@ export function createSafeRouteHandler<
       searchParams = parsedSearchParams.value
     }
 
+    // Do not mutate / consume the original request
+    const req_consumable = req.clone()
+
     let body = undefined
     if (options.body) {
       if (!['POST', 'PUT', 'PATCH'].includes(req.method)) {
@@ -217,7 +220,7 @@ export function createSafeRouteHandler<
 
       let body_unsafe: unknown
       try {
-        body_unsafe = await readRequestBodyAsJson(req)
+        body_unsafe = await readRequestBodyAsJson(req_consumable)
       } catch (err) {
         return await onErrorResponse(err)
       }
@@ -255,7 +258,7 @@ export function createSafeRouteHandler<
 
       let formData_unsafe: FormData
       try {
-        formData_unsafe = await req.formData() // NOTE: 🤔 maybe find a better way to counted the deprecation warning?
+        formData_unsafe = await req_consumable.formData() // NOTE: 🤔 maybe find a better way to counted the deprecation warning?
       } catch (err) {
         return await onErrorResponse(err)
       }
