@@ -173,13 +173,12 @@ export function createSafeRouteHandler<
 
     let segments = undefined
     if (options.segments) {
-      if (extras.params === undefined) {
+      const params = await extras.params
+      if (params === undefined) {
         return new Response('No segments provided', { status: 400 })
       }
 
-      const params = await extras.params
       const parsedSegments = parseWithDictionary(options.segments, params)
-
       if (parsedSegments.issues) {
         return await onSegmentsValidationErrorResponse(parsedSegments.issues)
       }
