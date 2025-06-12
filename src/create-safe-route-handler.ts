@@ -258,7 +258,7 @@ export function createSafeRouteHandler<
 
       let formData_unsafe: FormData
       try {
-        // NOTE: 🤔 maybe find a better way to counted the deprecation warning?
+        // NOTE: 🤔 maybe find a better way to counter the deprecation warning?
         formData_unsafe = await req_consumable.formData()
       } catch (err) {
         return await onErrorResponse(err)
