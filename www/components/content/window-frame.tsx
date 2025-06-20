@@ -3,7 +3,7 @@ import { CopyButton } from '~/components/ui/copy-button'
 
 export function WindowFrame({
   className,
-  title,
+  title = 'Untitled',
   value,
   children,
 }: {
@@ -20,22 +20,25 @@ export function WindowFrame({
       )}
     >
       <div className='relative flex h-[36px] w-full flex-none flex-row items-center border-b'>
-        <div className='absolute left-0 top-0 flex h-full flex-row items-center gap-2 pl-3'>
+        <div className='flex h-full flex-row items-center gap-2 pl-3 flex-none'>
           <div className='size-3 rounded-full bg-[#ff5f56]' />
           <div className='size-3 rounded-full bg-[#ffbd2e]' />
           <div className='size-3 rounded-full bg-[#27c93f]' />
         </div>
-        <div className='flex h-full w-full flex-row items-center justify-center'>
-          <span className='text-xs'>{title ?? 'Untitled'}</span>
+        <div className='relative flex h-full flex-1 flex-row items-center justify-center truncate px-3'>
+          <span className='text-xs truncate' title={title}>
+            {title}
+          </span>
         </div>
-        {value ? (
-          <div className='absolute right-3 top-1.5'>
+
+        <div className='flex flex-none mr-3 w-6'>
+          {value ? (
             <CopyButton
               value={value}
               className='text-stone-900 hover:text-stone-900 hover:bg-stone-200 dark:text-stone-50 dark:hover:bg-stone-700 dark:hover:text-stone-50'
             />
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </div>
       <div className='flex w-full flex-auto flex-col overflow-x-auto bg-stone-900'>
         {children}
