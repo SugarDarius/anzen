@@ -123,6 +123,34 @@ describe('authorize', () => {
     expect(response.status).toBe(401)
     expect(data).toBe('Unauthorized')
   })
+
+  test('keeps the original request', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        body: object({
+          name: string,
+        }),
+        authorize: async ({ req }) => {
+          await expect(req.json()).resolves.toBeDefined()
+          return { authorized: true }
+        },
+      },
+      async () => {
+        return Response.json({}, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'Anakin Skywalker',
+      }),
+    })
+
+    const response = await POST(request, { params: undefined })
+
+    expect(response.status).toBe(200)
+  })
 })
 
 describe('on error response', () => {

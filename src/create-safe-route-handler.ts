@@ -165,7 +165,9 @@ export function createSafeRouteHandler<
 
     const url = new URL(req.url)
 
-    const authOrResponse = await authorize({ req, url })
+    // Do not mutate / consume the original request
+    const clonedReq_forAuth = req.clone()
+    const authOrResponse = await authorize({ req: clonedReq_forAuth, url })
     if (authOrResponse instanceof Response) {
       log.error(`🛑 Request not authorized for route handler '${id}'`)
       return authOrResponse
@@ -208,7 +210,7 @@ export function createSafeRouteHandler<
     }
 
     // Do not mutate / consume the original request
-    const req_consumable = req.clone()
+    const clonedReq_forBody = req.clone()
 
     let body = undefined
     if (options.body) {
@@ -220,7 +222,7 @@ export function createSafeRouteHandler<
 
       let body_unsafe: unknown
       try {
-        body_unsafe = await readRequestBodyAsJson(req_consumable)
+        body_unsafe = await readRequestBodyAsJson(clonedReq_forBody)
       } catch (err) {
         return await onErrorResponse(err)
       }
@@ -259,7 +261,7 @@ export function createSafeRouteHandler<
       let formData_unsafe: FormData
       try {
         // NOTE: 🤔 maybe find a better way to counter the deprecation warning?
-        formData_unsafe = await req_consumable.formData()
+        formData_unsafe = await clonedReq_forBody.formData()
       } catch (err) {
         return await onErrorResponse(err)
       }
