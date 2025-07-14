@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [1.1.0] - 2025-07-14
+
 - Make request as a generic type to use `NextRequest` gracefully.
 - Clone original request to avoid side effects and to make it consumable in the `authorize` function.
 
