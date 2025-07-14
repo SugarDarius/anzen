@@ -46,7 +46,7 @@
     "tailwindcss": "^4.1.11",
     "tw-animate-css": "^1.3.5",
     "typescript": "^5",
-    "typescript-eslint": "^8.36.0",
+    "typescript-eslint": "^8.37.0",
     "unist-util-visit": "^5.0.0"
   }
 }
