@@ -118,6 +118,27 @@ export const VERB = createSafeRouteHandler(
 ): Promise<Response> => Response.json({}))
 ```
 
+### Using `NextRequest` type
+
+By default the factory uses the native `Request` type. If you want to use the `NextRequest` type from [Next.js](https://nextjs.org/), you can do it by passing the `NextRequest` type as a generic argument to the factory.
+
+```tsx
+import { NextRequest } from 'next/server'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+// Use `NextRequest` type as first generic argument
+export const GET = createSafeRouteHandler<NextRequest>(
+  { id: 'next/request' },
+  async (
+    ctx,
+    req // Request is now of type `NextRequest`
+  ) => {
+    console.log('pathname', req.nextUrl.pathname)
+    return new Response(null, 200)
+  }
+)
+```
+
 ### Base options
 
 When creating a safe route handler you can use a bunch of options for helping you achieve different tasks 👇🏻
@@ -130,7 +151,7 @@ By default the id is set to `[unknown:route:handler]`.
 ```tsx
 export const POST = createSafeRouteHandler(
   {
-    id: 'my-safe-route-handler',
+    id: 'auth/login',
   },
   async ({ id }) => {
     return Response.json({ id })
