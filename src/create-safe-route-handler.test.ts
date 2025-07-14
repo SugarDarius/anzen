@@ -34,6 +34,27 @@ describe('default context', () => {
   })
 })
 
+describe('Extends Request type gracefully - convenience purpose for extending NextRequest', () => {
+  test('should extends Request type', async () => {
+    class NRequest extends Request {
+      cookies = () => {
+        return 'cookies'
+      }
+    }
+
+    const GET = createSafeRouteHandler<NRequest>({}, async (_ctx, req) => {
+      expectTypeOf(req).toEqualTypeOf<NRequest>()
+      expect(req.cookies()).toBe('cookies')
+
+      return Response.json({ message: 'Hello, world!' }, { status: 200 })
+    })
+    const request = new NRequest('http://localhost:3000/')
+    const response = await GET(request, { params: undefined })
+
+    expect(response.status).toBe(200)
+  })
+})
+
 describe('id customization', () => {
   let logSpy: ReturnType<typeof vi.spyOn>
   beforeEach(() => {

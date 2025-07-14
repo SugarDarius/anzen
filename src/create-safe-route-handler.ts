@@ -27,7 +27,9 @@ export const DEFAULT_ID = '[unknown:route:handler]'
  * Reads the request body as JSON.
  * If it fails, it calls the `onErrorResponse` callback.
  */
-const readRequestBodyAsJson = async (req: Request): Promise<unknown> => {
+const readRequestBodyAsJson = async <TReq extends Request>(
+  req: TReq
+): Promise<unknown> => {
   const contentType = req.headers.get('content-type')
   if (contentType?.startsWith('application/json')) {
     return await req.json()
@@ -74,6 +76,7 @@ const readRequestBodyAsJson = async (req: Request): Promise<unknown> => {
  * ```
  */
 export function createSafeRouteHandler<
+  TReq extends Request = Request,
   AC extends AuthContext | undefined = undefined,
   TRouteDynamicSegments extends TSegmentsDict | undefined = undefined,
   TSearchParams extends TSearchParamsDict | undefined = undefined,
@@ -81,6 +84,7 @@ export function createSafeRouteHandler<
   TFormData extends TFormDataDict | undefined = undefined,
 >(
   options: CreateSafeRouteHandlerOptions<
+    TReq,
     AC,
     TRouteDynamicSegments,
     TSearchParams,
@@ -88,13 +92,14 @@ export function createSafeRouteHandler<
     TFormData
   >,
   handlerFn: SafeRouteHandler<
+    TReq,
     AC,
     TRouteDynamicSegments,
     TSearchParams,
     TBody,
     TFormData
   >
-): CreateSafeRouteHandlerReturnType {
+): CreateSafeRouteHandlerReturnType<TReq> {
   // NOTE: `body` and `formData` options are mutually exclusive 🎭
   if (options.body && options.formData) {
     throw new Error(
@@ -153,10 +158,7 @@ export function createSafeRouteHandler<
   const authorize = options.authorize ?? (async () => undefined)
 
   // Next.js API Route handler declaration
-  return async function (
-    req: Request,
-    extras: RequestExtras
-  ): Promise<Response> {
+  return async function (req: TReq, extras: RequestExtras): Promise<Response> {
     const executionClock = createExecutionClock()
     executionClock.start()
 
@@ -166,7 +168,7 @@ export function createSafeRouteHandler<
     const url = new URL(req.url)
 
     // Do not mutate / consume the original request
-    const clonedReq_forAuth = req.clone()
+    const clonedReq_forAuth = req.clone() as TReq
     const authOrResponse = await authorize({ req: clonedReq_forAuth, url })
     if (authOrResponse instanceof Response) {
       log.error(`🛑 Request not authorized for route handler '${id}'`)
@@ -210,7 +212,7 @@ export function createSafeRouteHandler<
     }
 
     // Do not mutate / consume the original request
-    const clonedReq_forBody = req.clone()
+    const clonedReq_forBody = req.clone() as TReq
 
     let body = undefined
     if (options.body) {
