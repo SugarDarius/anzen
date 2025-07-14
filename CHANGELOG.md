@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Clone original request to avoid side effects and to make it consumable in the `authorize` function.
+
 ## [1.0.2] - 2025-06-12
 
 - Internal refactoring.
