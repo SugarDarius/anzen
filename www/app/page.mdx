@@ -165,6 +165,8 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
+The original is cloned from the incoming request to avoid side effects and to make it consumable in the `authorize` function.
+
 #### `onErrorResponse?: (err: unknown) => Awaitable<Response>`
 
 Callback triggered when the request fails.
