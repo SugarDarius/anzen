@@ -120,19 +120,15 @@ export const VERB = createSafeRouteHandler(
 
 ### Using `NextRequest` type
 
-By default the factory uses the native `Request` type. If you want to use the `NextRequest` type from [Next.js](https://nextjs.org/), you can do it by passing the `NextRequest` type as a generic argument to the factory.
+By default the factory uses the native `Request` type. If you want to use the `NextRequest` type from [Next.js](https://nextjs.org/), you can do it by just using the `NextRequest` type in the factory handler.
 
 ```tsx
 import { NextRequest } from 'next/server'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
-// Use `NextRequest` type as first generic argument
-export const GET = createSafeRouteHandler<NextRequest>(
+export const GET = createSafeRouteHandler(
   { id: 'next/request' },
-  async (
-    ctx,
-    req // Request is now of type `NextRequest`
-  ) => {
+  async (ctx, req: NextRequest) => {
     console.log('pathname', req.nextUrl.pathname)
     return new Response(null, 200)
   }
