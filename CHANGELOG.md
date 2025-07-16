@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Fix typo in logs when the handler throws
+
 ## [1.1.0] - 2025-07-14
 
 - Make request as a generic type to use `NextRequest` gracefully.
