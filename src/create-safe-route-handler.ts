@@ -310,7 +310,7 @@ export function createSafeRouteHandler<
     } catch (err) {
       executionClock.stop()
       log.error(
-        `🛑 Route handle '${id} failed to execute after ${executionClock.get()}'`
+        `🛑 Route handler '${id} failed to execute after ${executionClock.get()}'`
       )
 
       return await onErrorResponse(err)
