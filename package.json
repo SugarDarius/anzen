@@ -79,7 +79,7 @@
     "tsup": "^8.5.0",
     "turbo": "^2.5.5",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.39.1",
+    "typescript-eslint": "^8.41.0",
     "vitest": "^3.2.4",
     "zod": "^4.0.17"
   }
