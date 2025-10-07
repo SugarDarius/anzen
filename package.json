@@ -74,7 +74,7 @@
     "decoders": "^2.7.5",
     "eslint": "^9.37.0",
     "prettier": "^3.6.2",
-    "publint": "^0.3.13",
+    "publint": "^0.3.14",
     "release-it": "^19.0.5",
     "tsup": "^8.5.0",
     "turbo": "^2.5.6",
