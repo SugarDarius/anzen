@@ -16,29 +16,22 @@ export type TSearchParamsDict = StandardSchemaDictionary
 export type TBodySchema = StandardSchemaV1
 export type TFormDataDict = StandardSchemaDictionary
 
-export type AuthFunction<
-  AC extends AuthContext | undefined,
-  TReq extends Request = Request,
-> = (
-  input: {
-    /**
-     * Parsed request url
-     */
-    readonly url: URL
-  },
+export type AuthFunction<AC extends AuthContext | undefined> = (input: {
+  /**
+   * Parsed request url
+   */
+  readonly url: URL
   /**
    * Original request
    *
    * Cloned from the incoming request to avoid side effects
    * and to make it consumable in the `authorize` function.
+   * Due to `NextRequest` limitations as the req is cloned it's always a request
    */
-  req: TReq
-) => Awaitable<AC | Response>
+  req: Request
+}) => Awaitable<AC | Response>
 
-export type BaseOptions<
-  AC extends AuthContext | undefined,
-  TReq extends Request = Request,
-> = {
+export type BaseOptions<AC extends AuthContext | undefined> = {
   /**
    * ID for the route handler.
    * Used when logging in development or when `debug` is enabled.
@@ -54,7 +47,7 @@ export type BaseOptions<
    * When returning a response, it will be used as the response for the request.
    * Return a response when the request is not authorized.
    */
-  authorize?: AuthFunction<AC, TReq>
+  authorize?: AuthFunction<AC>
 
   /**
    * Callback triggered when the request fails.
@@ -85,7 +78,6 @@ export type CreateSafeRouteHandlerOptions<
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
   TFormData extends TFormDataDict | undefined,
-  TReq extends Request = Request,
 > = {
   /**
    * Dynamic route segments used for the route handler path.
@@ -147,7 +139,7 @@ export type CreateSafeRouteHandlerOptions<
    * By default it returns a simple `400` response and issues are logged into the console.
    */
   onFormDataValidationErrorResponse?: OnValidationErrorResponse
-} & BaseOptions<AC, TReq>
+} & BaseOptions<AC>
 
 export type RequestExtras = {
   /**

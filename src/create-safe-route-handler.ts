@@ -88,8 +88,7 @@ export function createSafeRouteHandler<
     TRouteDynamicSegments,
     TSearchParams,
     TBody,
-    TFormData,
-    TReq
+    TFormData
   >,
   handlerFn: SafeRouteHandler<
     AC,
@@ -168,8 +167,9 @@ export function createSafeRouteHandler<
     const url = new URL(req.url)
 
     // Do not mutate / consume the original request
+    // Due to `NextRequest` limitations as the req is cloned it's always a Request
     const clonedReq_forAuth = req.clone() as TReq
-    const authOrResponse = await authorize({ url }, clonedReq_forAuth)
+    const authOrResponse = await authorize({ url, req: clonedReq_forAuth })
     if (authOrResponse instanceof Response) {
       log.error(`🛑 Request not authorized for route handler '${id}'`)
       return authOrResponse
