@@ -51,10 +51,14 @@ describe('Extends Request type gracefully - convenience purpose for extending Ne
           return { user: 'John Doe' }
         },
       },
-      async (_ctx, req) => {
+      async (ctx, req) => {
         expectTypeOf(req).toEqualTypeOf<NRequest>()
         expect(req.cookies()).toBe('cookies')
 
+        expectTypeOf(ctx.auth).toEqualTypeOf<{
+          user: string
+        }>()
+        expect(ctx.auth.user).toBe('John Doe')
         return Response.json({ message: 'Hello, world!' }, { status: 200 })
       }
     )
