@@ -26,7 +26,7 @@ export type AuthFunction<AC extends AuthContext | undefined> = (input: {
    *
    * Cloned from the incoming request to avoid side effects
    * and to make it consumable in the `authorize` function.
-   * Due to `NextRequest` limitations as the req is cloned it's always a request
+   * Due to `NextRequest` limitations as the req is cloned it's always a `Request`
    */
   req: Request
 }) => Awaitable<AC | Response>

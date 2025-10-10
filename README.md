@@ -122,7 +122,16 @@ import { NextRequest } from 'next/server'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
 export const GET = createSafeRouteHandler(
-  { id: 'next/request' },
+  {
+    id: 'next/request',
+    authorize: async ({
+      // Due to `NextRequest` limitations as the req is cloned it's always a `Request`
+      req,
+    }) => {
+      console.log(req)
+      return { user: 'John Doe' }
+    },
+  },
   async (ctx, req: NextRequest) => {
     console.log('pathname', req.nextUrl.pathname)
     return new Response(null, 200)
