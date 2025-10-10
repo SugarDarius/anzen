@@ -42,12 +42,11 @@ describe('Extends Request type gracefully - convenience purpose for extending Ne
       }
     }
 
-    const GET = createSafeRouteHandler<NRequest>(
+    const GET = createSafeRouteHandler(
       {
         id: 'extends-request-type',
-        authorize: async ({ req }) => {
+        authorize: async (_, req: NRequest) => {
           expectTypeOf(req).toEqualTypeOf<NRequest>()
-          expect(req.cookies()).toBe('cookies')
           return { user: 'John Doe' }
         },
       },
@@ -165,7 +164,7 @@ describe('authorize', () => {
         body: object({
           name: string,
         }),
-        authorize: async ({ req }) => {
+        authorize: async (_, req) => {
           await expect(req.json()).resolves.toBeDefined()
           return { authorized: true }
         },

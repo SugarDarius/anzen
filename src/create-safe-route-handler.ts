@@ -76,28 +76,28 @@ const readRequestBodyAsJson = async <TReq extends Request>(
  * ```
  */
 export function createSafeRouteHandler<
-  TReq extends Request = Request,
   AC extends AuthContext | undefined = undefined,
   TRouteDynamicSegments extends TSegmentsDict | undefined = undefined,
   TSearchParams extends TSearchParamsDict | undefined = undefined,
   TBody extends TBodySchema | undefined = undefined,
   TFormData extends TFormDataDict | undefined = undefined,
+  TReq extends Request = Request,
 >(
   options: CreateSafeRouteHandlerOptions<
-    TReq,
     AC,
     TRouteDynamicSegments,
     TSearchParams,
     TBody,
-    TFormData
+    TFormData,
+    TReq
   >,
   handlerFn: SafeRouteHandler<
-    TReq,
     AC,
     TRouteDynamicSegments,
     TSearchParams,
     TBody,
-    TFormData
+    TFormData,
+    TReq
   >
 ): CreateSafeRouteHandlerReturnType<TReq> {
   // NOTE: `body` and `formData` options are mutually exclusive 🎭
@@ -169,7 +169,7 @@ export function createSafeRouteHandler<
 
     // Do not mutate / consume the original request
     const clonedReq_forAuth = req.clone() as TReq
-    const authOrResponse = await authorize({ req: clonedReq_forAuth, url })
+    const authOrResponse = await authorize({ url }, clonedReq_forAuth)
     if (authOrResponse instanceof Response) {
       log.error(`🛑 Request not authorized for route handler '${id}'`)
       return authOrResponse
