@@ -16,27 +16,22 @@ export type TSearchParamsDict = StandardSchemaDictionary
 export type TBodySchema = StandardSchemaV1
 export type TFormDataDict = StandardSchemaDictionary
 
-export type AuthFunction<
-  TReq extends Request,
-  AC extends AuthContext | undefined,
-> = (input: {
+export type AuthFunction<AC extends AuthContext | undefined> = (input: {
+  /**
+   * Parsed request url
+   */
+  readonly url: URL
   /**
    * Original request
    *
    * Cloned from the incoming request to avoid side effects
    * and to make it consumable in the `authorize` function.
+   * Due to `NextRequest` limitations as the req is cloned it's always a `Request`
    */
-  readonly req: TReq
-  /**
-   * Parsed request url
-   */
-  readonly url: URL
+  req: Request
 }) => Awaitable<AC | Response>
 
-export type BaseOptions<
-  TReq extends Request,
-  AC extends AuthContext | undefined,
-> = {
+export type BaseOptions<AC extends AuthContext | undefined> = {
   /**
    * ID for the route handler.
    * Used when logging in development or when `debug` is enabled.
@@ -52,7 +47,7 @@ export type BaseOptions<
    * When returning a response, it will be used as the response for the request.
    * Return a response when the request is not authorized.
    */
-  authorize?: AuthFunction<TReq, AC>
+  authorize?: AuthFunction<AC>
 
   /**
    * Callback triggered when the request fails.
@@ -78,7 +73,6 @@ export type OnValidationErrorResponse = (
 ) => Awaitable<Response>
 
 export type CreateSafeRouteHandlerOptions<
-  TReq extends Request,
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
@@ -145,7 +139,7 @@ export type CreateSafeRouteHandlerOptions<
    * By default it returns a simple `400` response and issues are logged into the console.
    */
   onFormDataValidationErrorResponse?: OnValidationErrorResponse
-} & BaseOptions<TReq, AC>
+} & BaseOptions<AC>
 
 export type RequestExtras = {
   /**
@@ -155,7 +149,7 @@ export type RequestExtras = {
   params: Awaitable<any> | undefined // Sticking to Next.js requirements for building
 }
 
-export type CreateSafeRouteHandlerReturnType<TReq extends Request> = (
+export type CreateSafeRouteHandlerReturnType<TReq extends Request = Request> = (
   /**
    * Original request
    */
@@ -230,12 +224,12 @@ export type SafeRouteHandlerContext<
     : EmptyObjectType)
 
 export type SafeRouteHandler<
-  TReq extends Request,
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
   TFormData extends TFormDataDict | undefined,
+  TReq extends Request = Request,
 > = (
   /**
    * Safe route handler context

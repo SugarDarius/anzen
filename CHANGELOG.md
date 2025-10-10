@@ -1,8 +1,10 @@
 ## [Unreleased]
 
+- Update type management when using `NextRequest`.
+
 ## [1.1.1] - 2025-07-16
 
-- Fix typo in logs when the handler throws
+- Fix typo in logs when the handler throws.
 
 ## [1.1.0] - 2025-07-14
 
