@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [1.1.2] - 2025-10-10
+
 - Update type management when using `NextRequest`.
 
 ## [1.1.1] - 2025-07-16
