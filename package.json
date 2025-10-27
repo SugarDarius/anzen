@@ -63,7 +63,7 @@
     "release": "release-it"
   },
   "peerDependencies": {
-    "next": "^14 || ^15",
+    "next": "^16 || ^15 || ^14",
     "typescript": "^5"
   },
   "devDependencies": {
