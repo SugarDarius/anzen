@@ -68,11 +68,11 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
-    "@eslint/js": "^9.37.0",
+    "@eslint/js": "^9.38.0",
     "@release-it/keep-a-changelog": "^7.0.0",
     "@types/node": "^24.7.2",
     "decoders": "^2.7.5",
-    "eslint": "^9.37.0",
+    "eslint": "^9.38.0",
     "prettier": "^3.6.2",
     "publint": "^0.3.14",
     "release-it": "^19.0.5",
