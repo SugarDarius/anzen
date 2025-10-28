@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Add support for Next.js 16 🚀
+
 ## [1.1.2] - 2025-10-10
 
 - Update type management when using `NextRequest`.
