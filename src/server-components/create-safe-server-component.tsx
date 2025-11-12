@@ -128,6 +128,7 @@ export function createSafeServerComponent<
       // Build safe server component context
       const ctx = {
         id,
+        children: props.children ?? <></>,
         ...(segments ? { segments } : {}),
         ...(searchParams ? { searchParams } : {}),
       } as SafeServerComponentContext<AC, TSegments, TSearchParams>

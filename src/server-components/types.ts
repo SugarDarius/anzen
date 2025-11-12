@@ -136,6 +136,10 @@ export type ProvidedProps = {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchParams: Awaitable<any> | undefined
+  /**
+   * Incoming children when `createSafeServerComponent` is used for `layout.js` file.
+   */
+  children: React.ReactNode
 }
 
 export type CreateSafeServerComponentReturnType = (
@@ -155,6 +159,11 @@ export type SafeServerComponentContext<
    * Server component ID
    */
   readonly id: string
+  /**
+   * Incoming children when `createSafeServerComponent` is used for `layout.js` file.
+   * They are set to a fragment when they don't exists in a `page.js` file.
+   */
+  children: React.ReactNode
 } & (AC extends AuthContext
   ? {
       /**
