@@ -128,15 +128,14 @@ export type ProvidedProps = {
   /**
    * Route dynamic segments as params
    */
-  params: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Awaitable<any> | undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  params: Awaitable<any> | undefined
 
   /**
    * Search params
    */
-  searchParams:
-    | Awaitable<{ [key: string]: string | string[] | undefined }>
-    | undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  searchParams: Awaitable<any> | undefined
 }
 
 export type CreateSafeServerComponentReturnType = (
