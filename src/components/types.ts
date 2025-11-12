@@ -1,7 +1,15 @@
-import type { StandardSchemaDictionary } from '../standard-schema'
+import type {
+  StandardSchemaDictionary,
+  StandardSchemaV1,
+} from '../standard-schema'
+import type { Awaitable } from '../types'
 
 export type TSegmentsDict = StandardSchemaDictionary
 export type TSearchParamsDict = StandardSchemaDictionary
+
+export type OnValidationError = (
+  issues: readonly StandardSchemaV1.Issue[]
+) => Awaitable<never>
 
 export type BaseOptions = {
   /**
@@ -33,6 +41,11 @@ export type CreateSafeFileComponentOptions<
    * Please note the expected input is a `StandardSchemaDictionary`.
    */
   segments?: TSegments
+  /**
+   * Callback triggered when dynamic segments validations returned issues.
+   * By default it throws a Validation error and issues are logged into the console.
+   */
+  onSegmentsValidationError?: OnValidationError
 
   /**
    * Search params used in the route.
@@ -40,4 +53,9 @@ export type CreateSafeFileComponentOptions<
    * Please note the expected input is a `StandardSchemaDictionary`.
    */
   searchParams?: TSearchParams
+  /**
+   * Callback triggered when search params validations returned issues.
+   * By default it throws a Validation error and issues are logged into the console.
+   */
+  onSearchParamsValidationError?: OnValidationError
 }
