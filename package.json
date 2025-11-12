@@ -24,15 +24,15 @@
         "default": "./dist/index.cjs"
       }
     },
-    "./components": {
+    "./server-components": {
       "import": {
-        "types": "./dist/components/index.d.ts",
-        "default": "./dist/components/index.js"
+        "types": "./dist/server-components/index.d.ts",
+        "default": "./dist/server-components/index.js"
       },
       "require": {
-        "types": "./dist/components/index.d.cts",
-        "module": "./dist/components/index.js",
-        "default": "./dist/components/index.cjs"
+        "types": "./dist/server-components/index.d.cts",
+        "module": "./dist/server-components/index.js",
+        "default": "./dist/server-components/index.cjs"
       }
     }
   },
