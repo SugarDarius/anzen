@@ -117,7 +117,8 @@ export type CreateSafeServerComponentOptions<
    * Function to use to authorize the server component.
    * By default it always authorize the server component.
    *
-   * Return never (throws and error, `notFound`, or `redirect`) when the request to the server component is not authorized.
+   * Return never (throws an error, `notFound`, `forbidden`, `unauthorized`, or `redirect`)
+   * when the request to the server component is not authorized.
    */
   authorize?: AuthFunction<AC, TSegments, TSearchParams>
 }
@@ -144,7 +145,7 @@ export type CreateSafeServerComponentReturnType = (
    */
   providedProps: ProvidedProps
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-) => Promise<React.ComponentType<any>>
+) => Promise<React.ComponentType<any> | never>
 
 // TODO: find better way to type it 👇🏻
 export type SafeServerComponentContext<
@@ -185,7 +186,7 @@ export type SafeServerComponentContext<
       }
     : EmptyObjectType)
 
-export type SafeServerComponent<
+export type SafeServerComponentRoot<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
@@ -195,4 +196,4 @@ export type SafeServerComponent<
    */
   ctx: SafeServerComponentContext<AC, TSegments, TSearchParams>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-) => Promise<React.ComponentType<any>>
+) => Promise<React.ComponentType<any> | never>

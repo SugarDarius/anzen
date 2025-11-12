@@ -9,6 +9,6 @@ export type {
   CreateSafeServerComponentOptions,
   CreateSafeServerComponentReturnType,
   SafeServerComponentContext,
-  SafeServerComponent,
+  SafeServerComponentRoot,
 } from './types'
-export {}
+export { createSafeServerComponent } from './create-safe-server-component'
