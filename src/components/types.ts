@@ -2,7 +2,12 @@ import type {
   StandardSchemaDictionary,
   StandardSchemaV1,
 } from '../standard-schema'
-import type { Awaitable } from '../types'
+import type {
+  Awaitable,
+  AuthContext,
+  UnwrapReadonlyObject,
+  EmptyObjectType,
+} from '../types'
 
 export type TSegmentsDict = StandardSchemaDictionary
 export type TSearchParamsDict = StandardSchemaDictionary
@@ -30,7 +35,45 @@ export type BaseOptions = {
   debug?: boolean
 }
 
+export type AuthFunctionParams<
+  TSegments extends TSegmentsDict | undefined,
+  TSearchParams extends TSearchParamsDict | undefined,
+> = {
+  /**
+   * File component ID
+   */
+  readonly id: string
+} & (TSegments extends TSegmentsDict
+  ? {
+      /**
+       * Validated route dynamic segments
+       */
+      readonly segments: UnwrapReadonlyObject<
+        StandardSchemaDictionary.InferOutput<TSegments>
+      >
+    }
+  : EmptyObjectType) &
+  (TSearchParams extends TSearchParamsDict
+    ? {
+        /**
+         * Validated search params
+         */
+        readonly searchParams: UnwrapReadonlyObject<
+          StandardSchemaDictionary.InferOutput<TSearchParams>
+        >
+      }
+    : EmptyObjectType)
+
+export type AuthFunction<
+  AC extends AuthContext | undefined,
+  TSegments extends TSegmentsDict | undefined,
+  TSearchParams extends TSearchParamsDict | undefined,
+> = (
+  params: AuthFunctionParams<TSegments, TSearchParams>
+) => Awaitable<AC | never>
+
 export type CreateSafeFileComponentOptions<
+  AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
 > = BaseOptions & {
@@ -58,4 +101,12 @@ export type CreateSafeFileComponentOptions<
    * By default it throws a Validation error and issues are logged into the console.
    */
   onSearchParamsValidationError?: OnValidationError
+
+  /**
+   * Function to use to authorize the file component.
+   * By default it always authorize the file component.
+   *
+   * Return never (throws and error, `notFound`, or `redirect`) when the request to the file component is not authorized.
+   */
+  authorize?: AuthFunction<AC, TSegments, TSearchParams>
 }
