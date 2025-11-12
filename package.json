@@ -69,7 +69,7 @@
     "lint": "npm run lint:eslint && npm run lint:tsc && npm run lint:package",
     "lint:eslint": "eslint src/",
     "lint:tsc": "tsc --noEmit",
-    "lint:package": "publint --strict && attw --pack",
+    "lint:package": "publint --strict && attw --pack . --profile node16",
     "format": "prettier --write src/",
     "release": "release-it"
   },
