@@ -5,7 +5,10 @@ export type {
   BaseOptions,
   AuthFunctionParams,
   AuthFunction,
-  CreateSafeFileComponentOptions,
   ProvidedProps,
+  CreateSafeServerComponentOptions,
+  CreateSafeServerComponentReturnType,
+  SafeServerComponentContext,
+  SafeServerComponent,
 } from './types'
 export {}

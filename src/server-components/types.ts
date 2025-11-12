@@ -18,7 +18,7 @@ export type OnValidationError = (
 
 export type BaseOptions = {
   /**
-   * ID for the file component.
+   * ID for the server component.
    * Used when logging in development or when `debug` is enabled.
    *
    * You can also use it to add extra logging or monitoring.
@@ -26,7 +26,7 @@ export type BaseOptions = {
   id?: string
 
   /**
-   * Callback triggered when the file component throws an unhandled error..
+   * Callback triggered when the server component throws an unhandled error..
    * By default it rethrows as service hatch to Next.js do its job
    * band use error boundaries. The error is logged into the console.
    *
@@ -37,7 +37,7 @@ export type BaseOptions = {
 
   /**
    * Use this options to enable debug mode.
-   * It will add logs in the handler to help you debug file component..
+   * It will add logs in the handler to help you debug server component..
    *
    * By default it's set to `false` for production builds.
    * In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
@@ -51,7 +51,7 @@ export type AuthFunctionParams<
   TSearchParams extends TSearchParamsDict | undefined,
 > = {
   /**
-   * File component ID
+   * Server component ID
    */
   readonly id: string
 } & (TSegments extends TSegmentsDict
@@ -83,7 +83,7 @@ export type AuthFunction<
   params: AuthFunctionParams<TSegments, TSearchParams>
 ) => Awaitable<AC | never>
 
-export type CreateSafeFileComponentOptions<
+export type CreateSafeServerComponentOptions<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
@@ -114,10 +114,10 @@ export type CreateSafeFileComponentOptions<
   onSearchParamsValidationError?: OnValidationError
 
   /**
-   * Function to use to authorize the file component.
-   * By default it always authorize the file component.
+   * Function to use to authorize the server component.
+   * By default it always authorize the server component.
    *
-   * Return never (throws and error, `notFound`, or `redirect`) when the request to the file component is not authorized.
+   * Return never (throws and error, `notFound`, or `redirect`) when the request to the server component is not authorized.
    */
   authorize?: AuthFunction<AC, TSegments, TSearchParams>
 }
@@ -138,10 +138,61 @@ export type ProvidedProps = {
     | undefined
 }
 
-export type CreateSafeFileReturnType = (
+export type CreateSafeServerComponentReturnType = (
   /**
    * Provided props added by Next.js itself
    */
   providedProps: ProvidedProps
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+) => Promise<React.ComponentType<any>>
+
+// TODO: find better way to type it 👇🏻
+export type SafeServerComponentContext<
+  AC extends AuthContext | undefined,
+  TSegments extends TSegmentsDict | undefined,
+  TSearchParams extends TSearchParamsDict | undefined,
+> = {
+  /**
+   * Server component ID
+   */
+  readonly id: string
+} & (AC extends AuthContext
+  ? {
+      /**
+       * Auth context
+       */
+      readonly auth: AC
+    }
+  : EmptyObjectType) &
+  (TSegments extends TSegmentsDict
+    ? {
+        /**
+         * Validated route dynamic segments
+         */
+        readonly segments: UnwrapReadonlyObject<
+          StandardSchemaDictionary.InferOutput<TSegments>
+        >
+      }
+    : EmptyObjectType) &
+  (TSearchParams extends TSearchParamsDict
+    ? {
+        /**
+         * Validated search params
+         */
+        readonly searchParams: UnwrapReadonlyObject<
+          StandardSchemaDictionary.InferOutput<TSearchParams>
+        >
+      }
+    : EmptyObjectType)
+
+export type SafeServerComponent<
+  AC extends AuthContext | undefined,
+  TSegments extends TSegmentsDict | undefined,
+  TSearchParams extends TSearchParamsDict | undefined,
+> = (
+  /**
+   * Safe server component context
+   */
+  ctx: SafeServerComponentContext<AC, TSegments, TSearchParams>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) => Promise<React.ComponentType<any>>
