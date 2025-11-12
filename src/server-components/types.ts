@@ -45,6 +45,7 @@ export type BaseOptions = {
   debug?: boolean
 }
 
+// TODO: find better way to type it 👇🏻
 export type AuthFunctionParams<
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
@@ -136,3 +137,11 @@ export type ProvidedProps = {
     | Awaitable<{ [key: string]: string | string[] | undefined }>
     | undefined
 }
+
+export type CreateSafeFileReturnType = (
+  /**
+   * Provided props added by Next.js itself
+   */
+  providedProps: ProvidedProps
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+) => Promise<React.ComponentType<any>>
