@@ -159,7 +159,7 @@ export function createSafeRouteHandler<
   // Next.js API Route handler declaration
   return async function (
     req: TReq,
-    extras: ProvidedRouteContext
+    providedContext: ProvidedRouteContext
   ): Promise<Response> {
     const executionClock = createExecutionClock()
     executionClock.start()
@@ -180,7 +180,7 @@ export function createSafeRouteHandler<
 
     let segments = undefined
     if (options.segments) {
-      const params = await extras.params
+      const params = await providedContext.params
       if (params === undefined) {
         return new Response('No segments provided', { status: 400 })
       }

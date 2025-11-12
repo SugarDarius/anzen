@@ -155,9 +155,9 @@ export type CreateSafeRouteHandlerReturnType<TReq extends Request = Request> = (
    */
   req: TReq,
   /**
-   * Extras added by Next.js itself
+   * Provided context added by Next.js itself
    */
-  extras: ProvidedRouteContext
+  providedContext: ProvidedRouteContext
 ) => Promise<Response>
 
 // TODO: find better way to type it 👇🏻
