@@ -120,3 +120,19 @@ export type CreateSafeFileComponentOptions<
    */
   authorize?: AuthFunction<AC, TSegments, TSearchParams>
 }
+
+// Sticking to Next.js requirements for building
+export type ProvidedProps = {
+  /**
+   * Route dynamic segments as params
+   */
+  params: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Awaitable<any> | undefined
+
+  /**
+   * Search params
+   */
+  searchParams:
+    | Awaitable<{ [key: string]: string | string[] | undefined }>
+    | undefined
+}
