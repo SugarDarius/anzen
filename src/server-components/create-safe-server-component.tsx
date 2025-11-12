@@ -67,8 +67,7 @@ export function createSafeServerComponent<
   // Next.js server component
   return async function ServerComponent(
     props: ProvidedProps
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): Promise<React.ComponentType<any> | never> {
+  ): Promise<React.ReactElement | never> {
     const executionClock = createExecutionClock()
     executionClock.start()
 
@@ -132,13 +131,13 @@ export function createSafeServerComponent<
         ...(segments ? { segments } : {}),
         ...(searchParams ? { searchParams } : {}),
       } as SafeServerComponentContext<AC, TSegments, TSearchParams>
-      const Component = await rootServerComponent(ctx)
+      const ServerComponent = await rootServerComponent(ctx)
       executionClock.stop()
       log.info(
         `✅ Server component '${id}' executed successfully in ${executionClock.get()}`
       )
 
-      return Component
+      return ServerComponent
     } catch (err: unknown) {
       executionClock.stop()
       log.error(

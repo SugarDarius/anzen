@@ -144,8 +144,7 @@ export type CreateSafeServerComponentReturnType = (
    * Provided props added by Next.js itself
    */
   providedProps: ProvidedProps
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-) => Promise<React.ComponentType<any> | never>
+) => Promise<React.ReactElement | never>
 
 // TODO: find better way to type it 👇🏻
 export type SafeServerComponentContext<
@@ -195,5 +194,4 @@ export type SafeServerComponentRoot<
    * Safe server component context
    */
   ctx: SafeServerComponentContext<AC, TSegments, TSearchParams>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-) => Promise<React.ComponentType<any> | never>
+) => Promise<React.ReactElement | never>
