@@ -141,7 +141,7 @@ export type CreateSafeRouteHandlerOptions<
   onFormDataValidationErrorResponse?: OnValidationErrorResponse
 } & BaseOptions<AC>
 
-export type RequestExtras = {
+export type ProvidedRouteContext = {
   /**
    * Route dynamic segments as params
    */
@@ -157,7 +157,7 @@ export type CreateSafeRouteHandlerReturnType<TReq extends Request = Request> = (
   /**
    * Extras added by Next.js itself
    */
-  extras: RequestExtras
+  extras: ProvidedRouteContext
 ) => Promise<Response>
 
 // TODO: find better way to type it 👇🏻

@@ -7,7 +7,7 @@ export type {
   TBodySchema,
   TFormDataDict,
   BaseOptions,
-  RequestExtras,
+  ProvidedRouteContext,
   OnValidationErrorResponse,
   CreateSafeRouteHandlerOptions,
   CreateSafeRouteHandlerReturnType,

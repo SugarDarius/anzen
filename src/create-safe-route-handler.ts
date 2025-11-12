@@ -11,7 +11,7 @@ import type {
   TSearchParamsDict,
   TBodySchema,
   TFormDataDict,
-  RequestExtras,
+  ProvidedRouteContext,
   CreateSafeRouteHandlerOptions,
   CreateSafeRouteHandlerReturnType,
   SafeRouteHandler,
@@ -157,7 +157,10 @@ export function createSafeRouteHandler<
   const authorize = options.authorize ?? (async () => undefined)
 
   // Next.js API Route handler declaration
-  return async function (req: TReq, extras: RequestExtras): Promise<Response> {
+  return async function (
+    req: TReq,
+    extras: ProvidedRouteContext
+  ): Promise<Response> {
     const executionClock = createExecutionClock()
     executionClock.start()
 
