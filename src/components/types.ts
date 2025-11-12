@@ -26,6 +26,16 @@ export type BaseOptions = {
   id?: string
 
   /**
+   * Callback triggered when the file component throws an unhandled error..
+   * By default it rethrows as service hatch to Next.js do its job
+   * band use error boundaries. The error is logged into the console.
+   *
+   * Use it if you want to manage unexpected errors properly
+   * to log, trace or define behaviors like using `notFound` or `redirect`.
+   */
+  onError?: (err: unknown) => Awaitable<never>
+
+  /**
    * Use this options to enable debug mode.
    * It will add logs in the handler to help you debug file component..
    *
