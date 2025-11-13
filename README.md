@@ -1,6 +1,6 @@
-![NPM Version](https://img.shields.io/npm/v/%40sugardarius%2Fanzen?style=flat&labelColor=101010&color=FFC799)
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/%40sugardarius%2Fanzen?style=flat&labelColor=101010&label=size&color=FFC799)
-![GitHub License](https://img.shields.io/github/license/sugardarius/anzen?style=flat&labelColor=101010&color=FFC799)
+[![npm](https://img.shields.io/npm/v/%40sugardarius%2Fanzen?style=flat&labelColor=101010&color=FFC799)](https://www.npmjs.com/package/@sugardarius/anzen)
+[![size](https://img.shields.io/bundlephobia/minzip/%40sugardarius%2Fanzen?style=flat&labelColor=101010&label=size&color=FFC799)](https://bundlephobia.com/package/@sugardarius/anzen)
+[![license](https://img.shields.io/github/license/sugardarius/anzen?style=flat&labelColor=101010&color=FFC799)](https://github.com/SugarDarius/anzen/blob/main/LICENSE)
 
 A fast, framework validation agnostic, type-safe factories for creating route handlers, page and layout server components files in Next.js.
 
