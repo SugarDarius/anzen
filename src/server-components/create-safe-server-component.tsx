@@ -80,14 +80,14 @@ export function createSafePageServerComponent<
 
     let segments = undefined
     if (options.segments) {
-      const unsafe_params = await props.params
-      if (unsafe_params === undefined) {
+      const params_unsafe = await props.params
+      if (params_unsafe === undefined) {
         throw new NoSegmentsProvidedError(id, 'page')
       }
 
       const parsedSegments = parseWithDictionary(
         options.segments,
-        unsafe_params
+        params_unsafe
       )
       if (parsedSegments.issues) {
         await onSegmentsValidationError(parsedSegments.issues)
@@ -98,14 +98,14 @@ export function createSafePageServerComponent<
 
     let searchParams = undefined
     if (options.searchParams) {
-      const unsafe_searchParams = await props.searchParams
-      if (unsafe_searchParams === undefined) {
+      const searchParams_unsafe = await props.searchParams
+      if (searchParams_unsafe === undefined) {
         throw new NoSearchParamsProvidedError(id, 'page')
       }
 
       const parsedSearchParams = parseWithDictionary(
         options.searchParams,
-        unsafe_searchParams
+        searchParams_unsafe
       )
       if (parsedSearchParams.issues) {
         await onSearchParamsValidationError(parsedSearchParams.issues)
@@ -210,14 +210,14 @@ export function createSafeLayoutServerComponent<
 
     let segments = undefined
     if (options.segments) {
-      const unsafe_params = await props.params
-      if (unsafe_params === undefined) {
+      const params_unsafe = await props.params
+      if (params_unsafe === undefined) {
         throw new NoSegmentsProvidedError(id, 'page')
       }
 
       const parsedSegments = parseWithDictionary(
         options.segments,
-        unsafe_params
+        params_unsafe
       )
       if (parsedSegments.issues) {
         await onSegmentsValidationError(parsedSegments.issues)
