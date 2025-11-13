@@ -164,35 +164,6 @@ export const POST = createSafeRouteHandler(
 )
 ```
 
-#### `authorize?: AuthFunction<AC>`
-
-Function to use to authorize the request. By default it always authorize the request.
-Returns a response when the request is not authorized.
-
-```tsx
-import { createSafeRouteHandler } from '@sugardarius/anzen'
-import { auth } from '~/lib/auth'
-
-export const GET = createSafeRouteHandler(
-  {
-    authorize: async ({ req, url }) => {
-      console.log('url', url)
-      const session = await auth.getSession(req)
-      if (!session) {
-        return new Response(null, { status: 401 })
-      }
-
-      return { user: session.user }
-    },
-  },
-  async ({ auth, body }, req): Promise<Response> => {
-    return Response.json({ user: auth.user }, { status: 200 })
-  }
-)
-```
-
-The original is cloned from the incoming request to avoid side effects and to make it consumable in the `authorize` function.
-
 #### `onErrorResponse?: (err: unknown) => Awaitable<Response>`
 
 Callback triggered when the request fails.
@@ -217,6 +188,152 @@ export const GET = createSafeRouteHandler({ debug: true }, async () => {
 ### Route handler options
 
 You can configure route handler options to validation using a validation library dynamic route segments, URL query parameters, request json body or request form data body 👇🏻
+
+#### `authorize?: AuthFunction<AC, TSegments, TSearchParams, TBody, TFormData>`
+
+Function to use to authorize the request. By default it always authorize the request.
+
+Returns a response when the request is not authorized.
+
+The `authorize` function receives validated attributes (`segments`, `searchParams`, `body`, `formData`) when they are defined, allowing you to use validated data for authorization logic.
+
+**Parameters:**
+
+- `id: string` - Route handler ID
+- `url: URL` - Parsed request URL
+- `req: Request` - Cloned request (to avoid side effects and make it consumable)
+- `segments?:` - Validated route dynamic segments (if `segments` option is defined)
+- `searchParams?:` - Validated search params (if `searchParams` option is defined)
+- `body?:` - Validated request body (if `body` option is defined)
+- `formData?:` - Validated form data (if `formData` option is defined)
+
+```tsx
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+// Basic authorization with request
+export const GET = createSafeRouteHandler(
+  {
+    authorize: async ({ req, url }) => {
+      console.log('url', url)
+      const session = await auth.getSession(req)
+      if (!session) {
+        return new Response(null, { status: 401 })
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({ auth }, req): Promise<Response> => {
+    return Response.json({ user: auth.user }, { status: 200 })
+  }
+)
+```
+
+```tsx
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+// Authorization with validated segments
+export const GET = createSafeRouteHandler(
+  {
+    segments: {
+      accountId: z.string(),
+      projectId: z.string(),
+    },
+    authorize: async ({ segments, req }) => {
+      // segments are already validated at this point
+      const session = await auth.getSession(req)
+      if (!session) {
+        return new Response(null, { status: 401 })
+      }
+
+      // Check if user has access to this account
+      const hasAccess = await checkAccountAccess(
+        session.user.id,
+        segments.accountId
+      )
+      if (!hasAccess) {
+        return new Response(null, { status: 403 })
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({ auth, segments }) => {
+    return Response.json({ user: auth.user, segments }, { status: 200 })
+  }
+)
+```
+
+```tsx
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+// Authorization with validated body
+export const POST = createSafeRouteHandler(
+  {
+    body: z.object({
+      apiKey: z.string(),
+    }),
+    authorize: async ({ body, req }) => {
+      // body is already validated at this point
+      const isValidKey = await validateApiKey(body.apiKey)
+      if (!isValidKey) {
+        return new Response(null, { status: 401 })
+      }
+
+      return { apiKey: body.apiKey }
+    },
+  },
+  async ({ auth, body }) => {
+    return Response.json({ apiKey: auth.apiKey, body }, { status: 200 })
+  }
+)
+```
+
+```tsx
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+// Authorization with all validated props
+export const POST = createSafeRouteHandler(
+  {
+    segments: { accountId: z.string() },
+    searchParams: { role: z.string() },
+    body: z.object({ action: z.string() }),
+    authorize: async ({ segments, searchParams, body, req }) => {
+      // All props are validated and available
+      const session = await auth.getSession(req)
+      if (!session) {
+        return new Response(null, { status: 401 })
+      }
+
+      const hasPermission = await checkPermission(
+        session.user.id,
+        segments.accountId,
+        searchParams.role,
+        body.action
+      )
+      if (!hasPermission) {
+        return new Response(null, { status: 403 })
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({ auth, segments, searchParams, body }) => {
+    return Response.json(
+      { user: auth.user, segments, searchParams, body },
+      { status: 200 }
+    )
+  }
+)
+```
+
+> The original request is cloned from the incoming request to avoid side effects and to make it consumable in the `authorize` function. Due to `NextRequest` limitations, the cloned request is always a `Request` type.
 
 #### `segments?: TSegments`
 

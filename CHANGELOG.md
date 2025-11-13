@@ -1,6 +1,7 @@
 ## [Unreleased]
 
-- Introducing new functions `createSafePageServerComponent` and `createSafeLayoutServerComponent` exported from `@sugardarius/anzen/server-components` to validate segments, search params, and authorize Page and Layout files in Next.js
+- Introducing new functions `createSafePageServerComponent` and `createSafeLayoutServerComponent` exported from `@sugardarius/anzen/server-components` to validate segments, search params, and authorize Page and Layout files in Next.js.
+- Add validated props in the authorize option params for `createSafeRouteHandler`.
 
 ## [1.1.3] - 2025-10-28
 

@@ -185,6 +185,220 @@ describe('authorize', () => {
 
     expect(response.status).toBe(200)
   })
+
+  test('receives validated segments in authorize', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        segments: { id: string, page: numeric },
+        authorize: async ({ segments }) => {
+          expectTypeOf(segments).toEqualTypeOf<{
+            id: string
+            page: number
+          }>()
+          expect(segments.id).toBe('suzuka')
+          expect(segments.page).toBe(256)
+          return { authorized: true }
+        },
+      },
+      async () => {
+        return Response.json({}, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, {
+      params: Promise.resolve({ id: 'suzuka', page: '256' }),
+    })
+
+    expect(response.status).toBe(200)
+  })
+
+  test('receives validated searchParams in authorize', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        searchParams: { query: string, page: numeric },
+        authorize: async ({ searchParams }) => {
+          expectTypeOf(searchParams).toEqualTypeOf<{
+            query: string
+            page: number
+          }>()
+          expect(searchParams.query).toBe('luke')
+          expect(searchParams.page).toBe(2)
+          return { authorized: true }
+        },
+      },
+      async () => {
+        return Response.json({}, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/?query=luke&page=2')
+    const response = await GET(request, { params: undefined })
+
+    expect(response.status).toBe(200)
+  })
+
+  test('receives validated body in authorize', async () => {
+    const bodySchema = z.object({
+      name: z.string(),
+      model: z.string(),
+    })
+
+    const POST = createSafeRouteHandler(
+      {
+        body: bodySchema,
+        authorize: async ({ body }) => {
+          expectTypeOf(body).toEqualTypeOf<{
+            name: string
+            model: string
+          }>()
+          expect(body.name).toBe('Luke Skywalker')
+          expect(body.model).toBe('X-Wing')
+          return { authorized: true }
+        },
+      },
+      async () => {
+        return Response.json({}, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'Luke Skywalker',
+        model: 'X-Wing',
+      }),
+    })
+    const response = await POST(request, { params: undefined })
+
+    expect(response.status).toBe(200)
+  })
+
+  test('receives validated formData in authorize', async () => {
+    const POST = createSafeRouteHandler(
+      {
+        formData: {
+          id: z.string(),
+          message: z.string(),
+        },
+        authorize: async ({ formData }) => {
+          expectTypeOf(formData).toEqualTypeOf<{
+            id: string
+            message: string
+          }>()
+          expect(formData.id).toBe('408f1c9d-25b7-4e0a-b491-1a0b14999fc8')
+          expect(formData.message).toBe('This is a tweet!')
+          return { authorized: true }
+        },
+      },
+      async () => {
+        return Response.json({}, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/', {
+      method: 'POST',
+      body: new URLSearchParams({
+        id: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
+        message: 'This is a tweet!',
+      }),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+
+    const response = await POST(request, { params: undefined })
+
+    expect(response.status).toBe(200)
+  })
+
+  test('receives all validated attributes in authorize', async () => {
+    const bodySchema = z.object({
+      name: z.string(),
+      apiKey: z.string(),
+    })
+
+    const POST = createSafeRouteHandler(
+      {
+        segments: { accountId: string, projectId: string },
+        searchParams: { query: string, page: numeric },
+        body: bodySchema,
+        authorize: async ({ segments, searchParams, body }) => {
+          expectTypeOf(segments).toEqualTypeOf<{
+            accountId: string
+            projectId: string
+          }>()
+          expectTypeOf(searchParams).toEqualTypeOf<{
+            query: string
+            page: number
+          }>()
+          expectTypeOf(body).toEqualTypeOf<{
+            name: string
+            apiKey: string
+          }>()
+
+          expect(segments.accountId).toBe(
+            '0e0378fd-808d-4e1c-8707-bb5c918c1ed2'
+          )
+          expect(segments.projectId).toBe(
+            '141399a5-14c5-47aa-bc04-2a281380b6e3'
+          )
+          expect(searchParams.query).toBe('liveblocks')
+          expect(searchParams.page).toBe(2)
+          expect(body.name).toBe('Super Butler')
+          expect(body.apiKey).toBe('sk_ai_copilot_key')
+
+          return { authorized: true }
+        },
+      },
+      async () => {
+        return Response.json({}, { status: 200 })
+      }
+    )
+
+    const request = new Request(
+      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/copilots?query=liveblocks&page=2',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Super Butler',
+          apiKey: 'sk_ai_copilot_key',
+        }),
+      }
+    )
+    const response = await POST(request, {
+      params: Promise.resolve({
+        accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
+        projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
+      }),
+    })
+
+    expect(response.status).toBe(200)
+  })
+
+  test('authorize receives id and url in params', async () => {
+    const customId = 'custom-authorize-id'
+    const GET = createSafeRouteHandler(
+      {
+        id: customId,
+        authorize: async ({ id, url }) => {
+          expectTypeOf(id).toEqualTypeOf<string>()
+          expectTypeOf(url).toEqualTypeOf<URL>()
+          expect(id).toBe(customId)
+          expect(url.href).toBe('http://localhost:3000/')
+          return { authorized: true }
+        },
+      },
+      async () => {
+        return Response.json({}, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, { params: undefined })
+
+    expect(response.status).toBe(200)
+  })
 })
 
 describe('on error response', () => {
