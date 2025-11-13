@@ -11,11 +11,12 @@ import type {
   TSearchParamsDict,
   TBodySchema,
   TFormDataDict,
-  RequestExtras,
+  ProvidedRouteContext,
   CreateSafeRouteHandlerOptions,
   CreateSafeRouteHandlerReturnType,
   SafeRouteHandler,
   SafeRouteHandlerContext,
+  AuthFunctionParams,
 } from './types'
 
 /** @internal exported for testing only */
@@ -157,7 +158,10 @@ export function createSafeRouteHandler<
   const authorize = options.authorize ?? (async () => undefined)
 
   // Next.js API Route handler declaration
-  return async function (req: TReq, extras: RequestExtras): Promise<Response> {
+  return async function (
+    req: TReq,
+    providedContext: ProvidedRouteContext
+  ): Promise<Response> {
     const executionClock = createExecutionClock()
     executionClock.start()
 
@@ -166,18 +170,9 @@ export function createSafeRouteHandler<
 
     const url = new URL(req.url)
 
-    // Do not mutate / consume the original request
-    // Due to `NextRequest` limitations as the req is cloned it's always a Request
-    const clonedReq_forAuth = req.clone() as TReq
-    const authOrResponse = await authorize({ url, req: clonedReq_forAuth })
-    if (authOrResponse instanceof Response) {
-      log.error(`🛑 Request not authorized for route handler '${id}'`)
-      return authOrResponse
-    }
-
     let segments = undefined
     if (options.segments) {
-      const params = await extras.params
+      const params = await providedContext.params
       if (params === undefined) {
         return new Response('No segments provided', { status: 400 })
       }
@@ -278,6 +273,29 @@ export function createSafeRouteHandler<
       }
 
       formData = parsedFormData.value
+    }
+
+    // Do not mutate / consume the original request
+    // Due to `NextRequest` limitations as the req is cloned it's always a Request
+    const clonedReq_forAuth = req.clone()
+    const authParams = {
+      id,
+      url,
+      req: clonedReq_forAuth,
+      ...(segments ? { segments } : {}),
+      ...(searchParams ? { searchParams } : {}),
+      ...(body ? { body } : {}),
+      ...(formData ? { formData } : {}),
+    } as AuthFunctionParams<
+      TRouteDynamicSegments,
+      TSearchParams,
+      TBody,
+      TFormData
+    >
+    const authOrResponse = await authorize(authParams)
+    if (authOrResponse instanceof Response) {
+      log.error(`🛑 Request not authorized for route handler '${id}'`)
+      return authOrResponse
     }
 
     // Build safe route handler context

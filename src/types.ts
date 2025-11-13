@@ -4,8 +4,8 @@ import type {
 } from './standard-schema'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-type EmptyObjectType = {}
-type UnwrapReadonlyObject<T> = T extends Readonly<infer U> ? U : T
+export type EmptyObjectType = {}
+export type UnwrapReadonlyObject<T> = T extends Readonly<infer U> ? U : T
 
 // Public API types
 export type Awaitable<T> = T | PromiseLike<T>
@@ -16,7 +16,17 @@ export type TSearchParamsDict = StandardSchemaDictionary
 export type TBodySchema = StandardSchemaV1
 export type TFormDataDict = StandardSchemaDictionary
 
-export type AuthFunction<AC extends AuthContext | undefined> = (input: {
+// TODO: find better way to type it 👇🏻
+export type AuthFunctionParams<
+  TSegments extends TSegmentsDict | undefined,
+  TSearchParams extends TSearchParamsDict | undefined,
+  TBody extends TBodySchema | undefined,
+  TFormData extends TFormDataDict | undefined,
+> = {
+  /**
+   * ID for the route handler.
+   */
+  readonly id: string
   /**
    * Parsed request url
    */
@@ -29,9 +39,56 @@ export type AuthFunction<AC extends AuthContext | undefined> = (input: {
    * Due to `NextRequest` limitations as the req is cloned it's always a `Request`
    */
   req: Request
-}) => Awaitable<AC | Response>
+} & (TSegments extends TSegmentsDict
+  ? {
+      /**
+       * Validated route dynamic segments
+       */
+      readonly segments: UnwrapReadonlyObject<
+        StandardSchemaDictionary.InferOutput<TSegments>
+      >
+    }
+  : EmptyObjectType) &
+  (TSearchParams extends TSearchParamsDict
+    ? {
+        /**
+         * Validated search params
+         */
+        readonly searchParams: UnwrapReadonlyObject<
+          StandardSchemaDictionary.InferOutput<TSearchParams>
+        >
+      }
+    : EmptyObjectType) &
+  (TBody extends TBodySchema
+    ? {
+        /**
+         * Validated request body
+         */
+        readonly body: StandardSchemaV1.InferOutput<TBody>
+      }
+    : EmptyObjectType) &
+  (TFormData extends TFormDataDict
+    ? {
+        /**
+         * Validated form data
+         */
+        readonly formData: UnwrapReadonlyObject<
+          StandardSchemaDictionary.InferOutput<TFormData>
+        >
+      }
+    : EmptyObjectType)
 
-export type BaseOptions<AC extends AuthContext | undefined> = {
+export type AuthFunction<
+  AC extends AuthContext | undefined,
+  TSegments extends TSegmentsDict | undefined,
+  TSearchParams extends TSearchParamsDict | undefined,
+  TBody extends TBodySchema | undefined,
+  TFormData extends TFormDataDict | undefined,
+> = (
+  params: AuthFunctionParams<TSegments, TSearchParams, TBody, TFormData>
+) => Awaitable<AC | Response>
+
+export type BaseOptions = {
   /**
    * ID for the route handler.
    * Used when logging in development or when `debug` is enabled.
@@ -39,15 +96,6 @@ export type BaseOptions<AC extends AuthContext | undefined> = {
    * You can also use it to add extra logging or monitoring.
    */
   id?: string
-
-  /**
-   * Function to use to authorize the request.
-   * By default it always authorize the request.
-   *
-   * When returning a response, it will be used as the response for the request.
-   * Return a response when the request is not authorized.
-   */
-  authorize?: AuthFunction<AC>
 
   /**
    * Callback triggered when the request fails.
@@ -78,7 +126,7 @@ export type CreateSafeRouteHandlerOptions<
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
   TFormData extends TFormDataDict | undefined,
-> = {
+> = BaseOptions & {
   /**
    * Dynamic route segments used for the route handler path.
    * By design it will handler if the segments are a `Promise` or not.
@@ -139,9 +187,18 @@ export type CreateSafeRouteHandlerOptions<
    * By default it returns a simple `400` response and issues are logged into the console.
    */
   onFormDataValidationErrorResponse?: OnValidationErrorResponse
-} & BaseOptions<AC>
 
-export type RequestExtras = {
+  /**
+   * Function to use to authorize the request.
+   * By default it always authorize the request.
+   *
+   * When returning a response, it will be used as the response for the request.
+   * Return a response when the request is not authorized.
+   */
+  authorize?: AuthFunction<AC, TSegments, TSearchParams, TBody, TFormData>
+}
+
+export type ProvidedRouteContext = {
   /**
    * Route dynamic segments as params
    */
@@ -155,9 +212,9 @@ export type CreateSafeRouteHandlerReturnType<TReq extends Request = Request> = (
    */
   req: TReq,
   /**
-   * Extras added by Next.js itself
+   * Provided context added by Next.js itself
    */
-  extras: RequestExtras
+  providedContext: ProvidedRouteContext
 ) => Promise<Response>
 
 // TODO: find better way to type it 👇🏻
