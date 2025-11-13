@@ -50,7 +50,7 @@ export async function SiteHeader() {
             <span className='font-medium inline'>
               {siteConfig.npm.name}
             </span>{' '}
-            <span className='text-[0.625rem] text-background font-semibold bg-foreground px-1 rounded-full'>
+            <span className='text-xs text-background font-semibold bg-foreground px-1 rounded-full'>
               {version}
             </span>
           </ExternalLink>
