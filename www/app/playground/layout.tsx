@@ -1,6 +1,6 @@
-import { createSafeServerComponent } from '@sugardarius/anzen/server-components'
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
 
-export default createSafeServerComponent(
+export default createSafeLayoutServerComponent(
   {
     id: 'playground/layout',
   },

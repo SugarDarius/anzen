@@ -3,12 +3,20 @@ export type {
   TSearchParamsDict,
   OnValidationError,
   BaseOptions,
-  AuthFunctionParams,
-  AuthFunction,
-  ProvidedProps,
-  CreateSafeServerComponentOptions,
-  CreateSafeServerComponentReturnType,
-  SafeServerComponentContext,
-  SafeServerComponentRoot,
+  PageAuthFunctionParams,
+  LayoutAuthFunctionParams,
+  PageAuthFunction,
+  LayoutAuthFunction,
+  CreateSafePageServerComponentOptions,
+  CreateSafeLayoutServerComponentOptions,
+  CreateSafePageServerComponentReturnType,
+  CreateSafeLayoutServerComponentReturnType,
+  SafePageServerComponent,
+  SafeLayoutServerComponent,
+  SafePageServerComponentContext,
+  SafeLayoutServerComponentContext,
 } from './types'
-export { createSafeServerComponent } from './create-safe-server-component'
+export {
+  createSafePageServerComponent,
+  createSafeLayoutServerComponent,
+} from './create-safe-server-component'

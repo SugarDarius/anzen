@@ -16,7 +16,7 @@ export type OnValidationError = (
   issues: readonly StandardSchemaV1.Issue[]
 ) => Awaitable<never>
 
-export type BaseOptions = {
+export type BaseOptions<TSegments extends TSegmentsDict | undefined> = {
   /**
    * ID for the server component.
    * Used when logging in development or when `debug` is enabled.
@@ -43,10 +43,23 @@ export type BaseOptions = {
    * In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
    */
   debug?: boolean
+
+  /**
+   * Dynamic route segments used for the server component route path.
+   * By design it will handle if the segments are a `Promise` or not.
+   *
+   * Please note the expected input is a `StandardSchemaDictionary`.
+   */
+  segments?: TSegments
+  /**
+   * Callback triggered when dynamic segments validations returned issues.
+   * By default it throws a Validation error and issues are logged into the console.
+   */
+  onSegmentsValidationError?: OnValidationError
 }
 
 // TODO: find better way to type it 👇🏻
-export type AuthFunctionParams<
+export type PageAuthFunctionParams<
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
 > = {
@@ -75,32 +88,42 @@ export type AuthFunctionParams<
       }
     : EmptyObjectType)
 
-export type AuthFunction<
+export type LayoutAuthFunctionParams<
+  TSegments extends TSegmentsDict | undefined,
+> = {
+  /**
+   * Server component ID
+   */
+  readonly id: string
+} & (TSegments extends TSegmentsDict
+  ? {
+      /**
+       * Validated route dynamic segments
+       */
+      readonly segments: UnwrapReadonlyObject<
+        StandardSchemaDictionary.InferOutput<TSegments>
+      >
+    }
+  : EmptyObjectType)
+
+export type PageAuthFunction<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
 > = (
-  params: AuthFunctionParams<TSegments, TSearchParams>
+  params: PageAuthFunctionParams<TSegments, TSearchParams>
 ) => Awaitable<AC | never>
 
-export type CreateSafeServerComponentOptions<
+export type LayoutAuthFunction<
+  AC extends AuthContext | undefined,
+  TSegments extends TSegmentsDict | undefined,
+> = (params: LayoutAuthFunctionParams<TSegments>) => Awaitable<AC | never>
+
+export type CreateSafePageServerComponentOptions<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
-> = BaseOptions & {
-  /**
-   * Dynamic route segments used for the route handler path.
-   * By design it will handler if the segments are a `Promise` or not.
-   *
-   * Please note the expected input is a `StandardSchemaDictionary`.
-   */
-  segments?: TSegments
-  /**
-   * Callback triggered when dynamic segments validations returned issues.
-   * By default it throws a Validation error and issues are logged into the console.
-   */
-  onSegmentsValidationError?: OnValidationError
-
+> = BaseOptions<TSegments> & {
   /**
    * Search params used in the route.
    *
@@ -120,11 +143,25 @@ export type CreateSafeServerComponentOptions<
    * Return never (throws an error, `notFound`, `forbidden`, `unauthorized`, or `redirect`)
    * when the request to the server component is not authorized.
    */
-  authorize?: AuthFunction<AC, TSegments, TSearchParams>
+  authorize?: PageAuthFunction<AC, TSegments, TSearchParams>
 }
 
-// Sticking to Next.js requirements for building
-export type ProvidedProps = {
+export type CreateSafeLayoutServerComponentOptions<
+  AC extends AuthContext | undefined,
+  TSegments extends TSegmentsDict | undefined,
+> = BaseOptions<TSegments> & {
+  /**
+   * Function to use to authorize the server component.
+   * By default it always authorize the server component.
+   *
+   * Return never (throws an error, `notFound`, `forbidden`, `unauthorized`, or `redirect`)
+   * when the request to the server component is not authorized.
+   */
+  authorize?: LayoutAuthFunction<AC, TSegments>
+}
+
+// Sticking to Next.js requirements for build time
+export type PageProvidedProps = {
   /**
    * Route dynamic segments as params
    */
@@ -136,21 +173,38 @@ export type ProvidedProps = {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchParams: Awaitable<any> | undefined
+}
+
+// Sticking to Next.js requirements for build time
+export type LayoutProvidedProps = {
+  /**
+   * Route dynamic segments as params
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  params: Awaitable<any> | undefined
+
   /**
    * Incoming children when `createSafeServerComponent` is used for `layout.js` file.
    */
   children: React.ReactNode
 }
 
-export type CreateSafeServerComponentReturnType = (
+export type CreateSafePageServerComponentReturnType = (
   /**
    * Provided props added by Next.js itself
    */
-  providedProps: ProvidedProps
+  props: PageProvidedProps
+) => Promise<React.ReactElement | never>
+
+export type CreateSafeLayoutServerComponentReturnType = (
+  /**
+   * Provided props added by Next.js itself
+   */
+  props: LayoutProvidedProps
 ) => Promise<React.ReactElement | never>
 
 // TODO: find better way to type it 👇🏻
-export type SafeServerComponentContext<
+export type SafePageServerComponentContext<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
@@ -159,11 +213,6 @@ export type SafeServerComponentContext<
    * Server component ID
    */
   readonly id: string
-  /**
-   * Incoming children when `createSafeServerComponent` is used for `layout.js` file.
-   * They are set to a fragment when they don't exists in a `page.js` file.
-   */
-  children: React.ReactNode
 } & (AC extends AuthContext
   ? {
       /**
@@ -193,13 +242,56 @@ export type SafeServerComponentContext<
       }
     : EmptyObjectType)
 
-export type SafeServerComponentRoot<
+export type SafeLayoutServerComponentContext<
+  AC extends AuthContext | undefined,
+  TSegments extends TSegmentsDict | undefined,
+> = {
+  /**
+   * Server component ID
+   */
+  readonly id: string
+
+  /**
+   * Incoming children when `createSafeServerComponent` is used for `layout.js` file.
+   * They are set to a fragment when they don't exists in a `page.js` file.
+   */
+  readonly children: React.ReactNode
+} & (AC extends AuthContext
+  ? {
+      /**
+       * Auth context
+       */
+      readonly auth: AC
+    }
+  : EmptyObjectType) &
+  (TSegments extends TSegmentsDict
+    ? {
+        /**
+         * Validated route dynamic segments
+         */
+        readonly segments: UnwrapReadonlyObject<
+          StandardSchemaDictionary.InferOutput<TSegments>
+        >
+      }
+    : EmptyObjectType)
+
+export type SafePageServerComponent<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
 > = (
   /**
-   * Safe server component context
+   * Safe page server component context
    */
-  ctx: SafeServerComponentContext<AC, TSegments, TSearchParams>
+  ctx: SafePageServerComponentContext<AC, TSegments, TSearchParams>
+) => Promise<React.ReactElement | never>
+
+export type SafeLayoutServerComponent<
+  AC extends AuthContext | undefined,
+  TSegments extends TSegmentsDict | undefined,
+> = (
+  /**
+   * Safe layout server component context
+   */
+  ctx: SafeLayoutServerComponentContext<AC, TSegments>
 ) => Promise<React.ReactElement | never>
