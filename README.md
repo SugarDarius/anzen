@@ -1,4 +1,4 @@
-A flexible, framework validation agnostic, type-safe factory for creating Next.JS App Router route handlers.
+A fast, framework validation agnostic, type-safe factories for creating route handlers, page and layout server components files in Next.js.
 
 - 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
 - 🧠 Focused functionalities, use only features you want.
