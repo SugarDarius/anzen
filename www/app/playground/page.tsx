@@ -7,7 +7,7 @@ export default createSafePageServerComponent(
   async () => {
     return (
       <div className='flex flex-col items-center justify-center w-full h-12'>
-        Hello Playground
+        Hello Playground 👋🏻
       </div>
     )
   }
