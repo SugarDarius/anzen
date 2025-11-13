@@ -187,7 +187,7 @@ export const GET = createSafeRouteHandler({ debug: true }, async () => {
 
 You can configure route handler options to validation using a validation library dynamic route segments, URL query parameters, request json body or request form data body 👇🏻
 
-#### `authorize?: AuthFunction<AC>`
+#### `authorize?: AuthFunction<AC, TSegments, TSearchParams, TBody, TFormData>`
 
 Function to use to authorize the request. By default it always authorize the request.
 
@@ -296,14 +296,14 @@ import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { auth } from '~/lib/auth'
 
-// Authorization with all validated attributes
+// Authorization with all validated props
 export const POST = createSafeRouteHandler(
   {
     segments: { accountId: z.string() },
     searchParams: { role: z.string() },
     body: z.object({ action: z.string() }),
     authorize: async ({ segments, searchParams, body, req }) => {
-      // All attributes are validated and available
+      // All props are validated and available
       const session = await auth.getSession(req)
       if (!session) {
         return new Response(null, { status: 401 })
