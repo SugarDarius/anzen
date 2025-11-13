@@ -13,7 +13,8 @@
     <TabsTrigger value='server-components'>Page & Layout</TabsTrigger>
   </TabsList>
   <TabsContent value='route-handler'>
-    ```tsx
+
+```tsx
 import { object, string, number } from 'decoders'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { auth } from '~/lib/auth'
@@ -32,20 +33,18 @@ export const POST = createSafeRouteHandler(
       foo: string,
       bar: number,
     }),
-
-},
-async (
-{
-auth, // Auth context is inferred from the authorize function
-body, // Body is inferred from the body validation
-},
-req
-): Promise<Response> => {
-return Response.json({ user: auth.user, body }, { status: 200 })
-}
+  },
+  async (
+    {
+      auth, // Auth context is inferred from the authorize function
+      body, // Body is inferred from the body validation
+    },
+    req
+  ): Promise<Response> => {
+    return Response.json({ user: auth.user, body }, { status: 200 })
+  }
 )
-
-````
+```
 
 - 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
 - 🧠 Focused functionalities, use only features you want.
@@ -58,7 +57,7 @@ return Response.json({ user: auth.user, body }, { status: 200 })
 
 ```sh
 npm i @sugardarius/anzen
-````
+```
 
 ## Framework validation agnostic
 
@@ -637,3 +636,7 @@ The factories requires Next.js `v14`, `v15` or `v16` and typescript `v5` as peer
 ## Credits
 
 Thanks to [@t3-oss/env-core](https://github.com/t3-oss/t3-env) for opening the implementation of `StandardSchemaDictionary` 🙏🏻
+
+```
+
+```
