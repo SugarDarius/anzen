@@ -5,7 +5,7 @@ A fast, framework validation agnostic, type-safe factories for creating route ha
 - 🧹 Clean and flexible API.
 - 🔒 Type-safe.
 - 🌱 Dependency free.
-- 🪶 Less than 100kB unpacked.
+- 🪶 Less than 140kB unpacked.
 
 ## Install
 
