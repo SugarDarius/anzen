@@ -4,6 +4,7 @@ import { cn } from '~/lib/utils'
 import { WindowFrame } from '~/components/content/window-frame'
 import { CodeBlockCommand } from '~/components/content/code-block-command'
 import { Highlight } from '~/components/content/highlight'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
 
 const components: MDXComponents = {
   a: ({
@@ -163,6 +164,10 @@ const components: MDXComponents = {
   li: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
     <li className={cn('mt-2', className)} {...props} />
   ),
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
 }
 
 export function useMDXComponents(overrides: MDXComponents): MDXComponents {
