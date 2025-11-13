@@ -626,8 +626,9 @@ export function GET() {
   </TabsContent>
   <TabsContent value='server-components'>
 
-```tsx
+```tsx title="app/page.tsx"
 import { object, string, number } from 'decoders'
+import { unauthorized } from 'next/navigation'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 import { auth } from '~/lib/auth'
 
@@ -636,7 +637,7 @@ export default createSafePageServerComponent(
     authorize: async ({ segments }) => {
       const session = await auth.getSession()
       if (!session) {
-        throw new Error('Unauthorized')
+        unauthorized()
       }
 
       return { user: session.user }
@@ -768,7 +769,7 @@ When creating a safe server component you can use a bunch of options for helping
 Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
 By default the id is set to `[unknown:page:server:component]` for pages and `[unknown:layout:server:component]` for layouts.
 
-```tsx
+```tsx title="app/races/[id]/page.tsx"
 export default createSafePageServerComponent(
   {
     id: 'races/[id]/page',
@@ -785,7 +786,7 @@ Callback triggered when the server component throws an unhandled error.
 By default it rethrows the error as a service hatch to Next.js do its job and use error boundaries. The error is logged into the console.
 Use it if you want to manage unexpected errors properly to log, trace or define behaviors like using `notFound` or `redirect`.
 
-```tsx
+```tsx title="app/page.tsx"
 import { notFound } from 'next/navigation'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 
@@ -810,7 +811,7 @@ Use this options to enable debug mode. It will add logs in the server component 
 By default it's set to `false` for production builds.
 In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
 
-```tsx
+```tsx title="app/page.tsx"
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 
 export default createSafePageServerComponent({ debug: true }, async () => {
@@ -836,10 +837,10 @@ The `authorize` function receives validated attributes (`segments`, `searchParam
 - `segments?:` - Validated route dynamic segments (if `segments` option is defined)
 - `searchParams?:` - Validated search params (if `searchParams` option is defined)
 
-```tsx
+```tsx title="app/page.tsx"
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 import { auth } from '~/lib/auth'
-import { notFound } from 'next/navigation'
+import { unauthorized } from 'next/navigation'
 
 // Basic authorization
 export default createSafePageServerComponent(
@@ -847,7 +848,7 @@ export default createSafePageServerComponent(
     authorize: async () => {
       const session = await auth.getSession()
       if (!session) {
-        throw new Error('Unauthorized')
+        unauthorized()
       }
 
       return { user: session.user }
@@ -859,7 +860,7 @@ export default createSafePageServerComponent(
 )
 ```
 
-```tsx
+```tsx title="app/accounts/[accountId]/projects/[projectId]/page.tsx"
 import { z } from 'zod'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 import { auth } from '~/lib/auth'
@@ -901,33 +902,34 @@ export default createSafePageServerComponent(
 )
 ```
 
-```tsx
+```tsx title="app/page.tsx"
 import { z } from 'zod'
+import { unauthorized } from 'next/navigation'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 
 // Authorization with validated search params
 export default createSafePageServerComponent(
   {
     searchParams: {
-      apiKey: z.string(),
+      code: z.string(),
     },
     authorize: async ({ searchParams }) => {
       // searchParams are already validated at this point
-      const isValidKey = await validateApiKey(searchParams.apiKey)
-      if (!isValidKey) {
-        throw new Error('Unauthorized')
+      const isValidCode = await validateCode(searchParams.code)
+      if (!isValidCode) {
+        unauthorized()
       }
 
-      return { apiKey: searchParams.apiKey }
+      return { code: searchParams.code }
     },
   },
   async ({ auth, searchParams }) => {
-    return <div>API Key: {auth.apiKey}</div>
+    return <div>Code: {auth.code}</div>
   }
 )
 ```
 
-```tsx
+```tsx title="app/accounts/[accountId]/page.tsx"
 import { z } from 'zod'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 import { auth } from '~/lib/auth'
@@ -998,7 +1000,7 @@ export default createSafePageServerComponent(
 
 Callback triggered when dynamic segments validations returned issues. By default it throws a `ValidationError` and issues are logged into the console.
 
-```tsx
+```tsx title="app/accounts/[accountId]/projects/[projectId]/page.tsx"
 import { z } from 'zod'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 import { notFound } from 'next/navigation'
@@ -1030,7 +1032,7 @@ Search params used in the page.
 
 Please note the expected input is a `StandardSchemaDictionary`.
 
-```tsx
+```tsx title="app/search/page.tsx"
 import { string, numeric, optional } from 'decoders'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 
@@ -1055,7 +1057,7 @@ export default createSafePageServerComponent(
 
 Callback triggered when search params validations returned issues. By default it throws a `ValidationError` and issues are logged into the console.
 
-```tsx
+```tsx title="app/search/page.tsx"
 import { string, numeric, optional } from 'decoders'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 import { redirect } from 'next/navigation'
@@ -1098,11 +1100,11 @@ The `authorize` function receives validated attributes (`segments`) when they ar
 - `id: string` - Server component ID
 - `segments?:` - Validated route dynamic segments (if `segments` option is defined)
 
-```tsx
+```tsx title="app/accounts/[accountId]/layout.tsx"
 import { z } from 'zod'
 import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
 import { auth } from '~/lib/auth'
-import { notFound } from 'next/navigation'
+import { notFound, unauthorized } from 'next/navigation'
 
 export default createSafeLayoutServerComponent(
   {
@@ -1112,7 +1114,7 @@ export default createSafeLayoutServerComponent(
     authorize: async ({ segments }) => {
       const session = await auth.getSession()
       if (!session) {
-        throw new Error('Unauthorized')
+        unauthorized()
       }
 
       const hasAccess = await checkAccountAccess(
@@ -1143,7 +1145,7 @@ By design the factory will catch any error thrown in the server component and re
 
 You can customize the error handling if you want to fine tune error management.
 
-```tsx
+```tsx title="app/page.tsx"
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 import { NotFoundError, DbUnknownError } from '~/lib/errors'
 import { db } from '~/lib/db'
@@ -1182,7 +1184,7 @@ export default createSafePageServerComponent(
 
 The `children` prop is automatically provided in the context for layout server components.
 
-```tsx
+```tsx title="app/layout.tsx"
 import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
 
 export default createSafeLayoutServerComponent({}, async ({ children }) => {
@@ -1200,7 +1202,7 @@ export default createSafeLayoutServerComponent({}, async ({ children }) => {
 
 Please note that if you're not using any of the proposed options in `createSafePageServerComponent` or `createSafeLayoutServerComponent` it means you're surely don't need it.
 
-```tsx
+```tsx title="app/page.tsx"
 // Calling 👇🏻
 export default createSafePageServerComponent({}, async () => {
   return <div>Hello</div>
@@ -1212,7 +1214,7 @@ export default async function Page() {
 }
 ```
 
-```tsx
+```tsx title="app/layout.tsx"
 // Calling 👇🏻
 export default createSafeLayoutServerComponent({}, async ({ children }) => {
   return <div>{children}</div>
