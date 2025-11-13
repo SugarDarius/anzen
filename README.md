@@ -1,3 +1,7 @@
+![NPM Version](https://img.shields.io/npm/v/%40sugardarius%2Fanzen?style=flat&labelColor=101010&color=FFC799)
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/%40sugardarius%2Fanzen?style=flat&labelColor=101010&label=size&color=FFC799)
+![GitHub License](https://img.shields.io/github/license/sugardarius/anzen?style=flat&labelColor=101010&color=FFC799)
+
 A fast, framework validation agnostic, type-safe factories for creating route handlers, page and layout server components files in Next.js.
 
 - 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
