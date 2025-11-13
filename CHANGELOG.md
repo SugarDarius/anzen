@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Preparing release 2.0
+
 ## [1.1.3] - 2025-10-28
 
 - Add support for Next.js 16 🚀
