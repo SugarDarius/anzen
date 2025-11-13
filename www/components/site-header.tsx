@@ -47,12 +47,8 @@ export async function SiteHeader() {
         <div className='flex items-center space-x-6'>
           <ExternalLink href={siteConfig.npm.url}>
             <BoxIcon className='size-4' />
-            <span className='font-medium inline'>
-              {siteConfig.npm.name}
-            </span>{' '}
-            <span className='text-xs text-background font-semibold bg-foreground px-1 rounded-full'>
-              {version}
-            </span>
+            <span className='font-medium'>{siteConfig.npm.name}</span>{' '}
+            <span className='text-xs mt-px'>{version}</span>
           </ExternalLink>
         </div>
         <div className='hidden sm:flex items-center '>
