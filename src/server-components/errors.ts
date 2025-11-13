@@ -1,3 +1,6 @@
+/**
+ * Validation error for server components.
+ */
 export class ValidationError extends Error {
   constructor(
     validationType: 'segments' | 'searchParams',
@@ -11,6 +14,9 @@ export class ValidationError extends Error {
   }
 }
 
+/**
+ * No segments provided error for server components.
+ */
 export class NoSegmentsProvidedError extends Error {
   constructor(id: string, serverComponentType: 'page' | 'layout') {
     super(
@@ -20,6 +26,9 @@ export class NoSegmentsProvidedError extends Error {
   }
 }
 
+/**
+ * No search params provided error for server components.
+ */
 export class NoSearchParamsProvidedError extends Error {
   constructor(id: string, serverComponentType: 'page' | 'layout') {
     super(
