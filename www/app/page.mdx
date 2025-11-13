@@ -1,10 +1,19 @@
 <Highlight>
-  A flexible, framework validation agnostic, type-safe factory for creating
-  [Next.JS App Router route
-  handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers).
+  A flexible, framework validation agnostic, type-safe factories for creating
+  [route
+  handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers),
+  [Page](https://nextjs.org/docs/app/api-reference/file-conventions/page) and
+  [Layout](https://nextjs.org/docs/app/api-reference/file-conventions/layout)
+  server components files in Next.js.
 </Highlight>
 
-```tsx
+<Tabs defaultValue='route-handler' className="mt-10">
+  <TabsList>
+    <TabsTrigger value='route-handler'>Route Handler</TabsTrigger>
+    <TabsTrigger value='server-components'>Page & Layout</TabsTrigger>
+  </TabsList>
+  <TabsContent value='route-handler'>
+    ```tsx
 import { object, string, number } from 'decoders'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { auth } from '~/lib/auth'
@@ -23,18 +32,20 @@ export const POST = createSafeRouteHandler(
       foo: string,
       bar: number,
     }),
-  },
-  async (
-    {
-      auth, // Auth context is inferred from the authorize function
-      body, // Body is inferred from the body validation
-    },
-    req
-  ): Promise<Response> => {
-    return Response.json({ user: auth.user, body }, { status: 200 })
-  }
+
+},
+async (
+{
+auth, // Auth context is inferred from the authorize function
+body, // Body is inferred from the body validation
+},
+req
+): Promise<Response> => {
+return Response.json({ user: auth.user, body }, { status: 200 })
+}
 )
-```
+
+````
 
 - 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
 - 🧠 Focused functionalities, use only features you want.
@@ -47,7 +58,7 @@ export const POST = createSafeRouteHandler(
 
 ```sh
 npm i @sugardarius/anzen
-```
+````
 
 ## Framework validation agnostic
 
@@ -611,11 +622,17 @@ export function GET() {
 // and will return a `500` response. That's the only advantage.
 ```
 
+  </TabsContent>
+  <TabsContent value='server-components'>
+   to be defined
+  </TabsContent>
+</Tabs>
+
 Feel free to open an issue or a PR if you think a relevant option could be added into the factory 🙂
 
 ## Requirements
 
-The factory `createSafeRouteHandler` requires Next.js `v14`, `v15` or `v16` and typescript `v5` as peer dependencies.
+The factories requires Next.js `v14`, `v15` or `v16` and typescript `v5` as peer dependencies.
 
 ## Credits
 
