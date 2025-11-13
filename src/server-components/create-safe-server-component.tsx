@@ -115,6 +115,7 @@ export function createSafePageServerComponent<
     }
 
     // Authorize the server component
+    let auth = undefined
     try {
       // Build page auth function params
       const authParams = {
@@ -123,7 +124,7 @@ export function createSafePageServerComponent<
         ...(searchParams ? { searchParams } : {}),
       } as PageAuthFunctionParams<TSegments, TSearchParams>
 
-      await authorize(authParams)
+      auth = await authorize(authParams)
     } catch (err: unknown) {
       log.error(`Page server component '${id}' not authorized`)
       throw err
@@ -133,6 +134,7 @@ export function createSafePageServerComponent<
       // Build safe page server component context
       const ctx = {
         id,
+        ...(auth ? { auth } : {}),
         ...(segments ? { segments } : {}),
         ...(searchParams ? { searchParams } : {}),
       } as SafePageServerComponentContext<AC, TSegments, TSearchParams>
@@ -225,6 +227,7 @@ export function createSafeLayoutServerComponent<
     }
 
     // Authorize the server component
+    let auth = undefined
     try {
       // Build layout auth function params
       const authParams = {
@@ -232,7 +235,7 @@ export function createSafeLayoutServerComponent<
         ...(segments ? { segments } : {}),
       } as LayoutAuthFunctionParams<TSegments>
 
-      await authorize(authParams)
+      auth = await authorize(authParams)
     } catch (err: unknown) {
       log.error(`Layout server component '${id}' not authorized`)
       throw err
@@ -242,6 +245,7 @@ export function createSafeLayoutServerComponent<
       // Build safe layout server component context
       const ctx = {
         id,
+        ...(auth ? { auth } : {}),
         ...(segments ? { segments } : {}),
         children: props.children,
       } as SafeLayoutServerComponentContext<AC, TSegments>
