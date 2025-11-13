@@ -23,6 +23,17 @@
         "module": "./dist/index.js",
         "default": "./dist/index.cjs"
       }
+    },
+    "./server-components": {
+      "import": {
+        "types": "./dist/server-components/index.d.ts",
+        "default": "./dist/server-components/index.js"
+      },
+      "require": {
+        "types": "./dist/server-components/index.d.cts",
+        "module": "./dist/server-components/index.js",
+        "default": "./dist/server-components/index.cjs"
+      }
     }
   },
   "files": [
@@ -58,7 +69,7 @@
     "lint": "npm run lint:eslint && npm run lint:tsc && npm run lint:package",
     "lint:eslint": "eslint src/",
     "lint:tsc": "tsc --noEmit",
-    "lint:package": "publint --strict && attw --pack",
+    "lint:package": "publint --strict && attw --pack . --profile node16",
     "format": "prettier --write src/",
     "release": "release-it"
   },
@@ -71,6 +82,7 @@
     "@eslint/js": "^9.39.1",
     "@release-it/keep-a-changelog": "^7.0.0",
     "@types/node": "^24.10.1",
+    "@types/react": "^19.2.4",
     "decoders": "^2.7.5",
     "eslint": "^9.39.1",
     "prettier": "^3.6.2",

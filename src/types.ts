@@ -4,8 +4,8 @@ import type {
 } from './standard-schema'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-type EmptyObjectType = {}
-type UnwrapReadonlyObject<T> = T extends Readonly<infer U> ? U : T
+export type EmptyObjectType = {}
+export type UnwrapReadonlyObject<T> = T extends Readonly<infer U> ? U : T
 
 // Public API types
 export type Awaitable<T> = T | PromiseLike<T>
@@ -141,7 +141,7 @@ export type CreateSafeRouteHandlerOptions<
   onFormDataValidationErrorResponse?: OnValidationErrorResponse
 } & BaseOptions<AC>
 
-export type RequestExtras = {
+export type ProvidedRouteContext = {
   /**
    * Route dynamic segments as params
    */
@@ -155,9 +155,9 @@ export type CreateSafeRouteHandlerReturnType<TReq extends Request = Request> = (
    */
   req: TReq,
   /**
-   * Extras added by Next.js itself
+   * Provided context added by Next.js itself
    */
-  extras: RequestExtras
+  providedContext: ProvidedRouteContext
 ) => Promise<Response>
 
 // TODO: find better way to type it 👇🏻

@@ -11,7 +11,7 @@ import type {
   TSearchParamsDict,
   TBodySchema,
   TFormDataDict,
-  RequestExtras,
+  ProvidedRouteContext,
   CreateSafeRouteHandlerOptions,
   CreateSafeRouteHandlerReturnType,
   SafeRouteHandler,
@@ -157,7 +157,10 @@ export function createSafeRouteHandler<
   const authorize = options.authorize ?? (async () => undefined)
 
   // Next.js API Route handler declaration
-  return async function (req: TReq, extras: RequestExtras): Promise<Response> {
+  return async function (
+    req: TReq,
+    providedContext: ProvidedRouteContext
+  ): Promise<Response> {
     const executionClock = createExecutionClock()
     executionClock.start()
 
@@ -177,7 +180,7 @@ export function createSafeRouteHandler<
 
     let segments = undefined
     if (options.segments) {
-      const params = await extras.params
+      const params = await providedContext.params
       if (params === undefined) {
         return new Response('No segments provided', { status: 400 })
       }
