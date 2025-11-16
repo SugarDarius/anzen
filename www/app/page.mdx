@@ -7,6 +7,113 @@
   server components files in Next.js.
 </Highlight>
 
+<Tabs defaultValue='route-handler' className='mt-6'>
+  <TabsList className='mx-auto'>
+    <TabsTrigger value='route-handler'>Safe route handler</TabsTrigger>
+    <TabsTrigger value='page-server-component'>
+      Safe page
+    </TabsTrigger>
+    <TabsTrigger value='layout-server-component'>
+      Safe layout
+    </TabsTrigger>
+  </TabsList>
+  <TabsContent value='route-handler'>
+    ```tsx title="api/authorize"
+    import { object, string, number } from 'decoders'
+    import { createSafeRouteHandler } from '@sugardarius/anzen'
+    import { auth } from '~/lib/auth'
+
+    export const POST = createSafeRouteHandler(
+      {
+        authorize: async ({ req }) => {
+          const session = await auth.getSession(req)
+          if (!session) {
+            return new Response(null, { status: 401 })
+          }
+
+          return { user: session.user }
+        },
+        body: object({
+          foo: string,
+          bar: number,
+        }),
+      },
+      async ({ auth, body }, req): Promise<Response> => {
+        return Response.json({ user: auth.user, body }, { status: 200 })
+      }
+    )
+    ```
+
+  </TabsContent>
+  <TabsContent value='page-server-component'>
+    ```tsx title="app/[accountId]/page.tsx"
+    import { unauthorized } from 'next/navigation'
+    import { string } from 'decoders'
+    import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
+
+    import { auth } from '~/lib/auth'
+    import { getAccount } from '~/lib/db'
+
+    import { AccountSummary } from '~/components/account-summary'
+
+    export default createSafePageServerComponent(
+      {
+        authorize: async ({ segments }) => {
+          const session = await auth.getSession()
+          if (!session) {
+            unauthorized()
+          }
+
+          return { user: session.user }
+        },
+        segments: {
+          accountId: string,
+        },
+      }, async ({ auth, segments })  => {
+        const account = await getAccount({ id: segments.accountId})
+        return <AccountSummary user={auth.user} account={account} />
+      }
+    )
+    ```
+
+  </TabsContent>
+  <TabsContent value='layout-server-component'>
+    ```tsx title="app/[accountId]/layout.tsx"
+    import { notFound, unauthorized } from 'next/navigation'
+    import { string } from 'decoders'
+    import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+
+    import { auth } from '~/lib/auth'
+
+    import { AccountHeader } from '~/components/account-header'
+
+    export default createSafeLayoutServerComponent(
+      {
+        authorize: async ({ segments }) => {
+          const session = await auth.getSession()
+          if (!session) {
+            unauthorized()
+          }
+
+          return { user: session.user }
+        },
+        segments: {
+          accountId: string,
+        },
+      }, async ({ auth, segments, children }) => {
+        const account = await getAccount({ id: segments.accountId})
+        return (
+          <div>
+            <AccountHeader user={auth.user} accountId={segments.accountId} />
+            {children}
+          </div>
+        )
+      }
+    ```
+
+  </TabsContent>
+</Tabs>
+
 - 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
 - 🧠 Focused functionalities, use only features you want.
 - 🧹 Clean and flexible API.
