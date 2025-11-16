@@ -316,10 +316,10 @@ Function to use to authorize the request. By default it always authorize the req
 
 Returns a response when the request is not authorized.
 
-The `authorize` function receives validated attributes (`segments`, `searchParams`, `body`, `formData`) when they are defined, allowing you to use validated data for authorization logic.
+The `authorize` function receives validated props (`segments`, `searchParams`, `body`, `formData`) when they are defined, allowing you to use validated data for authorization logic.
 
 <Callout>
-  **Note:** Validated attributes in the `authorize` function are available since
+  **Note:** Validated props in the `authorize` function are available since
   v2.0.0.
 </Callout>
 
@@ -333,11 +333,12 @@ The `authorize` function receives validated attributes (`segments`, `searchParam
 - `body?:` - Validated request body (if `body` option is defined)
 - `formData?:` - Validated form data (if `formData` option is defined)
 
+###### Basic authorization
+
 ```tsx
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { auth } from '~/lib/auth'
 
-// Basic authorization with request
 export const GET = createSafeRouteHandler(
   {
     authorize: async ({ req, url }) => {
@@ -356,12 +357,13 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
+###### Authorization with validated segments
+
 ```tsx
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { auth } from '~/lib/auth'
 
-// Authorization with validated segments
 export const GET = createSafeRouteHandler(
   {
     segments: {
@@ -393,11 +395,12 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
+###### Authorization with validated body
+
 ```tsx
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
-// Authorization with validated body
 export const POST = createSafeRouteHandler(
   {
     body: z.object({
@@ -419,12 +422,13 @@ export const POST = createSafeRouteHandler(
 )
 ```
 
+###### Authorization with all validated props
+
 ```tsx
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { auth } from '~/lib/auth'
 
-// Authorization with all validated props
 export const POST = createSafeRouteHandler(
   {
     segments: { accountId: z.string() },
@@ -951,12 +955,13 @@ The `authorize` function receives validated attributes (`segments`, `searchParam
 - `segments?:` - Validated route dynamic segments (if `segments` option is defined)
 - `searchParams?:` - Validated search params (if `searchParams` option is defined)
 
+###### Basic authorization
+
 ```tsx title="app/page.tsx"
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 import { auth } from '~/lib/auth'
 import { unauthorized } from 'next/navigation'
 
-// Basic authorization
 export default createSafePageServerComponent(
   {
     authorize: async () => {
@@ -974,13 +979,14 @@ export default createSafePageServerComponent(
 )
 ```
 
+###### Authorization with validated segments
+
 ```tsx title="app/accounts/[accountId]/projects/[projectId]/page.tsx"
 import { z } from 'zod'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 import { auth } from '~/lib/auth'
 import { notFound } from 'next/navigation'
 
-// Authorization with validated segments
 export default createSafePageServerComponent(
   {
     segments: {
@@ -1016,12 +1022,13 @@ export default createSafePageServerComponent(
 )
 ```
 
+###### Authorization with validated search params
+
 ```tsx title="app/page.tsx"
 import { z } from 'zod'
 import { unauthorized } from 'next/navigation'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 
-// Authorization with validated search params
 export default createSafePageServerComponent(
   {
     searchParams: {
@@ -1043,13 +1050,14 @@ export default createSafePageServerComponent(
 )
 ```
 
+###### Authorization with all validated props
+
 ```tsx title="app/accounts/[accountId]/page.tsx"
 import { z } from 'zod'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 import { auth } from '~/lib/auth'
 import { notFound } from 'next/navigation'
 
-// Authorization with all validated props
 export default createSafePageServerComponent(
   {
     segments: { accountId: z.string() },
