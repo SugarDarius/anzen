@@ -6,12 +6,14 @@ import { Badge } from '~/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
 
 import { Announcement } from '~/components/content/announcement'
+import { Callout } from '~/components/content/callout'
 import { CodeBlockCommand } from '~/components/content/code-block-command'
 import { Highlight } from '~/components/content/highlight'
 import { WindowFrame } from '~/components/content/window-frame'
 
 const components: MDXComponents = {
   Announcement,
+  Callout,
   a: ({
     className,
     href,

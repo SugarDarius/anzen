@@ -318,6 +318,11 @@ Returns a response when the request is not authorized.
 
 The `authorize` function receives validated attributes (`segments`, `searchParams`, `body`, `formData`) when they are defined, allowing you to use validated data for authorization logic.
 
+<Callout>
+  **Note:** Validated attributes in the `authorize` function are available since
+  v2.0.0.
+</Callout>
+
 **Parameters:**
 
 - `id: string` - Route handler ID
