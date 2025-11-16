@@ -1,12 +1,17 @@
 import type { MDXComponents } from 'mdx/types'
 
 import { cn } from '~/lib/utils'
-import { WindowFrame } from '~/components/content/window-frame'
-import { CodeBlockCommand } from '~/components/content/code-block-command'
-import { Highlight } from '~/components/content/highlight'
+
+import { Badge } from '~/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
 
+import { Announcement } from '~/components/content/announcement'
+import { CodeBlockCommand } from '~/components/content/code-block-command'
+import { Highlight } from '~/components/content/highlight'
+import { WindowFrame } from '~/components/content/window-frame'
+
 const components: MDXComponents = {
+  Announcement,
   a: ({
     className,
     href,
@@ -27,6 +32,7 @@ const components: MDXComponents = {
       />
     )
   },
+  Badge,
   blockquote: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
     <blockquote
       className={cn('mt-6 border-l-2 pl-6 italic', className)}
