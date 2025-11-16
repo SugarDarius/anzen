@@ -1,0 +1,236 @@
+# @sugardarius/anzen
+
+> @sugardarius/anzen is a fast, framework validation agnostic, type-safe factories for creating route handlers, page and layout server components files in Next.js.
+
+## Key Features
+
+- 🔧 Framework validation agnostic: Use any validation library supporting [Standard Schema](https://standardschema.dev/) (Zod, Valibot, decoders, etc.)
+- 🧠 Focused functionalities: Use only features you want
+- 🧹 Clean and flexible API
+- 🔒 Type-safe: Full TypeScript support with inferred types
+- 🌱 Dependency free: No runtime dependencies
+- 🪶 Lightweight: Less than 140kB unpacked
+
+## Main Exports
+
+### Route Handlers (`@sugardarius/anzen`)
+
+- `createSafeRouteHandler`: Factory for creating type-safe Next.js API route handlers with validation and authorization
+
+**Options:**
+- `id`: Optional identifier for logging/debugging
+- `segments`: Dictionary validation for dynamic route segments (StandardSchemaDictionary)
+- `searchParams`: Dictionary validation for URL search parameters (StandardSchemaDictionary)
+- `body`: Schema validation for JSON request body (StandardSchemaV1) - mutually exclusive with `formData`
+- `formData`: Dictionary validation for form data (StandardSchemaDictionary) - mutually exclusive with `body`
+- `authorize`: Async function to authorize requests, returns auth context or Response
+- `onErrorResponse`: Custom error handler callback
+- `onSegmentsValidationErrorResponse`: Custom validation error handler for segments
+- `onSearchParamsValidationErrorResponse`: Custom validation error handler for search params
+- `onBodyValidationErrorResponse`: Custom validation error handler for body
+- `onFormDataValidationErrorResponse`: Custom validation error handler for form data
+- `debug`: Enable debug logging (defaults to true in development)
+
+**Handler Context:**
+- `id`: Route handler identifier
+- `url`: Parsed request URL
+- `auth`: Auth context (if authorize returns one)
+- `segments`: Validated dynamic route segments (if provided)
+- `searchParams`: Validated search parameters (if provided)
+- `body`: Validated request body (if provided)
+- `formData`: Validated form data (if provided)
+
+### Server Components (`@sugardarius/anzen/server-components`)
+
+- `createSafePageServerComponent`: Factory for creating type-safe Next.js page server components
+- `createSafeLayoutServerComponent`: Factory for creating type-safe Next.js layout server components
+
+**Options:**
+- `id`: Optional identifier for logging/debugging
+- `segments`: Dictionary validation for dynamic route segments (StandardSchemaDictionary)
+- `searchParams`: Dictionary validation for URL search parameters (StandardSchemaDictionary) - page components only
+- `authorize`: Async function to authorize requests, returns auth context or calls `unauthorized()`/`notFound()`
+- `onError`: Custom error handler callback
+- `onSegmentsValidationError`: Custom validation error handler for segments
+- `onSearchParamsValidationError`: Custom validation error handler for search params (page components only)
+- `debug`: Enable debug logging
+
+**Component Context:**
+- `id`: Component identifier
+- `auth`: Auth context (if authorize returns one)
+- `segments`: Validated dynamic route segments (if provided)
+- `searchParams`: Validated search parameters (if provided, page components only)
+- `children`: React children (layout components only)
+
+## Usage Examples
+
+### Route Handler with Authorization and Body Validation
+
+```typescript
+import { object, string, number } from 'decoders'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+export const POST = createSafeRouteHandler(
+  {
+    authorize: async ({ req }) => {
+      const session = await auth.getSession(req)
+      if (!session) {
+        return new Response(null, { status: 401 })
+      }
+      return { user: session.user }
+    },
+    body: object({
+      foo: string,
+      bar: number,
+    }),
+  },
+  async ({ auth, body }, req): Promise<Response> => {
+    return Response.json({ user: auth.user, body }, { status: 200 })
+  }
+)
+```
+
+### Page Server Component with Segments and Search Params
+
+```typescript
+import { object, string, number } from 'decoders'
+import { unauthorized } from 'next/navigation'
+import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
+import { auth } from '~/lib/auth'
+
+export default createSafePageServerComponent(
+  {
+    authorize: async ({ segments }) => {
+      const session = await auth.getSession()
+      if (!session) {
+        unauthorized()
+      }
+      return { user: session.user }
+    },
+    segments: {
+      id: string,
+    },
+    searchParams: {
+      page: number,
+    },
+  },
+  async ({ auth, segments, searchParams }) => {
+    return <div>Hello {auth.user.name}!</div>
+  }
+)
+```
+
+### Layout Server Component with Authorization
+
+```typescript
+import { z } from 'zod'
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+import { auth } from '~/lib/auth'
+import { notFound, unauthorized } from 'next/navigation'
+
+export default createSafeLayoutServerComponent(
+  {
+    segments: {
+      accountId: z.string(),
+    },
+    authorize: async ({ segments }) => {
+      const session = await auth.getSession()
+      if (!session) {
+        unauthorized()
+      }
+      const hasAccess = await checkAccountAccess(session.user.id, segments.accountId)
+      if (!hasAccess) {
+        notFound()
+      }
+      return { user: session.user }
+    },
+  },
+  async ({ auth, segments, children }) => {
+    return (
+      <div>
+        <header>Account: {segments.accountId}</header>
+        {children}
+      </div>
+    )
+  }
+)
+```
+
+## Important Concepts
+
+### Standard Schema
+
+Anzen is built on [Standard Schema](https://standardschema.dev/), a common interface for validation libraries. This means you can use any validation library that implements Standard Schema:
+
+- **Zod**: `z.string()`, `z.number()`, etc.
+- **Valibot**: `string()`, `number()`, etc.
+- **decoders**: `string`, `number`, `object({ ... })`, etc.
+
+### Validation Agnostic Design
+
+You can mix and match validation libraries in the same handler:
+
+```typescript
+import { z } from 'zod'
+import { object, string, number } from 'decoders'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const POST = createSafeRouteHandler(
+  {
+    segments: { id: z.string() }, // Zod
+    body: object({ name: string, age: number }), // decoders
+  },
+  async ({ segments, body }) => {
+    return Response.json({ segments, body })
+  }
+)
+```
+
+### Synchronous Validations Only
+
+The factories do not support async validations. As required by Standard Schema, validations must be synchronous. If you define an async validation, the factory will throw an error.
+
+### Type Safety
+
+All types are inferred from your validation schemas:
+- `segments` type is inferred from `segments` option
+- `searchParams` type is inferred from `searchParams` option
+- `body` type is inferred from `body` option
+- `formData` type is inferred from `formData` option
+- `auth` type is inferred from `authorize` function return type
+
+### Error Handling
+
+By default, validation errors return `400` responses and unexpected errors return `500` responses. You can customize error handling with the `on*ErrorResponse` callbacks.
+
+### Authorization
+
+The `authorize` function receives all validated data (segments, searchParams, body/formData) and can:
+- Return an auth context object (e.g., `{ user: ... }`)
+- Return a `Response` to reject the request (e.g., `new Response(null, { status: 401 })`)
+- For server components, call `unauthorized()` or `notFound()` from `next/navigation`
+
+## Requirements
+
+- Next.js `v14`, `v15`, or `v16`
+- TypeScript `v5`
+- A validation library supporting Standard Schema (Zod, Valibot, decoders, etc.)
+
+## Installation
+
+```bash
+npm i @sugardarius/anzen
+```
+
+## Package Structure
+
+- Main entry: `@sugardarius/anzen` - Route handlers
+- Server components entry: `@sugardarius/anzen/server-components` - Page and layout components
+
+## Links
+
+- **Documentation**: https://anzen.sugardarius.dev/
+- **GitHub**: https://github.com/sugardarius/anzen
+- **NPM**: https://www.npmjs.com/package/@sugardarius/anzen
+- **Standard Schema**: https://standardschema.dev/
