@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Silent Next.js native errors. They won't clutter logs anymore.
+
 ## [2.0.1] - 2025-11-13
 
 - Package/repo related changes.
