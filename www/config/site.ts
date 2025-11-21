@@ -4,7 +4,7 @@ export const baseUrl = env.NEXT_PUBLIC_PROJECT_BASE_URL
 export const siteConfig = {
   title: '@sugardarius/anzen',
   description:
-    'A fast, framework validation agnostic, type-safe factories for creating route handlers, page and layout server components files in Next.js.',
+    'Fast, flexible, framework validation agnostic, type‑safe factories for creating route handlers, page and layout Server Component files in Next.js.',
   socialLinks: {
     twitter: {
       url: 'https://twitter.com/azeldvin',

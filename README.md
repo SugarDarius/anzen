@@ -2,14 +2,14 @@
 [![size](https://img.shields.io/bundlephobia/minzip/%40sugardarius%2Fanzen?style=flat&labelColor=101010&label=size&color=FFC799)](https://bundlephobia.com/package/@sugardarius/anzen)
 [![license](https://img.shields.io/github/license/sugardarius/anzen?style=flat&labelColor=101010&color=FFC799)](https://github.com/SugarDarius/anzen/blob/main/LICENSE)
 
-A fast, framework validation agnostic, type-safe factories for creating route handlers, page and layout server components files in Next.js.
+Fast, flexible, framework validation agnostic, type‑safe factories for creating route handlers, page and layout Server Component files in Next.js.
 
 - 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
 - 🧠 Focused functionalities, use only features you want.
 - 🧹 Clean and flexible API.
 - 🔒 Type-safe.
-- 🌱 Dependency free.
-- 🪶 Less than 140kB unpacked.
+- 🌱 Dependency free. Only [Next.js](https://nextjs.org/) and [TypeScript](https://www.typescriptlang.org/) are required as peer dependencies.
+- 🪶 Lightweight. Less than 140kB unpacked.
 
 ## Install
 
