@@ -1,12 +1,12 @@
 <Announcement className='mt-6 mx-auto' />
 
 <Highlight>
-  A flexible, framework validation agnostic, type-safe factories for creating
-  [route
+  Fast, flexible, framework validation agnostic, type‑safe factories for
+  creating [route
   handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers),
-  [Page](https://nextjs.org/docs/app/api-reference/file-conventions/page) and
-  [Layout](https://nextjs.org/docs/app/api-reference/file-conventions/layout)
-  server components files in Next.js.
+  [page](https://nextjs.org/docs/app/api-reference/file-conventions/page) and
+  [layout](https://nextjs.org/docs/app/api-reference/file-conventions/layout)
+  Server Component files in Next.js.
 </Highlight>
 
 <Tabs defaultValue='route-handler' className='mt-6'>
@@ -120,8 +120,8 @@
 - 🧠 Focused functionalities, use only features you want.
 - 🧹 Clean and flexible API.
 - 🔒 Type-safe.
-- 🌱 Dependency free.
-- 🪶 Less than 140kB unpacked.
+- 🌱 Dependency free. Only [Next.js](https://nextjs.org/) and [TypeScript](https://www.typescriptlang.org/) are required as peer dependencies.
+- 🪶 Lightweight. Less than 140kB unpacked.
 
 ## Install
 
@@ -1265,6 +1265,13 @@ export default createSafeLayoutServerComponent(
 
 By design the factory will catch any error thrown in the server component and rethrow it by default to let Next.js handle it with error boundaries.
 
+<Callout>
+  **Note:** Next.js native errors (`redirect`, `notFound`, `forbidden`,
+  `unauthorized`) are silent (e.g not logged). These errors are part of
+  Next.js's control flow and are expected behavior, so they won't clutter your
+  logs.
+</Callout>
+
 You can customize the error handling if you want to fine tune error management.
 
 ```tsx title="app/page.tsx"
@@ -1276,6 +1283,7 @@ import { notFound } from 'next/navigation'
 export default createSafePageServerComponent(
   {
     onError: async (err: unknown): Promise<never> => {
+      // Take it as an example not as a real use case 😅
       if (err instanceof NotFoundError) {
         notFound()
       } else if (err instanceof DbUnknownError) {

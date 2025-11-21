@@ -211,6 +211,143 @@ describe('createSafePageServerComponent - on error', () => {
   })
 })
 
+describe('createSafePageServerComponent - Next.js native errors logging', () => {
+  let errorSpy: ReturnType<typeof vi.spyOn>
+  beforeEach(() => {
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+  afterEach(() => {
+    errorSpy.mockRestore()
+  })
+
+  test('does not log redirect errors', async () => {
+    const redirectError = new Error('NEXT_REDIRECT') as Error & {
+      digest: string
+    }
+    redirectError.digest = 'NEXT_REDIRECT;replace;/redirect-path;307;'
+
+    const Page = createSafePageServerComponent(
+      { id: 'redirect-page', debug: true },
+      async () => {
+        throw redirectError
+      }
+    )
+
+    await expect(
+      Page({
+        params: undefined,
+        searchParams: undefined,
+      })
+    ).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('does not log notFound errors', async () => {
+    const notFoundError = new Error('NEXT_NOT_FOUND') as Error & {
+      digest: string
+    }
+    notFoundError.digest = 'NEXT_HTTP_ERROR_FALLBACK;404'
+
+    const Page = createSafePageServerComponent(
+      { id: 'notfound-page', debug: true },
+      async () => {
+        throw notFoundError
+      }
+    )
+
+    await expect(
+      Page({
+        params: undefined,
+        searchParams: undefined,
+      })
+    ).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('does not log forbidden errors', async () => {
+    const forbiddenError = new Error('NEXT_FORBIDDEN') as Error & {
+      digest: string
+    }
+    forbiddenError.digest = 'NEXT_HTTP_ERROR_FALLBACK;403'
+
+    const Page = createSafePageServerComponent(
+      { id: 'forbidden-page', debug: true },
+      async () => {
+        throw forbiddenError
+      }
+    )
+
+    await expect(
+      Page({
+        params: undefined,
+        searchParams: undefined,
+      })
+    ).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('does not log unauthorized errors', async () => {
+    const unauthorizedError = new Error('NEXT_UNAUTHORIZED') as Error & {
+      digest: string
+    }
+    unauthorizedError.digest = 'NEXT_HTTP_ERROR_FALLBACK;401'
+
+    const Page = createSafePageServerComponent(
+      { id: 'unauthorized-page', debug: true },
+      async () => {
+        throw unauthorizedError
+      }
+    )
+
+    await expect(
+      Page({
+        params: undefined,
+        searchParams: undefined,
+      })
+    ).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('still logs regular errors', async () => {
+    const regularError = new Error('Regular error')
+
+    const Page = createSafePageServerComponent(
+      { id: 'regular-error-page', debug: true },
+      async () => {
+        throw regularError
+      }
+    )
+
+    await expect(
+      Page({
+        params: undefined,
+        searchParams: undefined,
+      })
+    ).rejects.toThrow('Regular error')
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      regularError
+    )
+  })
+})
+
 describe('createSafePageServerComponent - route dynamic segments validation', () => {
   test('validates segments correctly', async () => {
     const Page = createSafePageServerComponent(
@@ -779,6 +916,143 @@ describe('createSafeLayoutServerComponent - on error', () => {
         children: <div>Children</div>,
       })
     ).rejects.toThrow('Custom error')
+  })
+})
+
+describe('createSafeLayoutServerComponent - Next.js native errors logging', () => {
+  let errorSpy: ReturnType<typeof vi.spyOn>
+  beforeEach(() => {
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+  afterEach(() => {
+    errorSpy.mockRestore()
+  })
+
+  test('does not log redirect errors', async () => {
+    const redirectError = new Error('NEXT_REDIRECT') as Error & {
+      digest: string
+    }
+    redirectError.digest = 'NEXT_REDIRECT;replace;/redirect-path;307;'
+
+    const Layout = createSafeLayoutServerComponent(
+      { id: 'redirect-layout', debug: true },
+      async () => {
+        throw redirectError
+      }
+    )
+
+    await expect(
+      Layout({
+        params: undefined,
+        children: <div>Children</div>,
+      })
+    ).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('does not log notFound errors', async () => {
+    const notFoundError = new Error('NEXT_NOT_FOUND') as Error & {
+      digest: string
+    }
+    notFoundError.digest = 'NEXT_HTTP_ERROR_FALLBACK;404'
+
+    const Layout = createSafeLayoutServerComponent(
+      { id: 'notfound-layout', debug: true },
+      async () => {
+        throw notFoundError
+      }
+    )
+
+    await expect(
+      Layout({
+        params: undefined,
+        children: <div>Children</div>,
+      })
+    ).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('does not log forbidden errors', async () => {
+    const forbiddenError = new Error('NEXT_FORBIDDEN') as Error & {
+      digest: string
+    }
+    forbiddenError.digest = 'NEXT_HTTP_ERROR_FALLBACK;403'
+
+    const Layout = createSafeLayoutServerComponent(
+      { id: 'forbidden-layout', debug: true },
+      async () => {
+        throw forbiddenError
+      }
+    )
+
+    await expect(
+      Layout({
+        params: undefined,
+        children: <div>Children</div>,
+      })
+    ).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('does not log unauthorized errors', async () => {
+    const unauthorizedError = new Error('NEXT_UNAUTHORIZED') as Error & {
+      digest: string
+    }
+    unauthorizedError.digest = 'NEXT_HTTP_ERROR_FALLBACK;401'
+
+    const Layout = createSafeLayoutServerComponent(
+      { id: 'unauthorized-layout', debug: true },
+      async () => {
+        throw unauthorizedError
+      }
+    )
+
+    await expect(
+      Layout({
+        params: undefined,
+        children: <div>Children</div>,
+      })
+    ).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('still logs regular errors', async () => {
+    const regularError = new Error('Regular error')
+
+    const Layout = createSafeLayoutServerComponent(
+      { id: 'regular-error-layout', debug: true },
+      async () => {
+        throw regularError
+      }
+    )
+
+    await expect(
+      Layout({
+        params: undefined,
+        children: <div>Children</div>,
+      })
+    ).rejects.toThrow('Regular error')
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      regularError
+    )
   })
 })
 

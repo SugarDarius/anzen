@@ -1,6 +1,6 @@
 # @sugardarius/anzen
 
-> @sugardarius/anzen is a fast, framework validation agnostic, type-safe factories for creating route handlers, page and layout server components files in Next.js.
+> @sugardarius/anzen: fast, flexible, framework validation agnostic, type‑safe factories for creating route handlers, page and layout Server Component files in Next.js.
 
 ## Key Features
 
@@ -8,8 +8,8 @@
 - 🧠 Focused functionalities: Use only features you want
 - 🧹 Clean and flexible API
 - 🔒 Type-safe: Full TypeScript support with inferred types
-- 🌱 Dependency free: No runtime dependencies
-- 🪶 Lightweight: Less than 140kB unpacked
+- 🌱 Dependency free. Only [Next.js](https://nextjs.org/) and [TypeScript](https://www.typescriptlang.org/) are required as peer dependencies.
+- 🪶 Lightweight. Less than 140kB unpacked.
 
 ## Main Exports
 
@@ -23,7 +23,7 @@
 - `searchParams`: Dictionary validation for URL search parameters (StandardSchemaDictionary)
 - `body`: Schema validation for JSON request body (StandardSchemaV1) - mutually exclusive with `formData`
 - `formData`: Dictionary validation for form data (StandardSchemaDictionary) - mutually exclusive with `body`
-- `authorize`: Async function to authorize requests, returns auth context or Response
+- `authorize`: Async function to authorize requests. For route handlers: returns auth context or Response to reject
 - `onErrorResponse`: Custom error handler callback
 - `onSegmentsValidationErrorResponse`: Custom validation error handler for segments
 - `onSearchParamsValidationErrorResponse`: Custom validation error handler for search params
@@ -49,7 +49,7 @@
 - `id`: Optional identifier for logging/debugging
 - `segments`: Dictionary validation for dynamic route segments (StandardSchemaDictionary)
 - `searchParams`: Dictionary validation for URL search parameters (StandardSchemaDictionary) - page components only
-- `authorize`: Async function to authorize requests, returns auth context or calls `unauthorized()`/`notFound()`
+- `authorize`: Async function to authorize requests. For server components: returns auth context or calls `unauthorized()`, `forbidden()`, `redirect()`, or `notFound()` from `next/navigation` (these throw errors internally) or just another error crafted by yourself
 - `onError`: Custom error handler callback
 - `onSegmentsValidationError`: Custom validation error handler for segments
 - `onSearchParamsValidationError`: Custom validation error handler for search params (page components only)
@@ -179,7 +179,7 @@ import { createSafeRouteHandler } from '@sugardarius/anzen'
 export const POST = createSafeRouteHandler(
   {
     segments: { id: z.string() }, // Zod
-    body: object({ name: string, age: number }), // decoders
+    body: object({ name: string, age: number }), // Decoders
   },
   async ({ segments, body }) => {
     return Response.json({ segments, body })
@@ -194,22 +194,38 @@ The factories do not support async validations. As required by Standard Schema, 
 ### Type Safety
 
 All types are inferred from your validation schemas:
+
+**For Route Handlers (`createSafeRouteHandler`):**
 - `segments` type is inferred from `segments` option
 - `searchParams` type is inferred from `searchParams` option
 - `body` type is inferred from `body` option
 - `formData` type is inferred from `formData` option
 - `auth` type is inferred from `authorize` function return type
 
+**For Server Components (`createSafePageServerComponent`, `createSafeLayoutServerComponent`):**
+- `segments` type is inferred from `segments` option
+- `searchParams` type is inferred from `searchParams` option (page components only)
+- `auth` type is inferred from `authorize` function return type
+
 ### Error Handling
 
+**For Route Handlers (`createSafeRouteHandler`):**
 By default, validation errors return `400` responses and unexpected errors return `500` responses. You can customize error handling with the `on*ErrorResponse` callbacks.
+
+**For Server Components (`createSafePageServerComponent`, `createSafeLayoutServerComponent`):**
+By default, validation errors and unexpected errors are handled by Next.js error boundaries. You can customize error handling with the `on*Error` callbacks.
 
 ### Authorization
 
-The `authorize` function receives all validated data (segments, searchParams, body/formData) and can:
-- Return an auth context object (e.g., `{ user: ... }`)
+The `authorize` function receives all validated data (segments, searchParams, body/formData) and behaves differently depending on the factory:
+
+**For Route Handlers (`createSafeRouteHandler`):**
+- Return an auth context object (e.g., `{ user: ... }`) to authorize the request
 - Return a `Response` to reject the request (e.g., `new Response(null, { status: 401 })`)
-- For server components, call `unauthorized()` or `notFound()` from `next/navigation`
+
+**For Server Components (`createSafePageServerComponent`, `createSafeLayoutServerComponent`):**
+- Return an auth context object (e.g., `{ user: ... }`) to authorize the request
+- Call `unauthorized()`, `forbidden()`, `redirect()`, or `notFound()` from `next/navigation` to reject the request (these functions throw errors internally)
 
 ## Requirements
 
@@ -226,7 +242,7 @@ npm i @sugardarius/anzen
 ## Package Structure
 
 - Main entry: `@sugardarius/anzen` - Route handlers
-- Server components entry: `@sugardarius/anzen/server-components` - Page and layout components
+- Server components entry: `@sugardarius/anzen/server-components` - Page and Layout server components
 
 ## Links
 
