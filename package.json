@@ -90,7 +90,7 @@
     "@types/react": "^19.2.7",
     "decoders": "^2.7.5",
     "eslint": "^9.39.1",
-    "prettier": "^3.7.1",
+    "prettier": "^3.7.4",
     "publint": "^0.3.15",
     "release-it": "^19.0.6",
     "tsup": "^8.5.1",
