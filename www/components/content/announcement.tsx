@@ -12,9 +12,12 @@ export function Announcement({ className }: { className?: string }) {
       variant='secondary'
       className={cn('bg-blue-500 text-white dark:bg-blue-600', className)}
     >
-      Anzen v2 is out! 🎉 New factories for page and layout server components.
+      Anzen v2 is out! 🎉{' '}
+      <span className='hidden md:inline-flex'>
+        New factories for page and layout server components.
+      </span>
       <motion.span
-        className='inline-flex'
+        className='hidden md:inline-flex'
         animate={{ translateY: [0, 4, 0] }}
         style={{ originX: '0%', originY: '50%' }}
         transition={{
