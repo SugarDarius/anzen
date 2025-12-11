@@ -172,7 +172,7 @@ export function createSafePageServerComponent<
 
       auth = await authorize(authParams)
     } catch (err: unknown) {
-      log.error(`Page server component '${id}' not authorized`)
+      log.error(`🛑 Page server component '${id}' not authorized`)
       throw err
     }
 
@@ -285,7 +285,7 @@ export function createSafeLayoutServerComponent<
 
       auth = await authorize(authParams)
     } catch (err: unknown) {
-      log.error(`Layout server component '${id}' not authorized`)
+      log.error(`🛑 Layout server component '${id}' not authorized`)
       throw err
     }
 
