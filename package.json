@@ -47,10 +47,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sugardarius/anzen.git"
+    "url": "https://github.com/SugarDarius/anzen"
   },
   "bugs": {
-    "url": "https://github.com/sugardarius/anzen/issues"
+    "url": "https://github.com/SugarDarius/anzen/issues"
   },
   "keywords": [
     "nextjs",
