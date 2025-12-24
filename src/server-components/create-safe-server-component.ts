@@ -197,13 +197,16 @@ export function createSafePageServerComponent<
       return PageServerComponent
     } catch (err: unknown) {
       executionClock.stop()
+
       if (!isNextNativeError(err)) {
         log.error(
-          `🛑 Page server component '${id}' failed to execute after ${executionClock.get()}`,
-          err
+          `🛑 Page server component '${id}' failed to execute after ${executionClock.get()}`
         )
+        return await onError(err)
+      } else {
+        log.info('ℹ️ Ignoring native Next.js error')
+        throw err
       }
-      return await onError(err)
     }
   }
 }
@@ -310,13 +313,16 @@ export function createSafeLayoutServerComponent<
       return LayoutServerComponent
     } catch (err: unknown) {
       executionClock.stop()
+
       if (!isNextNativeError(err)) {
         log.error(
-          `🛑 Layout server component '${id}' failed to execute after ${executionClock.get()}`,
-          err
+          `🛑 Layout server component '${id}' failed to execute after ${executionClock.get()}`
         )
+        return await onError(err)
+      } else {
+        log.info('ℹ️ Ignoring native Next.js error')
+        throw err
       }
-      return await onError(err)
     }
   }
 }
