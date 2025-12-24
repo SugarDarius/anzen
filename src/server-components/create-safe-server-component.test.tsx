@@ -342,8 +342,7 @@ describe('createSafePageServerComponent - Next.js native errors logging', () => 
     ).rejects.toThrow('Regular error')
 
     expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('failed to execute'),
-      regularError
+      expect.stringContaining(`🛑 Page server component 'regular-error-page'`)
     )
   })
 })
@@ -1050,8 +1049,9 @@ describe('createSafeLayoutServerComponent - Next.js native errors logging', () =
     ).rejects.toThrow('Regular error')
 
     expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('failed to execute'),
-      regularError
+      expect.stringContaining(
+        `🛑 Layout server component 'regular-error-layout'`
+      )
     )
   })
 })
