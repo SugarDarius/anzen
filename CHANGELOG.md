@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Fix `onError` callback call in `createSafePageServerComponent` and `createSafeLayoutServerComponent`. Now it's not called anymore for Next.js native errors.
+
 ## [2.1.1] - 2025-12-11
 
 - Update internal logging.
