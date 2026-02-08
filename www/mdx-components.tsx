@@ -23,7 +23,7 @@ const components: MDXComponents = {
     return (
       <a
         className={cn(
-          'font-medium underline underline-offset-4 [&:is(.mdx-subheading-link)]:underline [&:is(.mdx-subheading-link)]:decoration-dashed [&:is(.mdx-subheading-link)]:decoration-muted [&:is(.mdx-subheading-link)]:underline-offset-6 decoration-1 hover:[&:is(.mdx-subheading-link)]:decoration-muted-foreground transition-all',
+          'font-medium underline underline-offset-4 [.mdx-subheading-link]:underline [.mdx-subheading-link]:decoration-dashed [.mdx-subheading-link]:decoration-muted [.mdx-subheading-link]:underline-offset-6 decoration-1 hover:[.mdx-subheading-link]:decoration-muted-foreground transition-all',
           className
         )}
         {...props}
@@ -147,7 +147,7 @@ const components: MDXComponents = {
         <pre
           className={cn(
             'relative py-4 px-2 w-ful font-mono cursor-text outline-none',
-            '[&_code]:!bg-transparent',
+            '[&_code]:bg-transparent!',
             className
           )}
           {...props}
@@ -158,10 +158,7 @@ const components: MDXComponents = {
     )
   },
   p: ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
-    <p
-      className={cn('leading-7 [&:not(:first-child)]:mt-4', className)}
-      {...props}
-    />
+    <p className={cn('leading-7 not-first:mt-4', className)} {...props} />
   ),
   ul: ({ className, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
     <ul className={cn('mt-6 ml-6 list-disc', className)} {...props} />
