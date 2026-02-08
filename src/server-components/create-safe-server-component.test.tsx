@@ -1244,20 +1244,20 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
       {
         experimental_slots: ['analytics', 'teams'] as const,
       },
-      async ({ slots, children }) => {
-        expectTypeOf(slots).toEqualTypeOf<{
+      async ({ experimental_slots, children }) => {
+        expectTypeOf(experimental_slots).toEqualTypeOf<{
           analytics: React.ReactNode
           teams: React.ReactNode
         }>()
-        expect(slots).toBeDefined()
-        expect(slots.analytics).toBeDefined()
-        expect(slots.teams).toBeDefined()
+        expect(experimental_slots).toBeDefined()
+        expect(experimental_slots.analytics).toBeDefined()
+        expect(experimental_slots.teams).toBeDefined()
 
         return (
           <div>
-            {slots.teams}
+            {experimental_slots.teams}
             {children}
-            {slots.analytics}
+            {experimental_slots.analytics}
           </div>
         )
       }
@@ -1279,15 +1279,15 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
       {
         experimental_slots: ['analytics', 'teams'] as const,
       },
-      async ({ slots }) => {
-        expectTypeOf(slots).toEqualTypeOf<{
+      async ({ experimental_slots }) => {
+        expectTypeOf(experimental_slots).toEqualTypeOf<{
           analytics: React.ReactNode
           teams: React.ReactNode
         }>()
         return (
           <div>
-            {slots.analytics}
-            {slots.teams}
+            {experimental_slots.analytics}
+            {experimental_slots.teams}
           </div>
         )
       }
@@ -1310,12 +1310,12 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
         id: 'missing-slots-layout',
         experimental_slots: ['analytics', 'header'] as const,
       },
-      async ({ slots, children }) => {
+      async ({ experimental_slots, children }) => {
         return (
           <div>
-            {slots.header}
+            {experimental_slots.header}
             {children}
-            {slots.analytics}
+            {experimental_slots.analytics}
           </div>
         )
       }
@@ -1336,13 +1336,13 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
         id: 'test-layout',
         experimental_slots: ['analytics', 'header', 'footer'] as const,
       },
-      async ({ slots, children }) => {
+      async ({ experimental_slots, children }) => {
         return (
           <div>
-            {slots.header}
+            {experimental_slots.header}
             {children}
-            {slots.analytics}
-            {slots.footer}
+            {experimental_slots.analytics}
+            {experimental_slots.footer}
           </div>
         )
       }
@@ -1365,13 +1365,13 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
         id: 'partial-slots-layout',
         experimental_slots: ['analytics', 'header', 'footer'] as const,
       },
-      async ({ slots, children }) => {
+      async ({ experimental_slots, children }) => {
         return (
           <div>
-            {slots.header}
+            {experimental_slots.header}
             {children}
-            {slots.analytics}
-            {slots.footer}
+            {experimental_slots.analytics}
+            {experimental_slots.footer}
           </div>
         )
       }
@@ -1392,13 +1392,13 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
       {
         experimental_slots: ['analytics'] as const,
       },
-      async ({ slots, children }) => {
-        expectTypeOf(slots).toEqualTypeOf<{
+      async ({ experimental_slots, children }) => {
+        expectTypeOf(experimental_slots).toEqualTypeOf<{
           analytics: React.ReactNode
         }>()
         return (
           <div>
-            {slots.analytics}
+            {experimental_slots.analytics}
             {children}
           </div>
         )
@@ -1421,7 +1421,7 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
         readonly id: string
         readonly children: React.ReactNode
       }>()
-      expect('slots' in ctx).toBe(false)
+      expect('experimental_slots' in ctx).toBe(false)
 
       return <div>{ctx.children}</div>
     })
@@ -1440,10 +1440,10 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
       {
         experimental_slots: [] as const,
       },
-      async ({ slots, children }) => {
+      async ({ experimental_slots, children }) => {
         // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-        expectTypeOf(slots).toEqualTypeOf<{}>()
-        expect(slots).toEqual({})
+        expectTypeOf(experimental_slots).toEqualTypeOf<{}>()
+        expect(experimental_slots).toEqual({})
         return <div>{children}</div>
       }
     )

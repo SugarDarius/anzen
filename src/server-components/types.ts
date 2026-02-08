@@ -300,7 +300,7 @@ export type SafeLayoutServerComponentContext<
          * Incoming slots when `createSafeServerComponent` is used for `layout.js` file
          * with parallel routes. Set to an empty object when they don't exists.
          */
-        readonly slots: {
+        readonly experimental_slots: {
           [K in TSlots[number]]: React.ReactNode
         }
       }

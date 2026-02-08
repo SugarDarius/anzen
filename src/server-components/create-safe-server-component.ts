@@ -283,7 +283,7 @@ export function createSafeLayoutServerComponent<
       }
     }
 
-    let slots = undefined
+    let experimental_slots = undefined
     if (options.experimental_slots) {
       // Validate that all expected slots exist in `layoutSlots`
       // We don't want to let pass unexpected slots to the layout server component
@@ -302,7 +302,7 @@ export function createSafeLayoutServerComponent<
         throw new MissingLayoutSlotsError(id, missingSlots)
       }
 
-      slots = layoutSlots
+      experimental_slots = layoutSlots
     }
 
     // Authorize the server component
@@ -327,7 +327,7 @@ export function createSafeLayoutServerComponent<
         ...(auth ? { auth } : {}),
         ...(segments ? { segments } : {}),
         children,
-        ...(slots ? { slots } : {}),
+        ...(experimental_slots ? { experimental_slots } : {}),
       } as SafeLayoutServerComponentContext<AC, TSegments, TSlots>
 
       // Execute the layout server component
