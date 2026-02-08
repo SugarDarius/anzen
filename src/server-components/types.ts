@@ -9,6 +9,8 @@ import type {
   EmptyObjectType,
 } from '../types'
 
+export type ArrayToUnion<T extends readonly (string | number)[]> = T[number]
+
 export type TSegmentsDict = StandardSchemaDictionary
 export type TSearchParamsDict = StandardSchemaDictionary
 
@@ -149,7 +151,7 @@ export type CreateSafePageServerComponentOptions<
 export type CreateSafeLayoutServerComponentOptions<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
-  TSlots extends string[] | undefined,
+  TSlots extends readonly string[] | undefined,
 > = BaseOptions<TSegments> & {
   /**
    * Function to use to authorize the server component.
@@ -161,9 +163,9 @@ export type CreateSafeLayoutServerComponentOptions<
   authorize?: LayoutAuthFunction<AC, TSegments>
 
   /**
-   * Slots used in the layout when using parallel routes.
+   * Slots used in the layout when using parallel routes (experimental).
    */
-  slots?: TSlots
+  experimental_slots?: TSlots
 }
 
 // Sticking to Next.js typing requirements for build time
@@ -182,26 +184,27 @@ export type PageProvidedProps = {
 }
 
 // Sticking to Next.js typing requirements for build time
-export type LayoutProvidedProps<TSlots extends string[] | undefined> = {
-  /**
-   * Route dynamic segments as params
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  params: Awaitable<any> | undefined
+export type LayoutProvidedProps<TSlots extends readonly string[] | undefined> =
+  {
+    /**
+     * Route dynamic segments as params
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    params: Awaitable<any> | undefined
 
-  /**
-   * Incoming children when `createSafeServerComponent` is used for `layout.js` file.
-   */
-  children: React.ReactNode
-} & (TSlots extends string[]
-  ? {
-      /**
-       * Incoming slots when `createSafeServerComponent` is used for `layout.js` file
-       * with parallel routes. Set to an empty object when they don't exists.
-       */
-      [K in TSlots[number]]: React.ReactNode
-    }
-  : EmptyObjectType)
+    /**
+     * Incoming children when `createSafeServerComponent` is used for `layout.js` file.
+     */
+    children: React.ReactNode
+  } & (TSlots extends readonly string[]
+    ? {
+        /**
+         * Incoming slots when `createSafeServerComponent` is used for `layout.js` file
+         * with parallel routes. Set to an empty object when they don't exists.
+         */
+        [K in ArrayToUnion<TSlots>]: React.ReactNode
+      }
+    : EmptyObjectType)
 
 export type CreateSafePageServerComponentReturnType = (
   /**
@@ -211,7 +214,7 @@ export type CreateSafePageServerComponentReturnType = (
 ) => Promise<React.ReactElement | never>
 
 export type CreateSafeLayoutServerComponentReturnType<
-  TSlots extends string[] | undefined,
+  TSlots extends readonly string[] | undefined,
 > = (
   /**
    * Provided props added by Next.js itself
@@ -261,7 +264,7 @@ export type SafePageServerComponentContext<
 export type SafeLayoutServerComponentContext<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
-  TSlots extends string[] | undefined,
+  TSlots extends readonly string[] | undefined,
 > = {
   /**
    * Server component ID
@@ -291,7 +294,7 @@ export type SafeLayoutServerComponentContext<
         >
       }
     : EmptyObjectType) &
-  (TSlots extends string[]
+  (TSlots extends readonly string[]
     ? {
         /**
          * Incoming slots when `createSafeServerComponent` is used for `layout.js` file
@@ -317,7 +320,7 @@ export type SafePageServerComponent<
 export type SafeLayoutServerComponent<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
-  TSlots extends string[] | undefined,
+  TSlots extends readonly string[] | undefined,
 > = (
   /**
    * Safe layout server component context

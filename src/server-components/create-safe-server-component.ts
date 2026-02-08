@@ -226,7 +226,7 @@ export const DEFAULT_LAYOUT_ID = '[unknown:layout:server:component]'
 export function createSafeLayoutServerComponent<
   AC extends AuthContext | undefined = undefined,
   TSegments extends TSegmentsDict | undefined = undefined,
-  TSlots extends string[] | undefined = undefined,
+  TSlots extends readonly string[] | undefined = undefined,
 >(
   options: CreateSafeLayoutServerComponentOptions<AC, TSegments, TSlots>,
   layoutServerComponentFn: SafeLayoutServerComponent<AC, TSegments, TSlots>
@@ -283,7 +283,7 @@ export function createSafeLayoutServerComponent<
     }
 
     let slots = undefined
-    if (options.slots) {
+    if (options.experimental_slots) {
       slots = layoutSlots
     }
 
