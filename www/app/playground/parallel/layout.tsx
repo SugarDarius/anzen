@@ -2,6 +2,7 @@ import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-compo
 export default createSafeLayoutServerComponent(
   {
     id: 'playground/parallel/layout',
+    // as const required
     experimental_slots: ['analytics', 'team'] as const,
   },
   async ({ children, slots }) => {
