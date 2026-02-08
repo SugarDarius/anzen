@@ -239,7 +239,7 @@ Feel free to open an issue or a PR if you think a relevant option could be added
 
 ## Requirements
 
-The factories require Next.js `v14`, `v15` or `v16` and typescript `v5` as peer dependencies.
+The factories require Next.js `v14`, `v15` or `v16` as peer dependencies.
 
 ## Contributing
 

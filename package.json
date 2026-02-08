@@ -78,8 +78,7 @@
     "release": "release-it"
   },
   "peerDependencies": {
-    "next": "^16 || ^15 || ^14",
-    "typescript": "^5"
+    "next": "^16 || ^15 || ^14"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
