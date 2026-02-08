@@ -166,7 +166,7 @@ export type CreateSafeLayoutServerComponentOptions<
   slots?: TSlots
 }
 
-// Sticking to Next.js requirements for build time
+// Sticking to Next.js typing requirements for build time
 export type PageProvidedProps = {
   /**
    * Route dynamic segments as params
@@ -181,7 +181,7 @@ export type PageProvidedProps = {
   searchParams: Awaitable<any> | undefined
 }
 
-// Sticking to Next.js requirements for build time
+// Sticking to Next.js typing requirements for build time
 export type LayoutProvidedProps<TSlots extends string[] | undefined> = {
   /**
    * Route dynamic segments as params
