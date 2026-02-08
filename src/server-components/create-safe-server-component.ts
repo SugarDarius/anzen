@@ -21,6 +21,7 @@ import {
   ValidationError,
   NoSegmentsProvidedError,
   NoSearchParamsProvidedError,
+  MissingLayoutSlotsError,
 } from './errors'
 
 /**
@@ -284,6 +285,20 @@ export function createSafeLayoutServerComponent<
 
     let slots = undefined
     if (options.experimental_slots) {
+      // Validate that all expected slots exist in layoutSlots
+      const expectedSlots = options.experimental_slots
+      const missingSlots: string[] = []
+
+      for (const slotName of expectedSlots) {
+        if (!(slotName in layoutSlots)) {
+          missingSlots.push(slotName)
+        }
+      }
+
+      if (missingSlots.length > 0) {
+        throw new MissingLayoutSlotsError(id, missingSlots)
+      }
+
       slots = layoutSlots
     }
 

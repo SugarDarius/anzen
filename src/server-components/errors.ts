@@ -37,3 +37,14 @@ export class NoSearchParamsProvidedError extends Error {
     this.name = 'NoSearchParamsProvidedError'
   }
 }
+
+/**
+ * Missing slots error for layout server components.
+ */
+export class MissingLayoutSlotsError extends Error {
+  constructor(id: string, missingSlots: readonly string[]) {
+    const slotsList = missingSlots.map((s) => `'${s}'`).join(', ')
+    super(`Missing slots [${slotsList}] for layout server component '${id}'`)
+    this.name = 'MissingLayoutSlotsError'
+  }
+}
