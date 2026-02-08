@@ -285,7 +285,10 @@ export function createSafeLayoutServerComponent<
 
     let slots = undefined
     if (options.experimental_slots) {
-      // Validate that all expected slots exist in layoutSlots
+      // Validate that all expected slots exist in `layoutSlots`
+      // We don't want to let pass unexpected slots to the layout server component
+      // when using parallel routes and when they are not explicitly defined in the `experimental_slots` option.
+      // It ensures data integrity and prevents potential security issues.
       const expectedSlots = options.experimental_slots
       const missingSlots: string[] = []
 
