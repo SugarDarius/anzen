@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 - Add support for [Next.js parallel routes](https://nextjs.org/docs/app/api-reference/file-conventions/parallel-routes) with new `experimental_slots` option in `createSafeLayoutServerComponent`.
+- Remove `TypeScript` as peer dependency.
 
 ## [2.1.2] - 2025-12-24
 
