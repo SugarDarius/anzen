@@ -149,6 +149,7 @@ export type CreateSafePageServerComponentOptions<
 export type CreateSafeLayoutServerComponentOptions<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
+  TSlots extends string[] | undefined,
 > = BaseOptions<TSegments> & {
   /**
    * Function to use to authorize the server component.
@@ -158,6 +159,11 @@ export type CreateSafeLayoutServerComponentOptions<
    * when the request to the server component is not authorized.
    */
   authorize?: LayoutAuthFunction<AC, TSegments>
+
+  /**
+   * Slots used in the layout when using parallel routes.
+   */
+  slots?: TSlots
 }
 
 // Sticking to Next.js requirements for build time
@@ -176,7 +182,7 @@ export type PageProvidedProps = {
 }
 
 // Sticking to Next.js requirements for build time
-export type LayoutProvidedProps = {
+export type LayoutProvidedProps<TSlots extends string[] | undefined> = {
   /**
    * Route dynamic segments as params
    */
@@ -187,7 +193,15 @@ export type LayoutProvidedProps = {
    * Incoming children when `createSafeServerComponent` is used for `layout.js` file.
    */
   children: React.ReactNode
-}
+} & (TSlots extends string[]
+  ? {
+      /**
+       * Incoming slots when `createSafeServerComponent` is used for `layout.js` file
+       * with parallel routes. Set to an empty object when they don't exists.
+       */
+      [K in TSlots[number]]: React.ReactNode
+    }
+  : EmptyObjectType)
 
 export type CreateSafePageServerComponentReturnType = (
   /**
@@ -196,11 +210,13 @@ export type CreateSafePageServerComponentReturnType = (
   props: PageProvidedProps
 ) => Promise<React.ReactElement | never>
 
-export type CreateSafeLayoutServerComponentReturnType = (
+export type CreateSafeLayoutServerComponentReturnType<
+  TSlots extends string[] | undefined,
+> = (
   /**
    * Provided props added by Next.js itself
    */
-  props: LayoutProvidedProps
+  props: LayoutProvidedProps<TSlots>
 ) => Promise<React.ReactElement | never>
 
 // TODO: find better way to type it 👇🏻
@@ -245,6 +261,7 @@ export type SafePageServerComponentContext<
 export type SafeLayoutServerComponentContext<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
+  TSlots extends string[] | undefined,
 > = {
   /**
    * Server component ID
@@ -273,6 +290,17 @@ export type SafeLayoutServerComponentContext<
           StandardSchemaDictionary.InferOutput<TSegments>
         >
       }
+    : EmptyObjectType) &
+  (TSlots extends string[]
+    ? {
+        /**
+         * Incoming slots when `createSafeServerComponent` is used for `layout.js` file
+         * with parallel routes. Set to an empty object when they don't exists.
+         */
+        readonly slots: {
+          [K in TSlots[number]]: React.ReactNode
+        }
+      }
     : EmptyObjectType)
 
 export type SafePageServerComponent<
@@ -289,9 +317,10 @@ export type SafePageServerComponent<
 export type SafeLayoutServerComponent<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
+  TSlots extends string[] | undefined,
 > = (
   /**
    * Safe layout server component context
    */
-  ctx: SafeLayoutServerComponentContext<AC, TSegments>
+  ctx: SafeLayoutServerComponentContext<AC, TSegments, TSlots>
 ) => Promise<React.ReactElement | never>

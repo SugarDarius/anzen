@@ -1,4 +1,5 @@
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
+import Link from 'next/link'
 
 export default createSafePageServerComponent(
   {
@@ -6,8 +7,16 @@ export default createSafePageServerComponent(
   },
   async () => {
     return (
-      <div className='flex flex-col items-center justify-center w-full h-12'>
-        Hello Playground 👋🏻
+      <div className='flex flex-col items-center justify-center w-full gap-4 p-8'>
+        <div className='text-xl'>Hello Playground 👋🏻</div>
+        <div className='flex flex-col gap-2'>
+          <Link
+            href='/playground/parallel'
+            className='text-blue-600 hover:underline'
+          >
+            → Parallel Routes Example
+          </Link>
+        </div>
       </div>
     )
   }

@@ -226,10 +226,11 @@ export const DEFAULT_LAYOUT_ID = '[unknown:layout:server:component]'
 export function createSafeLayoutServerComponent<
   AC extends AuthContext | undefined = undefined,
   TSegments extends TSegmentsDict | undefined = undefined,
+  TSlots extends string[] | undefined = undefined,
 >(
-  options: CreateSafeLayoutServerComponentOptions<AC, TSegments>,
-  layoutServerComponentFn: SafeLayoutServerComponent<AC, TSegments>
-): CreateSafeLayoutServerComponentReturnType {
+  options: CreateSafeLayoutServerComponentOptions<AC, TSegments, TSlots>,
+  layoutServerComponentFn: SafeLayoutServerComponent<AC, TSegments, TSlots>
+): CreateSafeLayoutServerComponentReturnType<TSlots> {
   const log = createLogger(options.debug)
   const id = options.id ?? DEFAULT_LAYOUT_ID
 
@@ -253,7 +254,11 @@ export function createSafeLayoutServerComponent<
   const authorize = options.authorize ?? (async () => undefined)
 
   // Next.js layout server component
-  return async function SafeLayoutServerComponent(props: LayoutProvidedProps) {
+  return async function SafeLayoutServerComponent({
+    params,
+    children,
+    ...layoutSlots
+  }: LayoutProvidedProps<TSlots>) {
     const executionClock = createExecutionClock()
     executionClock.start()
 
@@ -261,7 +266,7 @@ export function createSafeLayoutServerComponent<
 
     let segments = undefined
     if (options.segments) {
-      const params_unsafe = await props.params
+      const params_unsafe = await params
       if (params_unsafe === undefined) {
         throw new NoSegmentsProvidedError(id, 'page')
       }
@@ -275,6 +280,11 @@ export function createSafeLayoutServerComponent<
       } else {
         segments = parsedSegments.value
       }
+    }
+
+    let slots = undefined
+    if (options.slots) {
+      slots = layoutSlots
     }
 
     // Authorize the server component
@@ -298,8 +308,9 @@ export function createSafeLayoutServerComponent<
         id,
         ...(auth ? { auth } : {}),
         ...(segments ? { segments } : {}),
-        children: props.children,
-      } as SafeLayoutServerComponentContext<AC, TSegments>
+        children,
+        ...(slots ? { slots } : {}),
+      } as SafeLayoutServerComponentContext<AC, TSegments, TSlots>
 
       // Execute the layout server component
       const LayoutServerComponent = await layoutServerComponentFn(ctx)
