@@ -21,6 +21,7 @@ import {
   ValidationError,
   NoSegmentsProvidedError,
   NoSearchParamsProvidedError,
+  MissingLayoutSlotsError,
 } from './errors'
 
 /**
@@ -226,10 +227,11 @@ export const DEFAULT_LAYOUT_ID = '[unknown:layout:server:component]'
 export function createSafeLayoutServerComponent<
   AC extends AuthContext | undefined = undefined,
   TSegments extends TSegmentsDict | undefined = undefined,
+  TSlots extends readonly string[] | undefined = undefined,
 >(
-  options: CreateSafeLayoutServerComponentOptions<AC, TSegments>,
-  layoutServerComponentFn: SafeLayoutServerComponent<AC, TSegments>
-): CreateSafeLayoutServerComponentReturnType {
+  options: CreateSafeLayoutServerComponentOptions<AC, TSegments, TSlots>,
+  layoutServerComponentFn: SafeLayoutServerComponent<AC, TSegments, TSlots>
+): CreateSafeLayoutServerComponentReturnType<TSlots> {
   const log = createLogger(options.debug)
   const id = options.id ?? DEFAULT_LAYOUT_ID
 
@@ -253,7 +255,11 @@ export function createSafeLayoutServerComponent<
   const authorize = options.authorize ?? (async () => undefined)
 
   // Next.js layout server component
-  return async function SafeLayoutServerComponent(props: LayoutProvidedProps) {
+  return async function SafeLayoutServerComponent({
+    params,
+    children,
+    ...layoutSlots
+  }: LayoutProvidedProps<TSlots>) {
     const executionClock = createExecutionClock()
     executionClock.start()
 
@@ -261,7 +267,7 @@ export function createSafeLayoutServerComponent<
 
     let segments = undefined
     if (options.segments) {
-      const params_unsafe = await props.params
+      const params_unsafe = await params
       if (params_unsafe === undefined) {
         throw new NoSegmentsProvidedError(id, 'page')
       }
@@ -275,6 +281,28 @@ export function createSafeLayoutServerComponent<
       } else {
         segments = parsedSegments.value
       }
+    }
+
+    let experimental_slots = undefined
+    if (options.experimental_slots) {
+      // Validate that all expected slots exist in `layoutSlots`
+      // We don't want to let pass unexpected slots to the layout server component
+      // when using parallel routes and when they are not explicitly defined in the `experimental_slots` option.
+      // It ensures data integrity and prevents potential security issues.
+      const expectedSlots = options.experimental_slots
+      const missingSlots: string[] = []
+
+      for (const slotName of expectedSlots) {
+        if (!(slotName in layoutSlots)) {
+          missingSlots.push(slotName)
+        }
+      }
+
+      if (missingSlots.length > 0) {
+        throw new MissingLayoutSlotsError(id, missingSlots)
+      }
+
+      experimental_slots = layoutSlots
     }
 
     // Authorize the server component
@@ -298,8 +326,9 @@ export function createSafeLayoutServerComponent<
         id,
         ...(auth ? { auth } : {}),
         ...(segments ? { segments } : {}),
-        children: props.children,
-      } as SafeLayoutServerComponentContext<AC, TSegments>
+        children,
+        ...(experimental_slots ? { experimental_slots } : {}),
+      } as SafeLayoutServerComponentContext<AC, TSegments, TSlots>
 
       // Execute the layout server component
       const LayoutServerComponent = await layoutServerComponentFn(ctx)

@@ -198,12 +198,13 @@ export type CreateSafeRouteHandlerOptions<
   authorize?: AuthFunction<AC, TSegments, TSearchParams, TBody, TFormData>
 }
 
+// Sticking to Next.js typing requirements for build time
 export type ProvidedRouteContext = {
   /**
    * Route dynamic segments as params
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  params: Awaitable<any> | undefined // Sticking to Next.js requirements for building
+  params: Awaitable<any> | undefined
 }
 
 export type CreateSafeRouteHandlerReturnType<TReq extends Request = Request> = (

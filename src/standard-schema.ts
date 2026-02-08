@@ -1,4 +1,4 @@
-import { assertsSyncOperation } from './utils'
+import { assertsSyncOperation, hasDictKey } from './utils'
 
 /** The Standard Schema interface. */
 export interface StandardSchemaV1<Input = unknown, Output = Input> {
@@ -98,13 +98,6 @@ export namespace StandardSchemaDictionary {
   export type InferOutput<T extends StandardSchemaDictionary> = {
     [K in keyof T]: StandardSchemaV1.InferOutput<T[K]>
   }
-}
-
-const hasDictKey = <T extends object, K extends PropertyKey>(
-  obj: T,
-  key: K
-): obj is T & Record<typeof key, unknown> => {
-  return key in obj
 }
 
 export function parseWithDictionary<TDict extends StandardSchemaDictionary>(

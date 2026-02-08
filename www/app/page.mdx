@@ -1261,6 +1261,52 @@ export default createSafeLayoutServerComponent(
 )
 ```
 
+#### 🧪 `experimental_slots?: string[]` (Layout only)
+
+Slots used in the layout when using [Next.js parallel routes](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes) (experimental).
+
+When defined, the slots are provided in the context as `experimental_slots` with the slot names as keys and `React.ReactNode` as values. The factory validates that all expected slots are provided and throws a `MissingLayoutSlotsError` if any slots are missing.
+
+```tsx title="app/dashboard/layout.tsx"
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+
+export default createSafeLayoutServerComponent(
+  {
+    experimental_slots: ['analytics', 'team'] as const,
+    //                                           ^^^^^👆🏻
+    //                                           Required for proper type inference
+  },
+  async ({ children, experimental_slots }) => {
+    return (
+      <div>
+        <aside>
+          {experimental_slots.analytics ?? (
+            <div>Analytics slot: No matching route</div>
+          )}
+        </aside>
+        <main>{children}</main>
+        <footer>
+          {experimental_slots.team ?? <div>Team slot: No matching route</div>}
+        </footer>
+      </div>
+    )
+  }
+)
+```
+
+<Callout>
+**Why `as const` is required?**
+
+The `as const` assertion is necessary for proper type inference because Next.js generates explicit types for parallel route slots at build time.
+Next.js typegen creates a `LayoutSlotMap` interface in `.next/types/routes.d.ts` that maps each route to its slot names as a union type (e.g., `"/playground/parallel": "analytics" | "team"`).
+
+The `LayoutProps` from `createSafeLayoutServerComponent` needs to stick to the Next.js typing requirements for build time.
+
+Without `as const`, TypeScript will infer the option `experimental_slots` as an index signature like `{[x: string]: React.ReactNode}` instead of an explicit signature as expected by Next.js
+This prevents the type system from matching the exact slot names that Next.js expects, breaking type safety, and build.
+
+</Callout>
+
 ### Error handling
 
 By design the factory will catch any error thrown in the server component and rethrow it by default to let Next.js handle it with error boundaries.

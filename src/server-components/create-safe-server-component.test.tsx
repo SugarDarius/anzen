@@ -20,6 +20,7 @@ import {
   ValidationError,
   NoSegmentsProvidedError,
   NoSearchParamsProvidedError,
+  MissingLayoutSlotsError,
 } from './errors'
 
 describe('createSafePageServerComponent - default context', () => {
@@ -1229,6 +1230,226 @@ describe('createSafeLayoutServerComponent - framework validation agnostic', () =
 
     const result = await Layout({
       params: Promise.resolve({ id: 'test-id' }),
+      children: <div>Children</div>,
+    })
+
+    expect(result).toBeDefined()
+    expect(React.isValidElement(result)).toBe(true)
+  })
+})
+
+describe('createSafeLayoutServerComponent - experimental slots', () => {
+  test('provides slots in context when `experimental_slots` is defined', async () => {
+    const Layout = createSafeLayoutServerComponent(
+      {
+        experimental_slots: ['analytics', 'teams'] as const,
+      },
+      async ({ experimental_slots, children }) => {
+        expectTypeOf(experimental_slots).toEqualTypeOf<{
+          analytics: React.ReactNode
+          teams: React.ReactNode
+        }>()
+        expect(experimental_slots).toBeDefined()
+        expect(experimental_slots.analytics).toBeDefined()
+        expect(experimental_slots.teams).toBeDefined()
+
+        return (
+          <div>
+            {experimental_slots.teams}
+            {children}
+            {experimental_slots.analytics}
+          </div>
+        )
+      }
+    )
+
+    const result = await Layout({
+      params: undefined,
+      children: <div>children</div>,
+      analytics: <div>analytics</div>,
+      teams: <header>teams</header>,
+    })
+
+    expect(result).toBeDefined()
+    expect(React.isValidElement(result)).toBe(true)
+  })
+
+  test('infer slots type correctly', async () => {
+    const Layout = createSafeLayoutServerComponent(
+      {
+        experimental_slots: ['analytics', 'teams'] as const,
+      },
+      async ({ experimental_slots }) => {
+        expectTypeOf(experimental_slots).toEqualTypeOf<{
+          analytics: React.ReactNode
+          teams: React.ReactNode
+        }>()
+        return (
+          <div>
+            {experimental_slots.analytics}
+            {experimental_slots.teams}
+          </div>
+        )
+      }
+    )
+
+    const result = await Layout({
+      params: undefined,
+      children: <div>children</div>,
+      analytics: <aside>analytics</aside>,
+      teams: <footer>teams</footer>,
+    })
+
+    expect(result).toBeDefined()
+    expect(React.isValidElement(result)).toBe(true)
+  })
+
+  test('throws `MissingLayoutSlotsError` when expected slots are missing', async () => {
+    const Layout = createSafeLayoutServerComponent(
+      {
+        id: 'missing-slots-layout',
+        experimental_slots: ['analytics', 'header'] as const,
+      },
+      async ({ experimental_slots, children }) => {
+        return (
+          <div>
+            {experimental_slots.header}
+            {children}
+            {experimental_slots.analytics}
+          </div>
+        )
+      }
+    )
+
+    await expect(
+      // @ts-expect-error - We are testing the error case.
+      Layout({
+        params: undefined,
+        children: <div>children</div>,
+      })
+    ).rejects.toThrow(MissingLayoutSlotsError)
+  })
+
+  test('throws `MissingLayoutSlotsError` with correct message for missing slots', async () => {
+    const Layout = createSafeLayoutServerComponent(
+      {
+        id: 'test-layout',
+        experimental_slots: ['analytics', 'header', 'footer'] as const,
+      },
+      async ({ experimental_slots, children }) => {
+        return (
+          <div>
+            {experimental_slots.header}
+            {children}
+            {experimental_slots.analytics}
+            {experimental_slots.footer}
+          </div>
+        )
+      }
+    )
+
+    await expect(
+      // @ts-expect-error - We are testing the error case.
+      Layout({
+        params: undefined,
+        children: <div>children</div>,
+      })
+    ).rejects.toThrow(
+      "Missing slots ['analytics', 'header', 'footer'] for layout server component 'test-layout'"
+    )
+  })
+
+  test('throws `MissingLayoutSlotsError` when only some slots are missing', async () => {
+    const Layout = createSafeLayoutServerComponent(
+      {
+        id: 'partial-slots-layout',
+        experimental_slots: ['analytics', 'header', 'footer'] as const,
+      },
+      async ({ experimental_slots, children }) => {
+        return (
+          <div>
+            {experimental_slots.header}
+            {children}
+            {experimental_slots.analytics}
+            {experimental_slots.footer}
+          </div>
+        )
+      }
+    )
+
+    await expect(
+      // @ts-expect-error - We are testing the error case.
+      Layout({
+        params: undefined,
+        children: <div>Children</div>,
+        analytics: <div>Analytics</div>,
+      })
+    ).rejects.toThrow(MissingLayoutSlotsError)
+  })
+
+  test('allows to use a single slot', async () => {
+    const Layout = createSafeLayoutServerComponent(
+      {
+        experimental_slots: ['analytics'] as const,
+      },
+      async ({ experimental_slots, children }) => {
+        expectTypeOf(experimental_slots).toEqualTypeOf<{
+          analytics: React.ReactNode
+        }>()
+        return (
+          <div>
+            {experimental_slots.analytics}
+            {children}
+          </div>
+        )
+      }
+    )
+
+    const result = await Layout({
+      params: undefined,
+      children: <div>children</div>,
+      analytics: <aside>analytics</aside>,
+    })
+
+    expect(result).toBeDefined()
+    expect(React.isValidElement(result)).toBe(true)
+  })
+
+  test('does not include slots in context when `experimental_slots` is not defined', async () => {
+    const Layout = createSafeLayoutServerComponent({}, async (ctx) => {
+      expectTypeOf(ctx).toEqualTypeOf<{
+        readonly id: string
+        readonly children: React.ReactNode
+      }>()
+      expect('experimental_slots' in ctx).toBe(false)
+
+      return <div>{ctx.children}</div>
+    })
+
+    const result = await Layout({
+      params: undefined,
+      children: <div>Children</div>,
+    })
+
+    expect(result).toBeDefined()
+    expect(React.isValidElement(result)).toBe(true)
+  })
+
+  test('does not include slots in context when `experimental_slots` is an empty array', async () => {
+    const Layout = createSafeLayoutServerComponent(
+      {
+        experimental_slots: [] as const,
+      },
+      async ({ experimental_slots, children }) => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        expectTypeOf(experimental_slots).toEqualTypeOf<{}>()
+        expect(experimental_slots).toEqual({})
+        return <div>{children}</div>
+      }
+    )
+
+    const result = await Layout({
+      params: undefined,
       children: <div>Children</div>,
     })
 

@@ -1,3 +1,10 @@
+export function hasDictKey<T extends object, K extends PropertyKey>(
+  obj: T,
+  key: K
+): obj is T & Record<typeof key, unknown> {
+  return key in obj
+}
+
 export function isPromise<T>(
   value: unknown
 ): value is Promise<T> | PromiseLike<T> {
