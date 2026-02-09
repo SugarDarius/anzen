@@ -8,7 +8,7 @@ Fast, flexible, framework validation agnostic, type‑safe factories for creatin
 - 🧠 Focused functionalities, use only features you want.
 - 🧹 Clean and flexible API.
 - 🔒 Type-safe.
-- 🌱 Dependency free. Only [Next.js](https://nextjs.org/) and [TypeScript](https://www.typescriptlang.org/) are required as peer dependencies.
+- 🌱 Dependency free. Only [Next.js](https://nextjs.org/) is required as peer dependency.
 - 🪶 Lightweight. Less than 140kB unpacked.
 
 ## Install
@@ -239,7 +239,7 @@ Feel free to open an issue or a PR if you think a relevant option could be added
 
 ## Requirements
 
-The factories require Next.js `v14`, `v15` or `v16` as peer dependencies.
+The factories require Next.js `v14`, or `v15`, or `v16` as peer dependency.
 
 ## Contributing
 
