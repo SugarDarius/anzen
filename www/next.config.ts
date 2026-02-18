@@ -1,63 +1,26 @@
 import type { NextConfig } from 'next'
 import createMdx from '@next/mdx'
-
-import { visit } from 'unist-util-visit'
-import rehypePrettyCode, { type Options } from 'rehype-pretty-code'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeSlug from 'rehype-slug'
+import path from 'path'
 
 const nextConfig: NextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
 }
 
-const prettyCodeOptions: Options = {
-  keepBackground: false,
-  theme: 'vesper',
-}
+// Resolve plugin paths to absolute strings so they are serializable (Turbopack requires JSON-serializable loader options)
+const rehypeRawStringMetaPath = path.resolve(process.cwd(), 'rehype-plugins/raw-string-meta.ts')
+const rehypeFigureTitlePath = path.resolve(process.cwd(), 'rehype-plugins/figure-title.ts')
 
 const withMdx = createMdx({
   extension: /\.mdx?$/,
   options: {
     remarkPlugins: [],
     rehypePlugins: [
-      rehypeSlug,
-      () => (tree) => {
-        visit(tree, (node) => {
-          if (node?.type === 'element' && node?.tagName === 'pre') {
-            const [codeEl] = node.children
-            if (codeEl.tagName !== 'code') {
-              return
-            }
-            node.__meta__ = codeEl.data?.meta ?? ''
-            node.__rawString__ = codeEl.children?.[0].value
-          }
-        })
-      },
-      [rehypePrettyCode, prettyCodeOptions],
-      () => (tree) => {
-        visit(tree, (node) => {
-          if (node?.type === 'element' && node?.tagName === 'figure') {
-            if (!('data-rehype-pretty-code-figure' in node.properties)) {
-              return
-            }
-
-            const preElement = node.children.at(-1)
-            if (preElement.tagName !== 'pre') {
-              return
-            }
-
-            preElement.properties['__rawString__'] = node.__rawString__
-            if (node.__meta__ && node.__meta__.length > 0) {
-              const titleMatch = node.__meta__.match(/title="([^"]+)"/)
-              const title = titleMatch ? titleMatch[1] : undefined
-
-              preElement.properties['__title__'] = title
-            }
-          }
-        })
-      },
+      'rehype-slug',
+      rehypeRawStringMetaPath,
+      ['rehype-pretty-code', { keepBackground: false, theme: 'vesper' }],
+      rehypeFigureTitlePath,
       [
-        rehypeAutolinkHeadings,
+        'rehype-autolink-headings',
         {
           properties: {
             className: 'mdx-subheading-link',
