@@ -3,7 +3,7 @@
   "version": "2.2.0",
   "description": "Fast, flexible, framework validation agnostic, type‑safe factories for creating route handlers, page and layout Server Component files in Next.js.",
   "license": "MIT",
-  "packageManager": "npm@11.3.0",
+  "packageManager": "npm@11.8.0",
   "workspaces": [
     ".",
     "www"
