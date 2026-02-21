@@ -85,7 +85,7 @@
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
     "@release-it/keep-a-changelog": "^7.0.1",
-    "@types/node": "^25.2.3",
+    "@types/node": "^25.3.0",
     "@types/react": "^19.2.14",
     "decoders": "^2.7.5",
     "eslint": "^9.39.2",
