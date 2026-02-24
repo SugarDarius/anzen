@@ -1,3 +1,4 @@
+/** @internal */
 export function hasDictKey<T extends object, K extends PropertyKey>(
   obj: T,
   key: K
@@ -5,6 +6,7 @@ export function hasDictKey<T extends object, K extends PropertyKey>(
   return key in obj
 }
 
+/** @internal */
 export function isPromise<T>(
   value: unknown
 ): value is Promise<T> | PromiseLike<T> {
@@ -16,6 +18,7 @@ export function isPromise<T>(
   )
 }
 
+/** @internal */
 export function assertsSyncOperation<T>(
   value: T | Promise<T> | PromiseLike<T>,
   message: string
@@ -25,6 +28,7 @@ export function assertsSyncOperation<T>(
   }
 }
 
+/** @internal */
 export function createLogger(debug: boolean = false) {
   const shouldLog = debug || process.env.NODE_ENV !== 'production'
   return {
