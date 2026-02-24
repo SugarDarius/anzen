@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [2.2.1] - 2026-02-24
+
 - Silence Next.js native errors in `createSafeRouteHandler` and allow to return `never` when `redirect` is used inside a Route Handler.
 
 ## [2.2.0] - 2026-02-08
