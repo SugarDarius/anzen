@@ -216,7 +216,7 @@ export type CreateSafeRouteHandlerReturnType<TReq extends Request = Request> = (
    * Provided context added by Next.js itself
    */
   providedContext: ProvidedRouteContext
-) => Promise<Response>
+) => Promise<Response | never>
 
 // TODO: find better way to type it 👇🏻
 export type SafeRouteHandlerContext<
@@ -297,4 +297,4 @@ export type SafeRouteHandler<
    * Original request
    */
   req: TReq
-) => Promise<Response>
+) => Promise<Response | never>

@@ -1,4 +1,4 @@
-import { createLogger, createExecutionClock } from './utils'
+import { createLogger, createExecutionClock, isNextNativeError } from './utils'
 import {
   parseWithDictionary,
   validateWithSchema,
@@ -327,11 +327,16 @@ export function createSafeRouteHandler<
       return response
     } catch (err) {
       executionClock.stop()
-      log.error(
-        `🛑 Route handler '${id} failed to execute after ${executionClock.get()}'`
-      )
 
-      return await onErrorResponse(err)
+      if (!isNextNativeError(err)) {
+        log.error(
+          `🛑 Route handler '${id} failed to execute after ${executionClock.get()}'`
+        )
+        return await onErrorResponse(err)
+      } else {
+        log.info('ℹ️ Ignoring native Next.js error')
+        throw err
+      }
     }
   }
 }

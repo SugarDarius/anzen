@@ -1,3 +1,4 @@
+/** @internal */
 export function hasDictKey<T extends object, K extends PropertyKey>(
   obj: T,
   key: K
@@ -5,6 +6,7 @@ export function hasDictKey<T extends object, K extends PropertyKey>(
   return key in obj
 }
 
+/** @internal */
 export function isPromise<T>(
   value: unknown
 ): value is Promise<T> | PromiseLike<T> {
@@ -16,6 +18,7 @@ export function isPromise<T>(
   )
 }
 
+/** @internal */
 export function assertsSyncOperation<T>(
   value: T | Promise<T> | PromiseLike<T>,
   message: string
@@ -25,6 +28,7 @@ export function assertsSyncOperation<T>(
   }
 }
 
+/** @internal */
 export function createLogger(debug: boolean = false) {
   const shouldLog = debug || process.env.NODE_ENV !== 'production'
   return {
@@ -46,6 +50,7 @@ export function createLogger(debug: boolean = false) {
   }
 }
 
+/** @internal */
 export function createExecutionClock() {
   let startTime: number | null = null
   let endTime: number | null = null
@@ -69,4 +74,50 @@ export function createExecutionClock() {
       return `${duration.toFixed(2)}ms`
     },
   }
+}
+
+/**
+ * @internal
+ * Checks if an error is a Next.js redirect error.
+ */
+const isNextRedirectError = (error: unknown): boolean => {
+  if (
+    typeof error !== 'object' ||
+    error === null ||
+    !('digest' in error) ||
+    typeof error.digest !== 'string'
+  ) {
+    return false
+  }
+  return error.digest.startsWith('NEXT_REDIRECT;')
+}
+
+/**
+ * @internal
+ * Checks if an error is a Next.js HTTP error (notFound, forbidden, unauthorized).
+ */
+const isNextHttpError = (error: unknown): boolean => {
+  if (
+    typeof error !== 'object' ||
+    error === null ||
+    !('digest' in error) ||
+    typeof error.digest !== 'string'
+  ) {
+    return false
+  }
+  const digest = error.digest
+  // Check for notFound (;404), forbidden (;403), or unauthorized (;401)
+  return (
+    digest.endsWith(';404') ||
+    digest.endsWith(';403') ||
+    digest.endsWith(';401')
+  )
+}
+
+/**
+ * @internal
+ * Checks if an error is a Next.js native error that should not be logged.
+ */
+export function isNextNativeError(error: unknown): boolean {
+  return isNextRedirectError(error) || isNextHttpError(error)
 }
