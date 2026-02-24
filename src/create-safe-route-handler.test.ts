@@ -438,6 +438,123 @@ describe('on error response', () => {
   })
 })
 
+describe('Next.js native errors logging', () => {
+  let errorSpy: ReturnType<typeof vi.spyOn>
+  beforeEach(() => {
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+  afterEach(() => {
+    errorSpy.mockRestore()
+  })
+
+  test('does not log redirect errors', async () => {
+    const redirectError = new Error('NEXT_REDIRECT') as Error & {
+      digest: string
+    }
+    redirectError.digest = 'NEXT_REDIRECT;replace;/redirect-path;307;'
+
+    const GET = createSafeRouteHandler(
+      { id: 'redirect-route', debug: true },
+      async () => {
+        throw redirectError
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    await expect(GET(request, { params: undefined })).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('does not log notFound errors', async () => {
+    const notFoundError = new Error('NEXT_NOT_FOUND') as Error & {
+      digest: string
+    }
+    notFoundError.digest = 'NEXT_HTTP_ERROR_FALLBACK;404'
+
+    const GET = createSafeRouteHandler(
+      { id: 'notfound-route', debug: true },
+      async () => {
+        throw notFoundError
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    await expect(GET(request, { params: undefined })).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('does not log forbidden errors', async () => {
+    const forbiddenError = new Error('NEXT_FORBIDDEN') as Error & {
+      digest: string
+    }
+    forbiddenError.digest = 'NEXT_HTTP_ERROR_FALLBACK;403'
+
+    const GET = createSafeRouteHandler(
+      { id: 'forbidden-route', debug: true },
+      async () => {
+        throw forbiddenError
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    await expect(GET(request, { params: undefined })).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('does not log unauthorized errors', async () => {
+    const unauthorizedError = new Error('NEXT_UNAUTHORIZED') as Error & {
+      digest: string
+    }
+    unauthorizedError.digest = 'NEXT_HTTP_ERROR_FALLBACK;401'
+
+    const GET = createSafeRouteHandler(
+      { id: 'unauthorized-route', debug: true },
+      async () => {
+        throw unauthorizedError
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    await expect(GET(request, { params: undefined })).rejects.toThrow()
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute'),
+      expect.anything()
+    )
+  })
+
+  test('still logs regular errors', async () => {
+    const regularError = new Error('Regular error')
+
+    const GET = createSafeRouteHandler(
+      { id: 'regular-error-route', debug: true },
+      async () => {
+        throw regularError
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, { params: undefined })
+
+    expect(response.status).toBe(500)
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('failed to execute')
+    )
+  })
+})
+
 describe('route dynamic segments validation', () => {
   test('validates segments correctly', async () => {
     const GET = createSafeRouteHandler(
