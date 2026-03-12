@@ -18,7 +18,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@sugardarius/anzen": "file:..",
     "@t3-oss/env-nextjs": "^0.13.10",
-    "@vercel/analytics": "^1.6.1",
+    "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "decoders": "^2.9.1",
