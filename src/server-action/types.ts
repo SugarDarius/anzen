@@ -122,15 +122,21 @@ export type CreateSafeServerActionOptions<
   authorize?: ActionAuthFunction<AC, TInput>
 }
 
+export type InferServerActionInput<TInput extends TInputSchema | undefined> =
+  TInput extends TInputSchema
+    ? StandardSchemaV1.InferOutput<TInput> | FormData
+    : never
+
 export type InferServerActionOutput<
   EC extends ErrorContext | undefined,
   VEC extends ValidationErrorContext | undefined,
   TOutput,
-> = EC extends ErrorContext
-  ? EC
-  : DefaultErrorContext | VEC extends ValidationErrorContext
-    ? VEC
-    : DefaultValidationErrorContext | TOutput
+> =
+  | TOutput
+  | ([EC] extends [ErrorContext] ? EC : DefaultErrorContext)
+  | ([VEC] extends [ValidationErrorContext]
+      ? VEC
+      : DefaultValidationErrorContext)
 
 export type CreateSafeServerActionReturnType<
   TInput extends TInputSchema | undefined,
@@ -138,7 +144,5 @@ export type CreateSafeServerActionReturnType<
   VEC extends ValidationErrorContext | undefined,
   TOutput,
 > = (
-  input: TInput extends TInputSchema
-    ? StandardSchemaV1.InferOutput<TInput> | FormData
-    : never
+  input: InferServerActionInput<TInput>
 ) => Promise<InferServerActionOutput<EC, VEC, TOutput>>

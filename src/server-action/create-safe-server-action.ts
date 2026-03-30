@@ -12,6 +12,7 @@ import type {
   ValidationErrorContext,
   CreateSafeServerActionReturnType,
   InferServerActionOutput,
+  InferServerActionInput,
 } from './types'
 
 /** @internal exported for testing only */
@@ -82,8 +83,8 @@ export function createSafeServerAction<
   const authorize = options.authorize ?? (async () => undefined)
 
   return async function (
-    input
+    input: InferServerActionInput<TInput>
   ): Promise<InferServerActionOutput<EC, VEC, TOutput>> {
-    return undefined
+    return undefined as InferServerActionOutput<EC, VEC, TOutput>
   }
 }
