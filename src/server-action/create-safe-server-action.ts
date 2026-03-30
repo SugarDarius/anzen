@@ -10,6 +10,8 @@ import type {
   ErrorContext,
   TInputSchema,
   ValidationErrorContext,
+  CreateSafeServerActionReturnType,
+  InferServerActionOutput,
 } from './types'
 
 /** @internal exported for testing only */
@@ -34,7 +36,10 @@ export function createSafeServerAction<
   TInput extends TInputSchema | undefined = undefined,
   EC extends ErrorContext | undefined = undefined,
   VEC extends ValidationErrorContext | undefined = undefined,
->(options: CreateSafeServerActionOptions<AC, TInput, EC, VEC>) {
+  TOutput = undefined,
+>(
+  options: CreateSafeServerActionOptions<AC, TInput, EC, VEC>
+): CreateSafeServerActionReturnType<TInput, EC, VEC, TOutput> {
   const log = createLogger(options.debug)
   const id = options.id ?? DEFAULT_ACTION_ID
 
@@ -76,5 +81,9 @@ export function createSafeServerAction<
 
   const authorize = options.authorize ?? (async () => undefined)
 
-  return async function () {}
+  return async function (
+    input
+  ): Promise<InferServerActionOutput<EC, VEC, TOutput>> {
+    return undefined
+  }
 }

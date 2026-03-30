@@ -35,10 +35,16 @@ export type DefaultValidationErrorContext = {
 
 export type OnError<EC extends ErrorContext | undefined> = (
   err: unknown
-) => Awaitable<EC | never>
+) => Awaitable<EC extends ErrorContext ? EC : DefaultErrorContext | never>
 
 export type OnValidationError<VEC extends ValidationErrorContext | undefined> =
-  (issues: readonly StandardSchemaV1.Issue[]) => Awaitable<VEC | never>
+  (
+    issues: readonly StandardSchemaV1.Issue[]
+  ) => Awaitable<
+    VEC extends ValidationErrorContext
+      ? VEC
+      : DefaultValidationErrorContext | never
+  >
 
 export type BaseOptions<
   TInput extends TInputSchema | undefined,
@@ -115,3 +121,24 @@ export type CreateSafeServerActionOptions<
    */
   authorize?: ActionAuthFunction<AC, TInput>
 }
+
+export type InferServerActionOutput<
+  EC extends ErrorContext | undefined,
+  VEC extends ValidationErrorContext | undefined,
+  TOutput,
+> = EC extends ErrorContext
+  ? EC
+  : DefaultErrorContext | VEC extends ValidationErrorContext
+    ? VEC
+    : DefaultValidationErrorContext | TOutput
+
+export type CreateSafeServerActionReturnType<
+  TInput extends TInputSchema | undefined,
+  EC extends ErrorContext | undefined,
+  VEC extends ValidationErrorContext | undefined,
+  TOutput,
+> = (
+  input: TInput extends TInputSchema
+    ? StandardSchemaV1.InferOutput<TInput> | FormData
+    : never
+) => Promise<InferServerActionOutput<EC, VEC, TOutput>>
