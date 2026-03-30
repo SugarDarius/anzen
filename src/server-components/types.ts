@@ -33,7 +33,7 @@ export type BaseOptions<TSegments extends TSegmentsDict | undefined> = {
    * band use error boundaries. The error is logged into the console.
    *
    * Use it if you want to manage unexpected errors properly
-   * to log, trace or define behaviors like using `notFound` or `redirect`.
+   * to log, trace or define navigation behaviors like using `notFound` or `redirect`.
    */
   onError?: (err: unknown) => Awaitable<never>
 
