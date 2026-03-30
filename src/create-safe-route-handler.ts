@@ -52,7 +52,7 @@ const readRequestBodyAsJson = async <TReq extends Request>(
  * @example
  * ```ts
  * import { string } from 'decoders'
- *import { createSafeRouteHandler } from '@sugardarius/anzen'
+ * import { createSafeRouteHandler } from '@sugardarius/anzen'
  * import { auth } from '~/lib/auth'
  *
  * export const GET = createSafeRouteHandler(
