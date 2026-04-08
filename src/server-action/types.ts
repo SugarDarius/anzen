@@ -8,6 +8,16 @@ import type {
 
 export type TInputSchema = StandardSchemaV1
 
+export type SafeServerActionResult<Output> =
+  | {
+      output: Output
+    }
+  | {
+      error: {
+        code: 'INTERNAL_ERROR'
+      }
+    }
+
 export type ErrorContext = Record<string, unknown>
 export type DefaultErrorContext = {
   error: {

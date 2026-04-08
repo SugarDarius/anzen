@@ -2,7 +2,7 @@
 
 import type { AuthContext, Awaitable } from '../types'
 import type { StandardSchemaV1 } from '../standard-schema'
-import { createLogger } from '../utils'
+import { createExecutionClock, createLogger } from '../utils'
 import type {
   CreateSafeServerActionOptions,
   DefaultErrorContext,
@@ -83,8 +83,20 @@ export function createSafeServerAction<
   const authorize = options.authorize ?? (async () => undefined)
 
   return async function (
-    input: InferServerActionInput<TInput>
+    input_unsafe: InferServerActionInput<TInput>
   ): Promise<InferServerActionOutput<EC, VEC, TOutput>> {
+    const executionClock = createExecutionClock()
+    executionClock.start()
+
+    log.info(`🔄 Running server action '${id}'`)
+
+    const input = undefined
+    if (options.input) {
+      if (input_unsafe === undefined) {
+        return (await onError('')) as InferServerActionOutput<EC, VEC, TOutput>
+      }
+    }
+
     return undefined as InferServerActionOutput<EC, VEC, TOutput>
   }
 }
