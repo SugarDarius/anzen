@@ -8,6 +8,8 @@ import type {
   CreateSafeServerActionReturnType,
   InferServerActionProvidedInput,
   InferServerActionValidatedInput,
+  SafeServerActionContext,
+  SafeServerActionHandler,
   SafeServerActionResult,
   TInputSchema,
 } from './types'
@@ -37,7 +39,8 @@ export function createSafeServerAction<
   AC extends AuthContext | undefined = undefined,
   TInput extends TInputSchema | undefined = undefined,
 >(
-  options: CreateSafeServerActionOptions<AC, TInput>
+  options: CreateSafeServerActionOptions<AC, TInput>,
+  handler: SafeServerActionHandler<TOutput, TInput>
 ): CreateSafeServerActionReturnType<TInput, TOutput, unknown> {
   const log = createLogger(options.debug)
   const id = options.id ?? DEFAULT_ACTION_ID
@@ -79,14 +82,22 @@ export function createSafeServerAction<
       input = parsedInput.value as InferServerActionValidatedInput<TInput>
     }
 
+    const ctx = {
+      id,
+      ...(input ? { input } : {}),
+    } as SafeServerActionContext<TInput>
+
     try {
+      const output = await handler(ctx)
+
       executionClock.stop()
       log.info(
         `✅ Server action '${id}' executed successfully in ${executionClock.get()}`
       )
+
       return {
         __success: true,
-        output: undefined,
+        output,
       }
     } catch (err: unknown) {
       executionClock.stop()

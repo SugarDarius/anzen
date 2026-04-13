@@ -227,3 +227,16 @@ export type InferServerActionProvidedInput<
 // > = (
 //   input: InferServerActionInput<TInput>
 // ) => Promise<SafeServerActionResult<TOutput, SEC, VEC>>
+
+export type SafeServerActionContext<TInput extends TInputSchema | undefined> = {
+  readonly id: string
+} & (TInput extends TInputSchema
+  ? {
+      readonly input: UnwrapReadonlyObject<StandardSchemaV1.InferOutput<TInput>>
+    }
+  : EmptyObjectType)
+
+export type SafeServerActionHandler<
+  TOutput,
+  TInput extends TInputSchema | undefined,
+> = (ctx: SafeServerActionContext<TInput>) => Promise<TOutput>
