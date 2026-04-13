@@ -33,7 +33,7 @@ const isNativeError = (err: unknown): err is Error => {
  * @returns A Next.js server action function.
  */
 export function createSafeServerAction<
-  TOutput = undefined,
+  TOutput,
   AC extends AuthContext | undefined = undefined,
   TInput extends TInputSchema | undefined = undefined,
 >(
@@ -80,11 +80,16 @@ export function createSafeServerAction<
     }
 
     try {
+      executionClock.stop()
+      log.info(
+        `✅ Server action '${id}' executed successfully in ${executionClock.get()}`
+      )
       return {
-        __success: false,
-        error: undefined,
+        __success: true,
+        output: undefined,
       }
     } catch (err: unknown) {
+      executionClock.stop()
       return {
         __success: false,
         error: err, // TODO: Handle unexpected error
