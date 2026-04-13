@@ -175,12 +175,14 @@ export type BaseOptions<TInput extends TInputSchema | undefined> = {
 // }
 
 export type SafeServerActionResultSuccess<TOutput> = {
+  /** @internal - for internal use only */
   __success: true
   output: TOutput
   error?: never
 }
 
 export type SafeServerActionResultError<TError> = {
+  /** @internal - for internal use only */
   __success: false
   output?: never
   error: TError
