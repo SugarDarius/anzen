@@ -6,67 +6,7 @@ import type {
   UnwrapReadonlyObject,
 } from '../types'
 
-export type TInputSchema = StandardSchemaV1<object>
-
-// export enum ServerActionErrorCode {
-//   SERVER_ERROR = 'SERVER_ERROR',
-//   VALIDATION_ERROR = 'VALIDATION_ERROR',
-//   NO_INPUT_PROVIDED_ERROR = 'NO_INPUT_PROVIDED_ERROR',
-//   UNAUTHORIZED_ERROR = 'UNAUTHORIZED_ERROR',
-// }
-
-// export type ServerErrorContext = Record<string, unknown>
-// export type BaseServerErrorContext = {
-//   message: string
-//   name?: string
-//   stack?: string
-// }
-
-// export type ServerError<
-//   SEC extends ServerErrorContext = BaseServerErrorContext,
-// > = {
-//   code: ServerActionErrorCode.SERVER_ERROR
-//   ctx: SEC
-// }
-
-// export type ValidationErrorContext = Record<string, unknown>
-// export type BaseValidationErrorContext = {
-//   issues: readonly StandardSchemaV1.Issue[]
-// }
-// export type ValidationError<
-//   VEC extends ValidationErrorContext | undefined = BaseValidationErrorContext,
-// > = {
-//   code: ServerActionErrorCode.VALIDATION_ERROR
-//   ctx: VEC
-// }
-
-// export type NoInputProvidedError = {
-//   code: ServerActionErrorCode.NO_INPUT_PROVIDED_ERROR
-//   ctx: undefined
-// }
-
-// export type UnauthorizedError = {
-//   code: ServerActionErrorCode.UNAUTHORIZED_ERROR
-//   ctx: undefined
-// }
-
-// export type SafeServerActionResult<
-//   TOutput,
-//   SEC extends ServerErrorContext | undefined,
-//   VEC extends ValidationErrorContext | undefined,
-// > =
-//   | {
-//       output: TOutput
-//       error: undefined
-//     }
-//   | {
-//       output: undefined
-//       error:
-//         | ServerError<SEC>
-//         | ValidationError<VEC>
-//         | NoInputProvidedError
-//         | UnauthorizedError
-//     }
+export type TInputSchema = StandardSchemaV1
 
 // export type OnError<
 //   SEC extends ServerErrorContext | undefined = BaseServerErrorContext,
@@ -118,29 +58,55 @@ export type TInputSchema = StandardSchemaV1<object>
 //   onInputValidationError?: OnValidationError<VEC>
 // }
 
-// export type ActionFunctionParams<TInput extends TInputSchema | undefined> = {
-//   /**
-//    * Server action ID
-//    */
-//   readonly id: string
-// } & (TInput extends TInputSchema
-//   ? {
-//       /**
-//        * Validated input
-//        */
-//       readonly input: UnwrapReadonlyObject<StandardSchemaV1.InferOutput<TInput>>
-//     }
-//   : EmptyObjectType)
+export type ServerActionErrorContext = Record<string, unknown>
 
-// export type ActionAuthFunction<
-//   AC extends AuthContext | undefined,
-//   TInput extends TInputSchema | undefined,
-// > = (params: ActionFunctionParams<TInput>) => Awaitable<AC | never>
+export type ServerError = {
+  readonly code: 'SERVER_ERROR'
+  readonly ctx: ServerActionErrorContext
+}
 
+export type UnauthorizedError = {
+  readonly code: 'UNAUTHORIZED'
+  readonly ctx: ServerActionErrorContext
+}
+
+export type ValidationError = {
+  readonly code: 'VALIDATION_ERROR'
+  readonly ctx: ServerActionErrorContext & {
+    readonly issues: StandardSchemaV1.Issue[]
+  }
+}
+
+export type SafeServerActionError =
+  | UnauthorizedError
+  | ValidationError
+  | ServerError
+
+export type SafeServerActionResultSuccess<TOutput> = {
+  /** @internal - for internal use only */
+  readonly __success: true
+  readonly output: TOutput
+  readonly error?: never
+}
+
+export type SafeServerActionResultError<TError> = {
+  /** @internal - for internal use only */
+  readonly __success: false
+  readonly output?: never
+  readonly error: TError
+}
+
+// TODO: find better way to type it 👇🏻
 export type AuthFunctionParams<TInput extends TInputSchema | undefined> = {
+  /**
+   * Server action ID
+   */
   readonly id: string
 } & (TInput extends TInputSchema
   ? {
+      /**
+       * Validated input
+       */
       readonly input: UnwrapReadonlyObject<StandardSchemaV1.InferOutput<TInput>>
     }
   : EmptyObjectType)
@@ -148,7 +114,36 @@ export type AuthFunctionParams<TInput extends TInputSchema | undefined> = {
 export type AuthFunction<
   AC extends AuthContext | undefined,
   TInput extends TInputSchema | undefined,
-> = (params: AuthFunctionParams<TInput>) => Awaitable<AC | never>
+> = (
+  /**
+   * Auth function parameters
+   * Contains the server action ID and the validated input.
+   *
+   * If the input is not provided, the property do not exists.
+   *
+   * @example
+   * ```ts
+   * authorize: async ({ id, input }) => {
+   *  const auth = await getAuth()
+   *  if (!auth) {
+   *    throw new UnauthenticatedError()
+   *  }
+   *
+   *  const hasAccess = await checkAccess({
+   *    userId: auth.user.id,
+   *    resourceId: input.resourceId,
+   *  })
+   *
+   *  if (!hasAccess) {
+   *    throw new ForbiddenError()
+   *  }
+   *
+   *  return { user: auth.user }
+   * }
+   * ```
+   */
+  params: AuthFunctionParams<TInput>
+) => Awaitable<AC | Response>
 
 export type BaseOptions<TInput extends TInputSchema | undefined> = {
   /**
@@ -177,60 +172,24 @@ export type BaseOptions<TInput extends TInputSchema | undefined> = {
   input?: TInput
 }
 
-// export type CreateSafeServerActionOptions<
-//   AC extends AuthContext | undefined,
-//   TInput extends TInputSchema | undefined,
-//   SEC extends ServerErrorContext | undefined,
-//   VEC extends ValidationErrorContext | undefined,
-// > = BaseOptions<TInput, SEC, VEC> & {
-//   /**
-//    * Function to use to authorize the server action.
-//    * By default it always authorize the server action.
-//    *
-//    * Returns an unauthorized error when the server action is not authorized
-//    * or never when `redirect`, `notFound`, `forbidden` or `unauthorized` are thrown.
-//    */
-//   authorize?: ActionAuthFunction<AC, TInput>
-// }
-
-export type ServerActionErrorContext = {
-  readonly message: string
-  readonly stack?: string
-  readonly name?: string
-}
-
-export type UnauthorizedError = {
-  readonly code: 'UNAUTHORIZED'
-  readonly ctx: ServerActionErrorContext
-}
-
-export type SafeServerActionError = UnauthorizedError
-
-export type SafeServerActionResultSuccess<TOutput> = {
-  /** @internal - for internal use only */
-  readonly __success: true
-  readonly output: TOutput
-  readonly error?: never
-}
-
-export type SafeServerActionResultError<TError> = {
-  /** @internal - for internal use only */
-  readonly __success: false
-  readonly output?: never
-  readonly error: TError
+export type CreateSafeServerActionOptions<
+  TInput extends TInputSchema | undefined,
+  AC extends AuthContext | undefined,
+> = BaseOptions<TInput> & {
+  /**
+   * Function to use to authorize the server action.
+   * By default it always authorize the server action.
+   *
+   * Returns an unauthorized error when the server action is not authorized
+   * or never when `redirect`, `notFound`, `forbidden` or `unauthorized` are thrown.
+   */
+  authorize?: AuthFunction<AC, TInput>
 }
 
 export type SafeServerActionResult<TOutput, TError> =
   | SafeServerActionResultSuccess<TOutput>
   | SafeServerActionResultError<TError>
   | never
-
-export type CreateSafeServerActionOptions<
-  TInput extends TInputSchema | undefined,
-  AC extends AuthContext | undefined,
-> = BaseOptions<TInput> & {
-  authorize?: AuthFunction<AC, TInput>
-}
 
 export type CreateSafeServerActionReturnType<
   TInput extends TInputSchema | undefined,
