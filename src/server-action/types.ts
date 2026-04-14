@@ -151,10 +151,29 @@ export type AuthFunction<
 > = (params: AuthFunctionParams<TInput>) => Awaitable<AC | never>
 
 export type BaseOptions<TInput extends TInputSchema | undefined> = {
+  /**
+   * ID for the server action.
+   * Used when logging in development or when `debug` is enabled.
+   *
+   * You can also use it to add extra logging or monitoring.
+   */
   id?: string
 
+  /**
+   * Use this options to enable debug mode.
+   * It will add logs in the handler to help you debug server action.
+   *
+   * By default it's set to `false` for production builds.
+   * In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
+   */
   debug?: boolean
 
+  /**
+   * Server action input schema used to validate the input
+   * when calling the server action.
+   *
+   * Please note the expected input is a `StandardSchemaV1`.
+   */
   input?: TInput
 }
 
@@ -174,18 +193,24 @@ export type BaseOptions<TInput extends TInputSchema | undefined> = {
 //   authorize?: ActionAuthFunction<AC, TInput>
 // }
 
+export type UnauthorizedError = {
+  readonly code: 'UNAUTHORIZED'
+}
+
+export type SafeServerActionError = UnauthorizedError
+
 export type SafeServerActionResultSuccess<TOutput> = {
   /** @internal - for internal use only */
-  __success: true
-  output: TOutput
-  error?: never
+  readonly __success: true
+  readonly output: TOutput
+  readonly error?: never
 }
 
 export type SafeServerActionResultError<TError> = {
   /** @internal - for internal use only */
-  __success: false
-  output?: never
-  error: TError
+  readonly __success: false
+  readonly output?: never
+  readonly error: TError
 }
 
 export type SafeServerActionResult<TOutput, TError> =
@@ -213,15 +238,6 @@ export type InferServerActionProvidedInput<
 > = TInput extends TInputSchema
   ? FormData | StandardSchemaV1.InferOutput<TInput>
   : undefined
-
-// export type CreateSafeServerActionReturnType<
-//   TInput extends TInputSchema | undefined,
-//   SEC extends ServerErrorContext | undefined,
-//   VEC extends ValidationErrorContext | undefined,
-//   TOutput = undefined,
-// > = (
-//   input: InferServerActionInput<TInput>
-// ) => Promise<SafeServerActionResult<TOutput, SEC, VEC>>
 
 export type SafeServerActionContext<
   TInput extends TInputSchema | undefined,
