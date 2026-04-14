@@ -193,8 +193,15 @@ export type BaseOptions<TInput extends TInputSchema | undefined> = {
 //   authorize?: ActionAuthFunction<AC, TInput>
 // }
 
+export type ServerActionErrorContext = {
+  readonly message: string
+  readonly stack?: string
+  readonly name?: string
+}
+
 export type UnauthorizedError = {
   readonly code: 'UNAUTHORIZED'
+  readonly ctx: ServerActionErrorContext
 }
 
 export type SafeServerActionError = UnauthorizedError
