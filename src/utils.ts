@@ -121,3 +121,11 @@ const isNextHttpError = (error: unknown): boolean => {
 export function isNextNativeError(error: unknown): boolean {
   return isNextRedirectError(error) || isNextHttpError(error)
 }
+
+/**
+ * @internal
+ * Type guard to check if the error is an instance of Error.
+ */
+export function isNativeError(err: unknown): err is Error {
+  return err instanceof Error
+}

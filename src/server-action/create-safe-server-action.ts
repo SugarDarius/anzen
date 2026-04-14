@@ -20,11 +20,6 @@ import type {
 /** @internal exported for testing only */
 export const DEFAULT_ACTION_ID = '[unknown:server:action]'
 
-/** @internal type guard to check if the error is an instance of Error */
-const isNativeError = (err: unknown): err is Error => {
-  return err instanceof Error
-}
-
 /**
  * Creates a safe server action with input validation and error handling
  * for Next.js (>= 14) server actions.
