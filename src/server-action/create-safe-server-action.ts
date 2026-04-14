@@ -1,8 +1,11 @@
-'use server'
-
-import { validateWithSchema } from '../standard-schema'
-import type { AuthContext } from '../types'
-import { createExecutionClock, createLogger, isNextNativeError } from '../utils'
+import { validateWithSchema, type StandardSchemaV1 } from '../standard-schema'
+import type { AuthContext, Awaitable } from '../types'
+import {
+  createExecutionClock,
+  createLogger,
+  isNativeError,
+  isNextNativeError,
+} from '../utils'
 import type {
   AuthFunctionParams,
   CreateSafeServerActionOptions,
@@ -12,6 +15,7 @@ import type {
   SafeServerActionError,
   SafeServerActionHandler,
   SafeServerActionResult,
+  ServerActionErrorContext,
   TInputSchema,
 } from './types'
 
@@ -40,6 +44,35 @@ export function createSafeServerAction<
 
   const authorize = options.authorize ?? (async () => undefined)
 
+  const onError =
+    options.onError ??
+    ((err: unknown): Awaitable<ServerActionErrorContext> => {
+      log.error(`🛑 Unexpected error in server action '${id}'`, err)
+
+      if (isNativeError(err)) {
+        return {
+          message: err.message,
+          name: err.name,
+          stack: err.stack,
+        }
+      }
+
+      return {
+        message: JSON.stringify(err),
+      }
+    })
+
+  const onInputValidationError =
+    options.onInputValidationError ??
+    ((
+      issues: readonly StandardSchemaV1.Issue[]
+    ): Awaitable<ServerActionErrorContext> => {
+      log.error(`🛑 Invalid input for server action '${id}'`, issues)
+      return {
+        issues,
+      }
+    })
+
   return async function (
     providedInput: InferServerActionProvidedInput<TInput>
   ): Promise<SafeServerActionResult<TOutput, SafeServerActionError>> {
@@ -51,10 +84,14 @@ export function createSafeServerAction<
     let input = undefined
     if (options.input) {
       if (providedInput === undefined) {
-        // TODO: Handle no input provided error
         return {
           __success: false,
-          error: undefined,
+          error: {
+            code: 'NO_INPUT_PROVIDED',
+            ctx: {
+              message: `No input provided for server action '${id}'`,
+            },
+          },
         }
       }
 
@@ -67,10 +104,13 @@ export function createSafeServerAction<
 
       const parsedInput = validateWithSchema(options.input, input_unsafe)
       if (parsedInput.issues) {
-        // TODO: Handle input validation error
+        const ctx = await onInputValidationError(parsedInput.issues)
         return {
           __success: false,
-          error: undefined,
+          error: {
+            code: 'VALIDATION_ERROR',
+            ctx,
+          },
         }
       }
 
@@ -99,9 +139,14 @@ export function createSafeServerAction<
         `🔴 Server action '${id}' not authorized after ${executionClock.get()}`
       )
 
+      const ctx = await onError(err)
+
       return {
         __success: false,
-        error: err, // TODO: Handle unauthorized error
+        error: {
+          code: 'UNAUTHORIZED',
+          ctx,
+        },
       }
     }
 
@@ -134,152 +179,14 @@ export function createSafeServerAction<
       log.error(
         `🔴 Server action '${id}' failed to execute after ${executionClock.get()}`
       )
-
+      const ctx = await onError(err)
       return {
         __success: false,
-        error: err, // TODO: Handle unexpected error
+        error: {
+          code: 'SERVER_ERROR',
+          ctx,
+        },
       }
     }
   }
 }
-// export function createSafeServerAction<
-//   AC extends AuthContext | undefined = undefined,
-//   TInput extends TInputSchema | undefined = undefined,
-//   SEC extends ServerErrorContext = BaseServerErrorContext,
-//   VEC extends ValidationErrorContext = BaseValidationErrorContext,
-//   TOutput = undefined,
-// >(
-//   options: CreateSafeServerActionOptions<AC, TInput, SEC, VEC>
-// ): CreateSafeServerActionReturnType<TInput, SEC, VEC, TOutput> {
-//   const log = createLogger(options.debug)
-//   const id = options.id ?? DEFAULT_ACTION_ID
-
-//   const onError =
-//     options.onError ??
-//     ((err: unknown): Awaitable<SEC> => {
-//       log.error(`🛑 Unexpected error in server action '${id}'`, err)
-
-//       if (isNativeError(err)) {
-//         return {
-//           message: err.message,
-//           name: err.name,
-//           stack: err.stack,
-//         }
-//       }
-
-//       return {
-//         message: JSON.stringify(err),
-//       }
-//     })
-
-//   const onInputValidationError =
-//     options.onInputValidationError ??
-//     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<VEC> => {
-//       log.error(`🛑 Invalid input for server action '${id}'`, issues)
-//       return {
-//         issues,
-//       }
-//     })
-
-//   const authorize = options.authorize ?? (async () => undefined)
-
-//   return async function (
-//     input_unsafe: InferServerActionInput<TInput>
-//   ): Promise<SafeServerActionResult<TOutput, SEC, VEC>> {
-//     const executionClock = createExecutionClock()
-//     executionClock.start()
-
-//     log.info(`🔄 Running server action '${id}'`)
-
-//     let input = undefined
-//     if (options.input) {
-//       if (input_unsafe === undefined) {
-//         return {
-//           output: undefined,
-//           error: {
-//             code: ServerActionErrorCode.NO_INPUT_PROVIDED_ERROR,
-//             ctx: undefined,
-//           },
-//         }
-//       }
-
-//       const parsedInput = validateWithSchema(
-//         options.input,
-//         input_unsafe instanceof FormData
-//           ? Object.fromEntries(input_unsafe.entries())
-//           : input_unsafe
-//       )
-//       if (parsedInput.issues) {
-//         const ctx = await onInputValidationError(parsedInput.issues)
-//         return {
-//           output: undefined,
-//           error: {
-//             code: ServerActionErrorCode.VALIDATION_ERROR,
-//             ctx,
-//           },
-//         }
-//       }
-//       input = parsedInput
-//     }
-
-//     let auth = undefined
-//     try {
-//       const authParams = {
-//         id,
-//         ...(input ? { input } : {}),
-//       } as ActionFunctionParams<TInput>
-
-//       auth = await authorize(authParams)
-//     } catch (err: unknown) {
-//       if (!isNextNativeError(err)) {
-//         log.error(`🛑 Server action '${id}' not authorized`, err)
-
-//         if (isNativeError(err)) {
-//           return {
-//             output: undefined,
-//             error: {
-//               code: ServerActionErrorCode.SERVER_ERROR,
-//               ctx: {
-//                 message: err.message,
-//                 name: err.name,
-//                 stack: err.stack,
-//               },
-//             },
-//           }
-//         }
-//         return {
-//           output: undefined,
-//           error: {
-//             code: ServerActionErrorCode.SERVER_ERROR,
-//             ctx: {
-//               message: JSON.stringify(err),
-//             },
-//           },
-//         }
-//       } else {
-//         log.info('ℹ️ Ignoring native Next.js error')
-//         throw err
-//       }
-//     }
-
-//     try {
-//       executionClock.stop()
-//       log.info(
-//         `✅ Server action '${id}' executed successfully in ${executionClock.get()}`
-//       )
-
-//       return {
-//         output: {},
-//       }
-//     } catch (err: unknown) {
-//       executionClock.stop()
-
-//       if (!isNextNativeError(err)) {
-//         // Handle unexpected error
-//       } else {
-//         log.info('ℹ️ Ignoring native Next.js error')
-//         throw err
-//       }
-//     }
-//   }
-// }
