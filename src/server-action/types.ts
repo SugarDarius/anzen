@@ -60,26 +60,60 @@ export type TInputSchema = StandardSchemaV1
 
 export type ServerActionErrorContext = Record<string, unknown>
 
+/**
+ * Generic server error.
+ * Triggered when server action handler throws an unexpected error.
+ *
+ * Context `ctx` is used to store the error context.
+ * It can be customized by using the `onError` option when creating the server action.
+ */
 export type ServerError = {
   readonly code: 'SERVER_ERROR'
   readonly ctx: ServerActionErrorContext
 }
 
+/**
+ * Unauthorized error.
+ * Triggered when server action is not authorized by the `authorize` function
+ * 👉🏻 When `authorize` function throws an error.
+ *
+ *
+ * Context `ctx` is used to store the error context.
+ * It can be customized by using the `onError` option when creating the server action.
+ */
 export type UnauthorizedError = {
   readonly code: 'UNAUTHORIZED'
   readonly ctx: ServerActionErrorContext
 }
 
+/**
+ * Validation error.
+ * Triggered when server action input validation returns issues.
+ *
+ * Context `ctx` is used to store the error context.
+ * It can be customized by using the `onInputValidationError` option when creating the server action.
+ *
+ * By default this error will return the issues `StandardSchemaV1.Issue[]` in the context when
+ * no context customization is provided.
+ */
 export type ValidationError = {
   readonly code: 'VALIDATION_ERROR'
-  readonly ctx: ServerActionErrorContext & {
-    readonly issues: StandardSchemaV1.Issue[]
-  }
+  readonly ctx: ServerActionErrorContext
+}
+
+/**
+ * No input provided error.
+ * Triggered when no input is provided when calling the server action.
+ */
+export type NoInputProvidedError = {
+  readonly code: 'NO_INPUT_PROVIDED'
+  readonly ctx: ServerActionErrorContext
 }
 
 export type SafeServerActionError =
-  | UnauthorizedError
   | ValidationError
+  | NoInputProvidedError
+  | UnauthorizedError
   | ServerError
 
 export type SafeServerActionResultSuccess<TOutput> = {
@@ -145,6 +179,8 @@ export type AuthFunction<
   params: AuthFunctionParams<TInput>
 ) => Awaitable<AC | Response>
 
+export type OnError = (err: unknown) => Awaitable<ServerActionErrorContext>
+
 export type BaseOptions<TInput extends TInputSchema | undefined> = {
   /**
    * ID for the server action.
@@ -162,6 +198,41 @@ export type BaseOptions<TInput extends TInputSchema | undefined> = {
    * In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
    */
   debug?: boolean
+
+  /**
+   * Callback triggered when the server action throws an unhandled error.
+   * By default it will return an error context object and the error is logged into the console.
+   *
+   * Use it if you want to manage unexpected errors properly
+   * to log or trace and define custom error contexts objects.
+   *
+   * ⚠️ By design, this callback isn't mean to be used to manage navigation behaviors like using `notFound` or `redirect`,
+   * or with `throw` statements. ⚠️
+   *
+   * @example
+   * ```ts
+   * // ✅ Valid use case
+   * onError: async (err: unknown) => {
+   *  log.error(`🛑 Unexpected error in server action '${id}'`, err)
+   *  if (err instanceof NotFoundError) {
+   *    return {
+   *      message: 'Resource not found',
+   *    }
+   *  }
+   *
+   *  return {
+   *    message: 'An unexpected error occurred',
+   *    err: JSON.stringify(err),
+   *  }
+   * }
+   *
+   * // ❌ Invalid use case
+   * onError: async (err: unknown) => {
+   *  throw err
+   *  // or redirect('/')
+   * }
+   */
+  onError?: OnError
 
   /**
    * Server action input schema used to validate the input

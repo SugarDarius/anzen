@@ -9,13 +9,11 @@ import type {
   CreateSafeServerActionReturnType,
   InferServerActionProvidedInput,
   SafeServerActionContext,
+  SafeServerActionError,
   SafeServerActionHandler,
   SafeServerActionResult,
   TInputSchema,
 } from './types'
-
-// const x = <T>(value: T): T => value
-// const _y = x(10)
 
 /** @internal exported for testing only */
 export const DEFAULT_ACTION_ID = '[unknown:server:action]'
@@ -36,7 +34,7 @@ export function createSafeServerAction<
 >(
   options: CreateSafeServerActionOptions<TInput, AC>,
   handler: SafeServerActionHandler<TOutput, TInput, AC>
-): CreateSafeServerActionReturnType<TInput, TOutput, unknown> {
+): CreateSafeServerActionReturnType<TInput, TOutput, SafeServerActionError> {
   const log = createLogger(options.debug)
   const id = options.id ?? DEFAULT_ACTION_ID
 
@@ -44,7 +42,7 @@ export function createSafeServerAction<
 
   return async function (
     providedInput: InferServerActionProvidedInput<TInput>
-  ): Promise<SafeServerActionResult<TOutput, unknown>> {
+  ): Promise<SafeServerActionResult<TOutput, SafeServerActionError>> {
     const executionClock = createExecutionClock()
     executionClock.start()
 
