@@ -1,13 +1,12 @@
 'use server'
 
-import { validateWithSchema } from '../standard-schema'
+import { validateWithSchema, type StandardSchemaV1 } from '../standard-schema'
 import type { AuthContext } from '../types'
 import { createExecutionClock, createLogger } from '../utils'
 import type {
   CreateSafeServerActionOptions,
   CreateSafeServerActionReturnType,
   InferServerActionProvidedInput,
-  InferServerActionValidatedInput,
   SafeServerActionContext,
   SafeServerActionHandler,
   SafeServerActionResult,
@@ -53,7 +52,7 @@ export function createSafeServerAction<
 
     log.info(`🔄 Running server action '${id}'`)
 
-    let input: InferServerActionValidatedInput<TInput> | undefined = undefined
+    let input = undefined
     if (options.input) {
       if (providedInput === undefined) {
         // TODO: Handle no input provided error
@@ -79,7 +78,7 @@ export function createSafeServerAction<
         }
       }
 
-      input = parsedInput.value as InferServerActionValidatedInput<TInput>
+      input = parsedInput.value
     }
 
     const ctx = {
@@ -101,6 +100,15 @@ export function createSafeServerAction<
       }
     } catch (err: unknown) {
       executionClock.stop()
+
+      if (isNativeError(err)) {
+        throw err
+      }
+
+      log.error(
+        `🔴 Server action '${id}' failed to execute after ${executionClock.get()}`
+      )
+
       return {
         __success: false,
         error: err, // TODO: Handle unexpected error

@@ -191,6 +191,7 @@ export type SafeServerActionResultError<TError> = {
 export type SafeServerActionResult<TOutput, TError> =
   | SafeServerActionResultSuccess<TOutput>
   | SafeServerActionResultError<TError>
+  | never
 
 export type CreateSafeServerActionOptions<
   AC extends AuthContext | undefined,
@@ -206,12 +207,6 @@ export type CreateSafeServerActionReturnType<
 > = (
   providedInput: InferServerActionProvidedInput<TInput>
 ) => Promise<SafeServerActionResult<TOutput, TError>>
-
-export type InferServerActionValidatedInput<
-  TInput extends TInputSchema | undefined,
-> = TInput extends TInputSchema
-  ? StandardSchemaV1.InferOutput<TInput>
-  : undefined
 
 export type InferServerActionProvidedInput<
   TInput extends TInputSchema | undefined,
