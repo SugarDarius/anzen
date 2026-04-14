@@ -2,7 +2,7 @@
 
 import { validateWithSchema } from '../standard-schema'
 import type { AuthContext } from '../types'
-import { createExecutionClock, createLogger } from '../utils'
+import { createExecutionClock, createLogger, isNextNativeError } from '../utils'
 import type {
   AuthFunctionParams,
   CreateSafeServerActionOptions,
@@ -95,7 +95,7 @@ export function createSafeServerAction<
     } catch (err: unknown) {
       executionClock.stop()
 
-      if (isNativeError(err)) {
+      if (isNextNativeError(err)) {
         log.info(
           `ℹ️ Ignoring native Next.js error while authorizing server action '${id}'`
         )
@@ -133,7 +133,7 @@ export function createSafeServerAction<
     } catch (err: unknown) {
       executionClock.stop()
 
-      if (isNativeError(err)) {
+      if (isNextNativeError(err)) {
         log.info(`ℹ️ Ignoring native Next.js error in server action '${id}'`)
         throw err
       }
