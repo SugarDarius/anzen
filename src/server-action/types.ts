@@ -246,18 +246,28 @@ export type InferServerActionProvidedInput<
   ? FormData | StandardSchemaV1.InferOutput<TInput>
   : undefined
 
+// TODO: find better way to type it 👇🏻
 export type SafeServerActionContext<
   TInput extends TInputSchema | undefined,
   AC extends AuthContext | undefined,
 > = {
+  /**
+   * Server action ID
+   */
   readonly id: string
 } & (AC extends AuthContext
   ? {
+      /**
+       * Auth context
+       */
       readonly auth: AC
     }
   : EmptyObjectType) &
   (TInput extends TInputSchema
     ? {
+        /**
+         * Validated input
+         */
         readonly input: UnwrapReadonlyObject<
           StandardSchemaV1.InferOutput<TInput>
         >
@@ -268,4 +278,9 @@ export type SafeServerActionHandler<
   TOutput,
   TInput extends TInputSchema | undefined,
   AC extends AuthContext | undefined,
-> = (ctx: SafeServerActionContext<TInput, AC>) => Promise<TOutput | never>
+> = (
+  /**
+   * Safe server action context
+   */
+  ctx: SafeServerActionContext<TInput, AC>
+) => Promise<TOutput | never>
