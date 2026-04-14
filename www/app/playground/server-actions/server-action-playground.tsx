@@ -102,7 +102,7 @@ export function ServerActionPlayground() {
         title='Ping (no input)'
         description='Action with only context id; call with no arguments.'
       >
-        <div className='flex flex-col gap-4 sm:flex-row sm:items-end'>
+        <div className='flex flex-col gap-4'>
           <Button
             type='button'
             disabled={isPending}
@@ -112,6 +112,7 @@ export function ServerActionPlayground() {
                 setPingResult(r)
               })
             }}
+            className='w-fit'
           >
             {isPending ? 'Running…' : 'Run ping'}
           </Button>
@@ -147,6 +148,7 @@ export function ServerActionPlayground() {
                 setGreetResult(r)
               })
             }}
+            className='w-fit'
           >
             Send
           </Button>
@@ -185,6 +187,7 @@ export function ServerActionPlayground() {
                 setQuantityResult(r)
               })
             }}
+            className='w-fit'
           >
             Validate
           </Button>
@@ -221,6 +224,7 @@ export function ServerActionPlayground() {
                 setSecretResult(r)
               })
             }}
+            className='w-fit'
           >
             Authorize
           </Button>
@@ -245,6 +249,7 @@ export function ServerActionPlayground() {
                 await redirectDemoAction()
               })
             }}
+            className='w-fit'
           >
             Go to playground home
           </Button>
@@ -261,7 +266,10 @@ export function ServerActionPlayground() {
         title='useActionState + FormData'
         description='React keeps the last safe action result as state; `isPending` comes from the hook (third tuple item).'
       >
-        <form action={reactionFormAction} className='flex max-w-md flex-col gap-4'>
+        <form
+          action={reactionFormAction}
+          className='flex max-w-md flex-col gap-4'
+        >
           <div className='grid gap-3'>
             <div className='flex flex-col gap-2'>
               <label className='text-sm font-medium' htmlFor='reaction-emoji'>
@@ -289,7 +297,7 @@ export function ServerActionPlayground() {
               />
             </div>
           </div>
-          <Button disabled={reactionPending} type='submit'>
+          <Button disabled={reactionPending} type='submit' className='w-fit'>
             {reactionPending ? 'Submitting…' : 'Submit with useActionState'}
           </Button>
           {reactionState !== null && (
@@ -337,7 +345,9 @@ export function ServerActionPlayground() {
               />
             </div>
           </div>
-          <Button type='submit'>Submit form</Button>
+          <Button type='submit' className='w-fit'>
+            Submit form
+          </Button>
           {formResult !== null && (
             <ResultPanel label='Result' result={formResult} />
           )}
