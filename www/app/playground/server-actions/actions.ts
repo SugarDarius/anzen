@@ -69,6 +69,19 @@ export const noteFromFormAction = createSafeServerAction(
   })
 )
 
+export const reactionAction = createSafeServerAction(
+  {
+    id: 'playground/reaction',
+    input: z.object({
+      emoji: z.string().min(1).max(8),
+      comment: z.string().max(120),
+    }),
+  },
+  async ({ input }) => ({
+    echo: `${input.emoji} ${input.comment}`.trim(),
+  })
+)
+
 export const redirectDemoAction = createSafeServerAction(
   { id: 'playground/redirect' },
   async () => {

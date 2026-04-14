@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useActionState, useState, useTransition } from 'react'
 import Link from 'next/link'
 
 import { Button } from '~/components/ui/button'
@@ -11,9 +11,12 @@ import {
   noteFromFormAction,
   pingAction,
   quantityAction,
+  reactionAction,
   redirectDemoAction,
   secretAction,
 } from './actions'
+
+type ReactionActionResult = Awaited<ReturnType<typeof reactionAction>>
 
 function ResultPanel({ label, result }: { label: string; result: unknown }) {
   return (
@@ -60,6 +63,12 @@ export function ServerActionPlayground() {
   const [quantity, setQuantity] = useState(3)
   const [token, setToken] = useState('')
 
+  const [reactionState, reactionFormAction, reactionPending] = useActionState(
+    async (_prev: ReactionActionResult | null, formData: FormData) =>
+      reactionAction(formData),
+    null as ReactionActionResult | null
+  )
+
   return (
     <div className='flex w-full flex-col gap-8'>
       <div className='space-y-2'>
@@ -77,8 +86,11 @@ export function ServerActionPlayground() {
           <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
             createSafeServerAction
           </code>{' '}
-          from anzen: success payloads, validation, authorization, FormData, and
-          Next.js{' '}
+          from anzen: success payloads, validation, authorization, FormData,{' '}
+          <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
+            useActionState
+          </code>
+          , and Next.js{' '}
           <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
             redirect
           </code>
@@ -241,6 +253,49 @@ export function ServerActionPlayground() {
             with no JSON result panel — the redirect ends the action.
           </p>
         </div>
+      </Section>
+
+      <Separator />
+
+      <Section
+        title='useActionState + FormData'
+        description='React keeps the last safe action result as state; `isPending` comes from the hook (third tuple item).'
+      >
+        <form action={reactionFormAction} className='flex max-w-md flex-col gap-4'>
+          <div className='grid gap-3'>
+            <div className='flex flex-col gap-2'>
+              <label className='text-sm font-medium' htmlFor='reaction-emoji'>
+                Emoji
+              </label>
+              <input
+                id='reaction-emoji'
+                name='emoji'
+                required
+                defaultValue={'👍'}
+                maxLength={8}
+                className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+              />
+            </div>
+            <div className='flex flex-col gap-2'>
+              <label className='text-sm font-medium' htmlFor='reaction-comment'>
+                Comment
+              </label>
+              <input
+                id='reaction-comment'
+                name='comment'
+                defaultValue='Nice API'
+                maxLength={120}
+                className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+              />
+            </div>
+          </div>
+          <Button disabled={reactionPending} type='submit'>
+            {reactionPending ? 'Submitting…' : 'Submit with useActionState'}
+          </Button>
+          {reactionState !== null && (
+            <ResultPanel label='State (last result)' result={reactionState} />
+          )}
+        </form>
       </Section>
 
       <Separator />
