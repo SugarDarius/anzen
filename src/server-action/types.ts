@@ -234,4 +234,4 @@ export type SafeServerActionContext<TInput extends TInputSchema | undefined> = {
 export type SafeServerActionHandler<
   TOutput,
   TInput extends TInputSchema | undefined,
-> = (ctx: SafeServerActionContext<TInput>) => Promise<TOutput>
+> = (ctx: SafeServerActionContext<TInput>) => Promise<TOutput | never>

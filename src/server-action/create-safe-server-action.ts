@@ -1,6 +1,6 @@
 'use server'
 
-import { validateWithSchema, type StandardSchemaV1 } from '../standard-schema'
+import { validateWithSchema } from '../standard-schema'
 import type { AuthContext } from '../types'
 import { createExecutionClock, createLogger } from '../utils'
 import type {
