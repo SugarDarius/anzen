@@ -436,3 +436,115 @@ describe('input validation', () => {
     })
   })
 })
+
+describe('assertsNoThrow fallbacks', () => {
+  let errorSpy: ReturnType<typeof vi.spyOn>
+  beforeEach(() => {
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+  afterEach(() => {
+    errorSpy.mockRestore()
+  })
+
+  test('falls back when onInputValidationError throws', async () => {
+    const action = createSafeServerAction(
+      {
+        id: 'input-validation-callback-throws',
+        input: z.object({ email: z.email() }),
+        onInputValidationError: () => {
+          throw new Error('onInputValidationError exploded')
+        },
+      },
+      async () => ({})
+    )
+
+    const result = await action({ email: 'bad' })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.code).toBe('VALIDATION_ERROR')
+      expect(Array.isArray(result.error.ctx.issues)).toBe(true)
+      expect(
+        (result.error.ctx.issues as { message: string }[]).length
+      ).toBeGreaterThan(0)
+    }
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('onInputValidationError')
+    )
+  })
+
+  test('falls back when onError throws after authorize throws', async () => {
+    const authErr = new Error('not allowed')
+    const action = createSafeServerAction(
+      {
+        id: 'on-error-after-authorize-throws',
+        authorize: () => {
+          throw authErr
+        },
+        onError: () => {
+          throw new Error('onError callback failed')
+        },
+      },
+      async () => ({})
+    )
+
+    const result = await action()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        code: 'UNAUTHORIZED',
+        ctx: {
+          message: 'not allowed',
+          name: 'Error',
+          stack: authErr.stack,
+        },
+      },
+    })
+    expect(
+      errorSpy.mock.calls.some(
+        (call: unknown[]) =>
+          typeof call[0] === 'string' &&
+          call[0].includes('onError') &&
+          call[0].includes('Falling back to default error context')
+      )
+    ).toBe(true)
+  })
+
+  test('falls back when onError throws after handler throws', async () => {
+    const handlerErr = new Error('handler failed')
+    const action = createSafeServerAction(
+      {
+        id: 'on-error-after-handler-throws',
+        onError: () => {
+          throw new Error('onError callback failed')
+        },
+      },
+      async () => {
+        throw handlerErr
+      }
+    )
+
+    const result = await action()
+
+    expect(result).toEqual({
+      success: false,
+      error: {
+        code: 'SERVER_ERROR',
+        ctx: {
+          message: 'handler failed',
+          name: 'Error',
+          stack: handlerErr.stack,
+        },
+      },
+    })
+    expect(
+      errorSpy.mock.calls.some(
+        (call: unknown[]) =>
+          typeof call[0] === 'string' &&
+          call[0].includes('onError') &&
+          call[0].includes('Falling back to build-in error context')
+      )
+    ).toBe(true)
+  })
+})
