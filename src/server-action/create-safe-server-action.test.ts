@@ -342,29 +342,6 @@ describe('input validation', () => {
     errorSpy.mockRestore()
   })
 
-  test('returns NO_INPUT_PROVIDED when input schema is set but input is undefined', async () => {
-    const action = createSafeServerAction(
-      {
-        id: 'needs-input',
-        input: z.object({ name: z.string() }),
-      },
-      async () => ({})
-    )
-
-    // @ts-expect-error — deliberate: required input omitted to assert runtime NO_INPUT_PROVIDED
-    const result = await action()
-
-    expect(result).toEqual({
-      __success: false,
-      error: {
-        code: 'NO_INPUT_PROVIDED',
-        ctx: {
-          message: `No input provided for server action 'needs-input'`,
-        },
-      },
-    })
-  })
-
   test('validates plain object input with a Zod schema', async () => {
     const action = createSafeServerAction(
       {

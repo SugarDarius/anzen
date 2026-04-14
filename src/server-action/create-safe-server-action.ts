@@ -109,18 +109,6 @@ export function createSafeServerAction<
 
     let input = undefined
     if (options.input) {
-      if (providedInput === undefined) {
-        return {
-          __success: false,
-          error: {
-            code: 'NO_INPUT_PROVIDED',
-            ctx: {
-              message: `No input provided for server action '${id}'`,
-            },
-          },
-        }
-      }
-
       let input_unsafe: unknown = undefined
       if (providedInput instanceof FormData) {
         input_unsafe = Object.fromEntries(providedInput.entries())

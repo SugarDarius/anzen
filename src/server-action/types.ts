@@ -51,18 +51,8 @@ export type ValidationError = {
   readonly ctx: ServerActionErrorContext
 }
 
-/**
- * No input provided error.
- * Triggered when no input is provided when calling the server action.
- */
-export type NoInputProvidedError = {
-  readonly code: 'NO_INPUT_PROVIDED'
-  readonly ctx: ServerActionErrorContext
-}
-
 export type SafeServerActionError =
   | ValidationError
-  | NoInputProvidedError
   | UnauthorizedError
   | ServerError
 

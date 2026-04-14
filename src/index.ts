@@ -21,7 +21,6 @@ export type {
   ServerError,
   UnauthorizedError,
   ValidationError,
-  NoInputProvidedError,
   SafeServerActionError,
   SafeServerActionResult,
   SafeServerActionResultSuccess,
