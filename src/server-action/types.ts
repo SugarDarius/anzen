@@ -194,8 +194,8 @@ export type SafeServerActionResult<TOutput, TError> =
   | never
 
 export type CreateSafeServerActionOptions<
-  AC extends AuthContext | undefined,
   TInput extends TInputSchema | undefined,
+  AC extends AuthContext | undefined,
 > = BaseOptions<TInput> & {
   authorize?: AuthFunction<AC, TInput>
 }
@@ -223,15 +223,26 @@ export type InferServerActionProvidedInput<
 //   input: InferServerActionInput<TInput>
 // ) => Promise<SafeServerActionResult<TOutput, SEC, VEC>>
 
-export type SafeServerActionContext<TInput extends TInputSchema | undefined> = {
+export type SafeServerActionContext<
+  TInput extends TInputSchema | undefined,
+  AC extends AuthContext | undefined,
+> = {
   readonly id: string
-} & (TInput extends TInputSchema
+} & (AC extends AuthContext
   ? {
-      readonly input: UnwrapReadonlyObject<StandardSchemaV1.InferOutput<TInput>>
+      readonly auth: AC
     }
-  : EmptyObjectType)
+  : EmptyObjectType) &
+  (TInput extends TInputSchema
+    ? {
+        readonly input: UnwrapReadonlyObject<
+          StandardSchemaV1.InferOutput<TInput>
+        >
+      }
+    : EmptyObjectType)
 
 export type SafeServerActionHandler<
   TOutput,
   TInput extends TInputSchema | undefined,
-> = (ctx: SafeServerActionContext<TInput>) => Promise<TOutput | never>
+  AC extends AuthContext | undefined,
+> = (ctx: SafeServerActionContext<TInput, AC>) => Promise<TOutput | never>

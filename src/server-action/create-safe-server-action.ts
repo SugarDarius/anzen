@@ -4,6 +4,7 @@ import { validateWithSchema } from '../standard-schema'
 import type { AuthContext } from '../types'
 import { createExecutionClock, createLogger } from '../utils'
 import type {
+  AuthFunctionParams,
   CreateSafeServerActionOptions,
   CreateSafeServerActionReturnType,
   InferServerActionProvidedInput,
@@ -35,14 +36,16 @@ const isNativeError = (err: unknown): err is Error => {
  */
 export function createSafeServerAction<
   TOutput,
-  AC extends AuthContext | undefined = undefined,
   TInput extends TInputSchema | undefined = undefined,
+  AC extends AuthContext | undefined = undefined,
 >(
-  options: CreateSafeServerActionOptions<AC, TInput>,
-  handler: SafeServerActionHandler<TOutput, TInput>
+  options: CreateSafeServerActionOptions<TInput, AC>,
+  handler: SafeServerActionHandler<TOutput, TInput, AC>
 ): CreateSafeServerActionReturnType<TInput, TOutput, unknown> {
   const log = createLogger(options.debug)
   const id = options.id ?? DEFAULT_ACTION_ID
+
+  const authorize = options.authorize ?? (async () => undefined)
 
   return async function (
     providedInput: InferServerActionProvidedInput<TInput>
@@ -81,10 +84,39 @@ export function createSafeServerAction<
       input = parsedInput.value
     }
 
+    let auth = undefined
+    try {
+      const authParams = {
+        id,
+        ...(input ? { input } : {}),
+      } as AuthFunctionParams<TInput>
+
+      auth = await authorize(authParams)
+    } catch (err: unknown) {
+      executionClock.stop()
+
+      if (isNativeError(err)) {
+        log.info(
+          `ℹ️ Ignoring native Next.js error while authorizing server action '${id}'`
+        )
+        throw err
+      }
+
+      log.error(
+        `🔴 Server action '${id}' not authorized after ${executionClock.get()}`
+      )
+
+      return {
+        __success: false,
+        error: err, // TODO: Handle unauthorized error
+      }
+    }
+
     const ctx = {
       id,
+      ...(auth ? { auth } : {}),
       ...(input ? { input } : {}),
-    } as SafeServerActionContext<TInput>
+    } as SafeServerActionContext<TInput, AC>
 
     try {
       const output = await handler(ctx)
@@ -102,6 +134,7 @@ export function createSafeServerAction<
       executionClock.stop()
 
       if (isNativeError(err)) {
+        log.info(`ℹ️ Ignoring native Next.js error in server action '${id}'`)
         throw err
       }
 
