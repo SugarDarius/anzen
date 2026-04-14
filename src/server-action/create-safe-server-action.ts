@@ -23,6 +23,32 @@ import type {
 export const DEFAULT_ACTION_ID = '[unknown:server:action]'
 
 /**
+ * Overload for server actions with no input.
+ * Used when calling server actions with no input schema provided,
+ * making the DX for developers easier and nicer. It avoids to call
+ * a server action with `undefined` as input.
+ */
+export function createSafeServerAction<
+  TOutput,
+  AC extends AuthContext | undefined = undefined,
+>(
+  options: CreateSafeServerActionOptions<undefined, AC>,
+  handler: SafeServerActionHandler<TOutput, undefined, AC>
+): CreateSafeServerActionReturnType<undefined, TOutput, SafeServerActionError>
+
+/**
+ * Overload for server actions with input.
+ */
+export function createSafeServerAction<
+  TOutput,
+  TInput extends TInputSchema,
+  AC extends AuthContext | undefined = undefined,
+>(
+  options: CreateSafeServerActionOptions<TInput, AC> & { input: TInput },
+  handler: SafeServerActionHandler<TOutput, TInput, AC>
+): CreateSafeServerActionReturnType<TInput, TOutput, SafeServerActionError>
+
+/**
  * Creates a safe server action with input validation and error handling
  * for Next.js (>= 14) server actions.
  *
@@ -74,7 +100,7 @@ export function createSafeServerAction<
     })
 
   return async function (
-    providedInput: InferServerActionProvidedInput<TInput>
+    providedInput?: InferServerActionProvidedInput<TInput>
   ): Promise<SafeServerActionResult<TOutput, SafeServerActionError>> {
     const executionClock = createExecutionClock()
     executionClock.start()

@@ -24,7 +24,7 @@ describe('default context', () => {
       return { ok: true }
     })
 
-    const result = await action(undefined)
+    const result = await action()
 
     expect(result).toEqual({
       __success: true,
@@ -51,7 +51,7 @@ describe('id customization', () => {
       done: true,
     }))
 
-    await action(undefined)
+    await action()
 
     expect(logSpy).toHaveBeenCalledWith(
       expect.stringContaining(`Running server action '${DEFAULT_ACTION_ID}'`)
@@ -64,7 +64,7 @@ describe('id customization', () => {
       done: true,
     }))
 
-    await action(undefined)
+    await action()
 
     expect(logSpy).toHaveBeenCalledWith(
       expect.stringContaining(`Running server action '${id}'`)
@@ -95,7 +95,7 @@ describe('authorize', () => {
       }
     )
 
-    const result = await action(undefined)
+    const result = await action()
 
     expect(result).toEqual({
       __success: true,
@@ -116,7 +116,7 @@ describe('authorize', () => {
       async ({ auth }) => auth
     )
 
-    const result = await action(undefined)
+    const result = await action()
     expect(result).toEqual({
       __success: true,
       output: { role: 'admin' },
@@ -161,7 +161,7 @@ describe('authorize', () => {
       async () => ({})
     )
 
-    const result = await action(undefined)
+    const result = await action()
 
     expect(result).toEqual({
       __success: false,
@@ -187,7 +187,7 @@ describe('authorize', () => {
       async () => ({})
     )
 
-    const result = await action(undefined)
+    const result = await action()
     expect(result).toEqual({
       __success: false,
       error: {
@@ -212,7 +212,7 @@ describe('authorize', () => {
       async () => ({})
     )
 
-    await expect(action(undefined)).rejects.toBe(redirectError)
+    await expect(action()).rejects.toBe(redirectError)
   })
 
   test('rethrows Next.js notFound-style errors from authorize', async () => {
@@ -230,7 +230,7 @@ describe('authorize', () => {
       async () => ({})
     )
 
-    await expect(action(undefined)).rejects.toBe(notFoundError)
+    await expect(action()).rejects.toBe(notFoundError)
   })
 })
 
@@ -252,7 +252,7 @@ describe('handler execution', () => {
       }
     )
 
-    const result = await action(undefined)
+    const result = await action()
 
     expect(result).toEqual({
       __success: false,
@@ -289,7 +289,7 @@ describe('handler execution', () => {
       }
     )
 
-    const result = await action(undefined)
+    const result = await action()
     expect(result).toEqual({
       __success: false,
       error: {
@@ -309,7 +309,7 @@ describe('handler execution', () => {
       throw redirectError
     })
 
-    await expect(action(undefined)).rejects.toBe(redirectError)
+    await expect(action()).rejects.toBe(redirectError)
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
       expect.anything()
@@ -324,7 +324,7 @@ describe('handler execution', () => {
       }
     )
 
-    const result = await action(undefined)
+    const result = await action()
     expect(result.__success).toBe(false)
     if (!result.__success) {
       expect(result.error.code).toBe('SERVER_ERROR')
@@ -351,8 +351,8 @@ describe('input validation', () => {
       async () => ({})
     )
 
-    // @ts-expect-error - we want to test the case where input is undefined
-    const result = await action(undefined)
+    // @ts-expect-error — deliberate: required input omitted to assert runtime NO_INPUT_PROVIDED
+    const result = await action()
 
     expect(result).toEqual({
       __success: false,

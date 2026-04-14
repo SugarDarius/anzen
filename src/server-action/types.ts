@@ -242,19 +242,23 @@ export type SafeServerActionResult<TOutput, TError> =
   | SafeServerActionResultError<TError>
   | never
 
-export type CreateSafeServerActionReturnType<
-  TInput extends TInputSchema | undefined,
-  TOutput,
-  TError,
-> = (
-  providedInput: InferServerActionProvidedInput<TInput>
-) => Promise<SafeServerActionResult<TOutput, TError>>
-
 export type InferServerActionProvidedInput<
   TInput extends TInputSchema | undefined,
 > = TInput extends TInputSchema
   ? FormData | StandardSchemaV1.InferOutput<TInput>
   : undefined
+
+export type CreateSafeServerActionReturnType<
+  TInput extends TInputSchema | undefined,
+  TOutput,
+  TError,
+> = [TInput] extends [TInputSchema]
+  ? (
+      providedInput: InferServerActionProvidedInput<TInput>
+    ) => Promise<SafeServerActionResult<TOutput, TError>>
+  : (
+      providedInput?: InferServerActionProvidedInput<TInput>
+    ) => Promise<SafeServerActionResult<TOutput, TError>>
 
 // TODO: find better way to type it 👇🏻
 export type SafeServerActionContext<

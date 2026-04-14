@@ -88,7 +88,7 @@ export function ServerActionPlayground() {
 
       <Section
         title='Ping (no input)'
-        description='Action with only context id; call with undefined input.'
+        description='Action with only context id; call with no arguments.'
       >
         <div className='flex flex-col gap-4 sm:flex-row sm:items-end'>
           <Button
@@ -96,7 +96,7 @@ export function ServerActionPlayground() {
             disabled={isPending}
             onClick={() => {
               startTransition(async () => {
-                const r = await pingAction(undefined)
+                const r = await pingAction()
                 setPingResult(r)
               })
             }}
