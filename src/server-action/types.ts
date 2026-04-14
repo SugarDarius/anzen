@@ -67,14 +67,12 @@ export type SafeServerActionError =
   | ServerError
 
 export type SafeServerActionResultSuccess<TOutput> = {
-  /** @internal - for internal use only */
   readonly __success: true
   readonly output: TOutput
   readonly error?: never
 }
 
 export type SafeServerActionResultError<TError> = {
-  /** @internal - for internal use only */
   readonly __success: false
   readonly output?: never
   readonly error: TError
