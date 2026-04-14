@@ -120,7 +120,7 @@ export function createSafeServerAction<
       if (parsedInput.issues) {
         const ctx = await onInputValidationError(parsedInput.issues)
         return {
-          __success: false,
+          success: false,
           error: {
             code: 'VALIDATION_ERROR',
             ctx,
@@ -156,7 +156,7 @@ export function createSafeServerAction<
       const ctx = await onError(err)
 
       return {
-        __success: false,
+        success: false,
         error: {
           code: 'UNAUTHORIZED',
           ctx,
@@ -179,7 +179,7 @@ export function createSafeServerAction<
       )
 
       return {
-        __success: true,
+        success: true,
         output,
       }
     } catch (err: unknown) {
@@ -195,7 +195,7 @@ export function createSafeServerAction<
       )
       const ctx = await onError(err)
       return {
-        __success: false,
+        success: false,
         error: {
           code: 'SERVER_ERROR',
           ctx,

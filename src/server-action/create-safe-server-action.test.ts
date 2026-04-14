@@ -27,7 +27,7 @@ describe('default context', () => {
     const result = await action()
 
     expect(result).toEqual({
-      __success: true,
+      success: true,
       output: { ok: true },
     })
   })
@@ -98,7 +98,7 @@ describe('authorize', () => {
     const result = await action()
 
     expect(result).toEqual({
-      __success: true,
+      success: true,
       output: { greeting: 'Nimesh' },
     })
   })
@@ -118,7 +118,7 @@ describe('authorize', () => {
 
     const result = await action()
     expect(result).toEqual({
-      __success: true,
+      success: true,
       output: { role: 'admin' },
     })
   })
@@ -141,7 +141,7 @@ describe('authorize', () => {
 
     const result = await action({ resourceId: 'res-1' })
     expect(result).toEqual({
-      __success: true,
+      success: true,
       output: {
         auth: { ok: true },
         input: { resourceId: 'res-1' },
@@ -164,7 +164,7 @@ describe('authorize', () => {
     const result = await action()
 
     expect(result).toEqual({
-      __success: false,
+      success: false,
       error: {
         code: 'UNAUTHORIZED',
         ctx: {
@@ -189,7 +189,7 @@ describe('authorize', () => {
 
     const result = await action()
     expect(result).toEqual({
-      __success: false,
+      success: false,
       error: {
         code: 'UNAUTHORIZED',
         ctx: { custom: 'authorize-failed' },
@@ -255,7 +255,7 @@ describe('handler execution', () => {
     const result = await action()
 
     expect(result).toEqual({
-      __success: false,
+      success: false,
       error: {
         code: 'SERVER_ERROR',
         ctx: {
@@ -291,7 +291,7 @@ describe('handler execution', () => {
 
     const result = await action()
     expect(result).toEqual({
-      __success: false,
+      success: false,
       error: {
         code: 'SERVER_ERROR',
         ctx: { reason: 'handled' },
@@ -325,8 +325,8 @@ describe('handler execution', () => {
     )
 
     const result = await action()
-    expect(result.__success).toBe(false)
-    if (!result.__success) {
+    expect(result.success).toBe(false)
+    if (!result.success) {
       expect(result.error.code).toBe('SERVER_ERROR')
       expect(result.error.ctx).toEqual({ message: '{"code":"CUSTOM"}' })
     }
@@ -358,7 +358,7 @@ describe('input validation', () => {
 
     const result = await action({ name: 'test', count: 3 })
     expect(result).toEqual({
-      __success: true,
+      success: true,
       output: { doubled: 6 },
     })
   })
@@ -383,7 +383,7 @@ describe('input validation', () => {
 
     const result = await action(fd)
     expect(result).toEqual({
-      __success: true,
+      success: true,
       output: { title: 'Hello', page: 42 },
     })
   })
@@ -400,8 +400,8 @@ describe('input validation', () => {
 
     const result = await action({ email: 'not-an-email' })
 
-    expect(result.__success).toBe(false)
-    if (!result.__success) {
+    expect(result.success).toBe(false)
+    if (!result.success) {
       expect(result.error.code).toBe('VALIDATION_ERROR')
       expect(Array.isArray(result.error.ctx.issues)).toBe(true)
       expect(
@@ -428,7 +428,7 @@ describe('input validation', () => {
 
     const result = await action({ id: 'not-a-uuid' })
     expect(result).toEqual({
-      __success: false,
+      success: false,
       error: {
         code: 'VALIDATION_ERROR',
         ctx: { friendly: 'bad id', count: 1 },

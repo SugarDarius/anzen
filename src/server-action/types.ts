@@ -57,13 +57,13 @@ export type SafeServerActionError =
   | ServerError
 
 export type SafeServerActionResultSuccess<TOutput> = {
-  readonly __success: true
+  readonly success: true
   readonly output: TOutput
   readonly error?: never
 }
 
 export type SafeServerActionResultError<TError> = {
-  readonly __success: false
+  readonly success: false
   readonly output?: never
   readonly error: TError
 }
