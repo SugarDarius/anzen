@@ -1,6 +1,7 @@
 import { validateWithSchema, type StandardSchemaV1 } from '../standard-schema'
 import type { AuthContext, Awaitable } from '../types'
 import {
+  assertsNoThrow,
   createExecutionClock,
   createLogger,
   isNativeError,
@@ -70,34 +71,37 @@ export function createSafeServerAction<
 
   const authorize = options.authorize ?? (async () => undefined)
 
-  const onError =
-    options.onError ??
-    ((err: unknown): Awaitable<ServerActionErrorContext> => {
-      log.error(`🛑 Unexpected error in server action '${id}'`, err)
+  const onError_fallback = (
+    err: unknown
+  ): Awaitable<ServerActionErrorContext> => {
+    log.error(`🛑 Unexpected error in server action '${id}'`, err)
 
-      if (isNativeError(err)) {
-        return {
-          message: err.message,
-          name: err.name,
-          stack: err.stack,
-        }
-      }
-
+    if (isNativeError(err)) {
       return {
-        message: JSON.stringify(err),
+        message: err.message,
+        name: err.name,
+        stack: err.stack,
       }
-    })
+    }
+
+    return {
+      message: JSON.stringify(err),
+    }
+  }
+
+  const onError = options.onError ?? onError_fallback
+
+  const onInputValidationError_fallback = (
+    issues: readonly StandardSchemaV1.Issue[]
+  ): Awaitable<ServerActionErrorContext> => {
+    log.error(`🛑 Invalid input for server action '${id}'`, issues)
+    return {
+      issues,
+    }
+  }
 
   const onInputValidationError =
-    options.onInputValidationError ??
-    ((
-      issues: readonly StandardSchemaV1.Issue[]
-    ): Awaitable<ServerActionErrorContext> => {
-      log.error(`🛑 Invalid input for server action '${id}'`, issues)
-      return {
-        issues,
-      }
-    })
+    options.onInputValidationError ?? onInputValidationError_fallback
 
   return async function (
     providedInput?: InferServerActionProvidedInput<TInput>
@@ -118,7 +122,16 @@ export function createSafeServerAction<
 
       const parsedInput = validateWithSchema(options.input, input_unsafe)
       if (parsedInput.issues) {
-        const ctx = await onInputValidationError(parsedInput.issues)
+        const ctx = await assertsNoThrow(
+          () => onInputValidationError(parsedInput.issues),
+          () => {
+            log.error(
+              `🔴 'onInputValidationError' function threw an error while validating input for server action '${id}'`
+            )
+
+            return onInputValidationError_fallback(parsedInput.issues)
+          }
+        )
         return {
           success: false,
           error: {
@@ -153,7 +166,15 @@ export function createSafeServerAction<
         `🔴 Server action '${id}' not authorized after ${executionClock.get()}`
       )
 
-      const ctx = await onError(err)
+      const ctx = await assertsNoThrow(
+        () => onError(err),
+        () => {
+          log.error(
+            `🔴 'onError' function threw an error. Falling back to default error context.`
+          )
+          return onError_fallback(err)
+        }
+      )
 
       return {
         success: false,
@@ -193,7 +214,16 @@ export function createSafeServerAction<
       log.error(
         `🔴 Server action '${id}' failed to execute after ${executionClock.get()}`
       )
-      const ctx = await onError(err)
+      const ctx = await assertsNoThrow(
+        () => onError(err),
+        () => {
+          log.error(
+            `🔴 'onError' function threw an error. Falling back to build-in error context.`
+          )
+          return onError_fallback(err)
+        }
+      )
+
       return {
         success: false,
         error: {
