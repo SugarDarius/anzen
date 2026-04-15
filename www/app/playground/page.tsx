@@ -11,6 +11,12 @@ export default createSafePageServerComponent(
         <div className='text-xl'>Hello Playground 👋🏻</div>
         <div className='flex flex-col gap-2'>
           <Link
+            href='/playground/server-actions'
+            className='text-blue-600 hover:underline'
+          >
+            → Safe server actions
+          </Link>
+          <Link
             href='/playground/parallel'
             className='text-blue-600 hover:underline'
           >

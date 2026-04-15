@@ -1,3 +1,5 @@
+import type { Awaitable } from './types'
+
 /** @internal */
 export function hasDictKey<T extends object, K extends PropertyKey>(
   obj: T,
@@ -120,4 +122,27 @@ const isNextHttpError = (error: unknown): boolean => {
  */
 export function isNextNativeError(error: unknown): boolean {
   return isNextRedirectError(error) || isNextHttpError(error)
+}
+
+/**
+ * @internal
+ * Type guard to check if the error is an instance of Error.
+ */
+export function isNativeError(err: unknown): err is Error {
+  return err instanceof Error
+}
+
+/**
+ * @internal
+ * Asserts that a function do not throw
+ */
+export async function assertsNoThrow<T>(
+  fn: () => Awaitable<T>,
+  fallback: () => Awaitable<T>
+): Promise<T> {
+  try {
+    return await fn()
+  } catch {
+    return await fallback()
+  }
 }
