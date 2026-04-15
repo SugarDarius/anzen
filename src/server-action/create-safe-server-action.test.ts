@@ -149,7 +149,7 @@ describe('authorize', () => {
     })
   })
 
-  test('returns UNAUTHORIZED when authorize throws a normal error', async () => {
+  test('returns UNAUTHORIZED_ERROR when authorize throws a normal error', async () => {
     const err = new Error('Not allowed')
     const action = createSafeServerAction(
       {
@@ -166,7 +166,7 @@ describe('authorize', () => {
     expect(result).toEqual({
       success: false,
       error: {
-        code: 'UNAUTHORIZED',
+        code: 'UNAUTHORIZED_ERROR',
         ctx: {
           message: 'Not allowed',
           name: 'Error',
@@ -191,7 +191,7 @@ describe('authorize', () => {
     expect(result).toEqual({
       success: false,
       error: {
-        code: 'UNAUTHORIZED',
+        code: 'UNAUTHORIZED_ERROR',
         ctx: { custom: 'authorize-failed' },
       },
     })
@@ -493,7 +493,7 @@ describe('assertsNoThrow fallbacks', () => {
     expect(result).toEqual({
       success: false,
       error: {
-        code: 'UNAUTHORIZED',
+        code: 'UNAUTHORIZED_ERROR',
         ctx: {
           message: 'not allowed',
           name: 'Error',

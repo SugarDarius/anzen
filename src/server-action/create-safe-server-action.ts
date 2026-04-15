@@ -178,7 +178,7 @@ export function createSafeServerAction<
       return {
         success: false,
         error: {
-          code: 'UNAUTHORIZED',
+          code: 'UNAUTHORIZED_ERROR',
           ctx,
         },
       }

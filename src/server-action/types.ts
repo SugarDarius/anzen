@@ -32,7 +32,7 @@ export type ServerError = {
  * It can be customized by using the `onError` option when creating the server action.
  */
 export type UnauthorizedError = {
-  readonly code: 'UNAUTHORIZED'
+  readonly code: 'UNAUTHORIZED_ERROR'
   readonly ctx: ServerActionErrorContext
 }
 
