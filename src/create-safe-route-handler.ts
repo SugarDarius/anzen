@@ -16,7 +16,7 @@ import type {
   CreateSafeRouteHandlerReturnType,
   SafeRouteHandler,
   SafeRouteHandlerContext,
-  AuthFunctionParams,
+  RouteHandlerAuthFunctionParams,
 } from './types'
 
 /** @internal exported for testing only */
@@ -286,7 +286,7 @@ export function createSafeRouteHandler<
       ...(searchParams ? { searchParams } : {}),
       ...(body ? { body } : {}),
       ...(formData ? { formData } : {}),
-    } as AuthFunctionParams<
+    } as RouteHandlerAuthFunctionParams<
       TRouteDynamicSegments,
       TSearchParams,
       TBody,

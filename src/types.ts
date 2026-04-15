@@ -17,7 +17,7 @@ export type TBodySchema = StandardSchemaV1
 export type TFormDataDict = StandardSchemaDictionary
 
 // TODO: find better way to type it 👇🏻
-export type AuthFunctionParams<
+export type RouteHandlerAuthFunctionParams<
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
@@ -78,17 +78,32 @@ export type AuthFunctionParams<
       }
     : EmptyObjectType)
 
-export type AuthFunction<
+export type RouteHandlerAuthFunction<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
   TFormData extends TFormDataDict | undefined,
 > = (
-  params: AuthFunctionParams<TSegments, TSearchParams, TBody, TFormData>
+  params: RouteHandlerAuthFunctionParams<
+    TSegments,
+    TSearchParams,
+    TBody,
+    TFormData
+  >
 ) => Awaitable<AC | Response>
 
-export type BaseOptions = {
+export type OnValidationErrorResponse = (
+  issues: readonly StandardSchemaV1.Issue[]
+) => Awaitable<Response>
+
+export type CreateSafeRouteHandlerOptions<
+  AC extends AuthContext | undefined,
+  TSegments extends TSegmentsDict | undefined,
+  TSearchParams extends TSearchParamsDict | undefined,
+  TBody extends TBodySchema | undefined,
+  TFormData extends TFormDataDict | undefined,
+> = {
   /**
    * ID for the route handler.
    * Used when logging in development or when `debug` is enabled.
@@ -114,19 +129,7 @@ export type BaseOptions = {
    * In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
    */
   debug?: boolean
-}
 
-export type OnValidationErrorResponse = (
-  issues: readonly StandardSchemaV1.Issue[]
-) => Awaitable<Response>
-
-export type CreateSafeRouteHandlerOptions<
-  AC extends AuthContext | undefined,
-  TSegments extends TSegmentsDict | undefined,
-  TSearchParams extends TSearchParamsDict | undefined,
-  TBody extends TBodySchema | undefined,
-  TFormData extends TFormDataDict | undefined,
-> = BaseOptions & {
   /**
    * Dynamic route segments used for the route handler path.
    * By design it will handler if the segments are a `Promise` or not.
@@ -195,7 +198,13 @@ export type CreateSafeRouteHandlerOptions<
    * When returning a response, it will be used as the response for the request.
    * Return a response when the request is not authorized.
    */
-  authorize?: AuthFunction<AC, TSegments, TSearchParams, TBody, TFormData>
+  authorize?: RouteHandlerAuthFunction<
+    AC,
+    TSegments,
+    TSearchParams,
+    TBody,
+    TFormData
+  >
 }
 
 // Sticking to Next.js typing requirements for build time

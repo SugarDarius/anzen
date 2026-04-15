@@ -1,9 +1,8 @@
 export type {
   Awaitable,
   AuthContext,
-  AuthFunction,
-  AuthFunctionParams,
-  BaseOptions,
+  RouteHandlerAuthFunction,
+  RouteHandlerAuthFunctionParams,
   TSegmentsDict,
   TSearchParamsDict,
   TBodySchema,
