@@ -122,7 +122,10 @@ export type OnInputValidationError = (
   issues: readonly StandardSchemaV1.Issue[]
 ) => Awaitable<ServerActionErrorContext>
 
-export type BaseOptions<TInput extends TInputSchema | undefined> = {
+export type CreateSafeServerActionOptions<
+  TInput extends TInputSchema | undefined,
+  AC extends AuthContext | undefined,
+> = {
   /**
    * ID for the server action.
    * Used when logging in development or when `debug` is enabled.
@@ -211,12 +214,7 @@ export type BaseOptions<TInput extends TInputSchema | undefined> = {
    * ```
    */
   onInputValidationError?: OnInputValidationError
-}
 
-export type CreateSafeServerActionOptions<
-  TInput extends TInputSchema | undefined,
-  AC extends AuthContext | undefined,
-> = BaseOptions<TInput> & {
   /**
    * Function to use to authorize the server action.
    * By default it always authorize the server action.
