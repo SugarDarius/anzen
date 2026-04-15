@@ -14,6 +14,7 @@ import {
   reactionAction,
   redirectDemoAction,
   secretAction,
+  tagErrDemoAction,
 } from './actions'
 
 type ReactionActionResult = Awaited<ReturnType<typeof reactionAction>>
@@ -56,11 +57,15 @@ export function ServerActionPlayground() {
   const [pingResult, setPingResult] = useState<unknown>(null)
   const [greetResult, setGreetResult] = useState<unknown>(null)
   const [quantityResult, setQuantityResult] = useState<unknown>(null)
+  const [tagErrResult, setTagErrResult] = useState<unknown>(null)
   const [secretResult, setSecretResult] = useState<unknown>(null)
   const [formResult, setFormResult] = useState<unknown>(null)
 
   const [name, setName] = useState('Playground')
   const [quantity, setQuantity] = useState(3)
+  const [tagErrOutcome, setTagErrOutcome] = useState<'success' | 'conflict'>(
+    'conflict'
+  )
   const [token, setToken] = useState('')
 
   const [reactionState, reactionFormAction, reactionPending] = useActionState(
@@ -86,7 +91,11 @@ export function ServerActionPlayground() {
           <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
             createSafeServerAction
           </code>{' '}
-          from anzen: success payloads, validation, authorization, FormData,{' '}
+          from anzen: success payloads, validation,{' '}
+          <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
+            tagErr
+          </code>
+          , authorization, FormData,{' '}
           <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
             useActionState
           </code>
@@ -193,6 +202,47 @@ export function ServerActionPlayground() {
           </Button>
           {quantityResult !== null && (
             <ResultPanel label='Result' result={quantityResult} />
+          )}
+        </div>
+      </Section>
+
+      <Separator />
+
+      <Section
+        title='Tagged error (ctx.tagErr)'
+        description='Handlers call tagErr(code, ctx) to return a custom error code and payload without throwing SERVER_ERROR. Try conflict to see RESOURCE_CONFLICT.'
+      >
+        <div className='flex flex-col gap-4'>
+          <div className='flex max-w-md flex-col gap-2'>
+            <label className='text-sm font-medium' htmlFor='tag-err-outcome'>
+              Outcome
+            </label>
+            <select
+              id='tag-err-outcome'
+              value={tagErrOutcome}
+              onChange={(e) =>
+                setTagErrOutcome(e.target.value as 'success' | 'conflict')
+              }
+              className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+            >
+              <option value='success'>Success (reserved)</option>
+              <option value='conflict'>Conflict (tagErr)</option>
+            </select>
+          </div>
+          <Button
+            type='button'
+            onClick={() => {
+              startTransition(async () => {
+                const r = await tagErrDemoAction({ outcome: tagErrOutcome })
+                setTagErrResult(r)
+              })
+            }}
+            className='w-fit'
+          >
+            Run
+          </Button>
+          {tagErrResult !== null && (
+            <ResultPanel label='Result' result={tagErrResult} />
           )}
         </div>
       </Section>
