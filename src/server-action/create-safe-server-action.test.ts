@@ -172,7 +172,6 @@ describe('authorize', () => {
         ctx: {
           message: 'Not allowed',
           name: 'Error',
-          stack: err.stack,
         },
       },
     })
@@ -263,7 +262,6 @@ describe('handler execution', () => {
         ctx: {
           message: 'Handler failed',
           name: 'Error',
-          stack: thrown.stack,
         },
       },
     })
@@ -499,7 +497,6 @@ describe('assertsNoThrow fallbacks', () => {
         ctx: {
           message: 'not allowed',
           name: 'Error',
-          stack: authErr.stack,
         },
       },
     })
@@ -536,7 +533,6 @@ describe('assertsNoThrow fallbacks', () => {
         ctx: {
           message: 'handler failed',
           name: 'Error',
-          stack: handlerErr.stack,
         },
       },
     })

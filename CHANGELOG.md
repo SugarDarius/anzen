@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 - Introducing `createSafeServerAction` to validate inputs, and authorize server actions in Next.js.
+- Add doc in website for new function `createSafeServerAction`.
 - Allowing explicitly to use navigation behaviors like `redirect` in the authorize function of `createSafeRouteHandler`.
 - Internal refactoring.
 
