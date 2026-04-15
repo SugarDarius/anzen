@@ -274,34 +274,56 @@ export function createSafeRouteHandler<
       formData = parsedFormData.value
     }
 
-    // Do not mutate / consume the original request
-    // Due to `NextRequest` limitations as the req is cloned it's always a Request
-    const clonedReq_forAuth = req.clone()
-    const authParams = {
-      id,
-      url,
-      req: clonedReq_forAuth,
-      ...(segments ? { segments } : {}),
-      ...(searchParams ? { searchParams } : {}),
-      ...(body ? { body } : {}),
-      ...(formData ? { formData } : {}),
-    } as RouteHandlerAuthFunctionParams<
-      TRouteDynamicSegments,
-      TSearchParams,
-      TBody,
-      TFormData
-    >
-    const authOrResponse = await authorize(authParams)
-    if (authOrResponse instanceof Response) {
-      log.error(`🛑 Request not authorized for route handler '${id}'`)
-      return authOrResponse
+    let auth = undefined
+    try {
+      // Do not mutate / consume the original request
+      // Due to `NextRequest` limitations as the req is cloned it's always a Request
+      const clonedReq_forAuth = req.clone()
+      const authParams = {
+        id,
+        url,
+        req: clonedReq_forAuth,
+        ...(segments ? { segments } : {}),
+        ...(searchParams ? { searchParams } : {}),
+        ...(body ? { body } : {}),
+        ...(formData ? { formData } : {}),
+      } as RouteHandlerAuthFunctionParams<
+        TRouteDynamicSegments,
+        TSearchParams,
+        TBody,
+        TFormData
+      >
+      const authOrResponse = await authorize(authParams)
+      if (authOrResponse instanceof Response) {
+        executionClock.stop()
+        log.error(
+          `🛑 Request not authorized for route handler '${id}' after ${executionClock.get()}`
+        )
+        return authOrResponse
+      }
+
+      auth = authOrResponse
+    } catch (err: unknown) {
+      executionClock.stop()
+
+      if (isNextNativeError(err)) {
+        log.info(
+          `ℹ️ Ignoring native Next.js error while authorizing route handler '${id}'`
+        )
+        throw err
+      }
+
+      log.error(
+        `🛑 Request not authorized for route handler '${id}' after ${executionClock.get()}`
+      )
+      return await onErrorResponse(err)
     }
 
     // Build safe route handler context
     const ctx = {
       id,
       url,
-      ...(authOrResponse ? { auth: authOrResponse } : {}),
+      ...(auth ? { auth: auth } : {}),
       ...(segments ? { segments } : {}),
       ...(searchParams ? { searchParams } : {}),
       ...(body ? { body } : {}),
