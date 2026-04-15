@@ -91,7 +91,7 @@
     "eslint": "^9.39.4",
     "prettier": "^3.8.3",
     "publint": "^0.3.18",
-    "release-it": "^19.2.4",
+    "release-it": "^20.0.0",
     "tsup": "^8.5.1",
     "turbo": "^2.5.6",
     "typescript": "^6.0.2",
