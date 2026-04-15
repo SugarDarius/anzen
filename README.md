@@ -2,7 +2,13 @@
 [![size](https://img.shields.io/bundlephobia/minzip/%40sugardarius%2Fanzen?style=flat&labelColor=101010&label=size&color=FFC799)](https://bundlephobia.com/package/@sugardarius/anzen)
 [![license](https://img.shields.io/github/license/sugardarius/anzen?style=flat&labelColor=101010&color=FFC799)](https://github.com/SugarDarius/anzen/blob/main/LICENSE)
 
-Fast, flexible, framework validation agnostic, type‑safe factories for creating server actions, route handlers, page and layout Server Component files in Next.js.
+Fast, flexible, framework validation agnostic, type‑safe factories for
+creating [server
+actions](https://nextjs.org/docs/app/getting-started/mutating-data), [route
+handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers),
+[page](https://nextjs.org/docs/app/api-reference/file-conventions/page) and
+[layout](https://nextjs.org/docs/app/api-reference/file-conventions/layout)
+Server Component files in Next.js.
 
 - 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
 - 🧠 Focused functionalities, use only features you want.
@@ -53,7 +59,7 @@ export const createThread = createSafeServerAction(
   },
   async ({
     auth, // Auth context is inferred from the authorize function
-    input, // Input it inferred from the input validation
+    input, // Input is inferred from the input validation
   }) => {
     const inserted = await db.createThread({
       thread: { ...input, authorId: auth.user.id },

@@ -2,23 +2,71 @@
 
 <Highlight>
   Fast, flexible, framework validation agnostic, type‑safe factories for
-  creating [route
+  creating [server
+  actions](https://nextjs.org/docs/app/getting-started/mutating-data), [route
   handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers),
   [page](https://nextjs.org/docs/app/api-reference/file-conventions/page) and
   [layout](https://nextjs.org/docs/app/api-reference/file-conventions/layout)
   Server Component files in Next.js.
 </Highlight>
 
-<Tabs defaultValue='route-handler' className='mt-6'>
+<Tabs defaultValue='server-action' className='mt-6'>
   <TabsList className='mx-auto max-w-full overflow-x-auto'>
+    <TabsTrigger value='server-action' className='cursor-pointer'>Safe Server Action <Badge className="ml-1 px-1 text-[12px] py-0.5 leading-none">new</Badge></TabsTrigger>
     <TabsTrigger value='route-handler' className='cursor-pointer'>Safe Route</TabsTrigger>
     <TabsTrigger value='page-server-component' className='cursor-pointer'>
-      Safe Page <Badge className="ml-1 px-1 text-[12px] py-0.5 leading-none">new</Badge>
+      Safe Page
     </TabsTrigger>
     <TabsTrigger value='layout-server-component' className='cursor-pointer'>
-      Safe Layout <Badge className="ml-1 px-1 text-[12px] py-0.5 leading-none">new</Badge>
+      Safe Layout
     </TabsTrigger>
   </TabsList>
+  <TabsContent value='server-action'>
+    ```tsx title="actions/create-thread.ts"
+    import { object, string, datelike } from 'decoders'
+    import { createSafeServerAction } from '@sugardarius/anzen'
+
+    import { auth } from '~/lib/auth'
+    import { db } from '~/lib/db'
+
+    export const createThread = createSafeServerAction(
+      {
+        id: 'create-thread-action',
+        input: object({
+          spaceId: string,
+          createdAt: datelike,
+          comment: object({
+            createdAt: datelike,
+            content: string,
+          }),
+        }),
+        authorize: async ({ input }) => {
+          const session = await auth()
+          if (!session.user) {
+            throw new Error('user is not authenticated')
+          }
+
+          if (!session.access.includes(input.spaceId)) {
+            throw new Error('user has not access')
+          }
+
+          return { user: session.user }
+        },
+      },
+      async ({
+        auth, // Auth context is inferred from the authorize function
+        input, // Input is inferred from the input validation
+      }) => {
+        const inserted = await db.createThread({
+          thread: { ...input, authorId: auth.user.id },
+        })
+
+        return { inserted }
+      }
+    )
+    ```
+
+  </TabsContent>
   <TabsContent value='route-handler'>
     ```tsx title="api/authorize"
     import { object, string, number } from 'decoders'
@@ -121,7 +169,6 @@
 - 🧹 Clean and flexible API.
 - 🔒 Type-safe.
 - 🌱 Dependency free. Only [Next.js](https://nextjs.org/) is required as peer dependency.
-- 🪶 Lightweight. Less than 140kB unpacked.
 
 ## Install
 
