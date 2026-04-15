@@ -51,10 +51,21 @@ export type ValidationError = {
   readonly ctx: ServerActionErrorContext
 }
 
+/**
+ * Tagged error.
+ * It represents an error expected to be used in the server action
+ * defined by developers themselves.
+ */
+export type TaggedError = {
+  readonly code: string
+  readonly ctx: ServerActionErrorContext
+}
+
 export type SafeServerActionError =
   | ValidationError
   | UnauthorizedError
   | ServerError
+  | TaggedError
 
 export type SafeServerActionResultSuccess<TOutput> = {
   readonly success: true
@@ -259,6 +270,30 @@ export type SafeServerActionContext<
    * Server action ID
    */
   readonly id: string
+  /**
+   * Tag error function
+   * Throws a developer defined tagged error.
+   * @example
+   * ```ts
+   * // Server
+   * export const myAction = createSafeServerAction({
+   *  id: 'my action,
+   * }, async ({ tagErr }) => {
+   *  tagErr('CONFLICT', {
+   *    message: 'resource already exists',
+   *  })
+   * })
+   *
+   * // Client
+   * const result = await myAction()
+   * if (result.success === false) {
+   *  if (result.error.code === 'CONFLICT') {
+   *    return <span>{result.error.ctx.message}</span>
+   *  }
+   * }
+   * ```
+   */
+  readonly tagErr: (code: string, ctx: ServerActionErrorContext) => never
 } & (AC extends AuthContext
   ? {
       /**

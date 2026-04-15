@@ -37,6 +37,24 @@ export const quantityAction = createSafeServerAction(
   })
 )
 
+export const tagErrDemoAction = createSafeServerAction(
+  {
+    id: 'playground/tag-err',
+    input: z.object({
+      outcome: z.enum(['success', 'conflict']),
+    }),
+  },
+  async ({ input, tagErr }) => {
+    if (input.outcome === 'conflict') {
+      tagErr('RESOURCE_CONFLICT', {
+        message: 'That resource is already taken.',
+        resourceId: 'demo-slot-42',
+      })
+    }
+    return { reserved: true, resourceId: 'demo-slot-42' }
+  }
+)
+
 export const secretAction = createSafeServerAction(
   {
     id: 'playground/secret',

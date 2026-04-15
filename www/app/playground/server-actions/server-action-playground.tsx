@@ -14,9 +14,168 @@ import {
   reactionAction,
   redirectDemoAction,
   secretAction,
+  tagErrDemoAction,
 } from './actions'
 
 type ReactionActionResult = Awaited<ReturnType<typeof reactionAction>>
+
+/** Concise snippets: full definitions live in ./actions.ts */
+const SNIPPETS = {
+  ping: {
+    declaration: `export const pingAction = createSafeServerAction(
+  { id: 'playground/ping' },
+  async ({ id }) => ({
+    id,
+    at: new Date().toISOString(),
+  })
+)`,
+    usage: `await pingAction()`,
+  },
+  greet: {
+    declaration: `export const greetAction = createSafeServerAction(
+  {
+    id: 'playground/greet',
+    input: z.object({
+      name: z.string().min(1, 'Name is required').max(48),
+    }),
+  },
+  async ({ input }) => ({
+    message: \`Hello, \${input.name}!\`,
+  })
+)`,
+    usage: `await greetAction({ name })`,
+  },
+  quantity: {
+    declaration: `export const quantityAction = createSafeServerAction(
+  {
+    id: 'playground/quantity',
+    input: z.object({
+      quantity: z.coerce.number().int().min(1).max(99),
+    }),
+  },
+  async ({ input }) => ({
+    units: input.quantity,
+    note: 'Validated with Zod on the server.',
+  })
+)`,
+    usage: `await quantityAction({ quantity })`,
+  },
+  tagErr: {
+    declaration: `export const tagErrDemoAction = createSafeServerAction(
+  {
+    id: 'playground/tag-err',
+    input: z.object({ outcome: z.enum(['success', 'conflict']) }),
+  },
+  async ({ input, tagErr }) => {
+    if (input.outcome === 'conflict') {
+      tagErr('RESOURCE_CONFLICT', {
+        message: 'That resource is already taken.',
+        resourceId: 'demo-slot-42',
+      })
+    }
+    return { reserved: true, resourceId: 'demo-slot-42' }
+  }
+)`,
+    usage: `await tagErrDemoAction({ outcome: tagErrOutcome })`,
+  },
+  secret: {
+    declaration: `export const secretAction = createSafeServerAction(
+  {
+    id: 'playground/secret',
+    input: z.object({ token: z.string() }),
+    authorize: async ({ input }) => {
+      if (input.token !== 'anzen') throw new Error('Invalid token')
+      return { clearance: 'ok' as const }
+    },
+  },
+  async ({ auth }) => ({
+    authorized: true,
+    clearance: auth.clearance,
+  })
+)`,
+    usage: `await secretAction({ token })`,
+  },
+  redirect: {
+    declaration: `export const redirectDemoAction = createSafeServerAction(
+  { id: 'playground/redirect' },
+  async () => {
+    redirect('/playground')
+  }
+)`,
+    usage: `await redirectDemoAction() // e.g. inside startTransition`,
+  },
+  reaction: {
+    declaration: `export const reactionAction = createSafeServerAction(
+  {
+    id: 'playground/reaction',
+    input: z.object({
+      emoji: z.string().min(1).max(8),
+      comment: z.string().max(120),
+    }),
+  },
+  async ({ input }) => ({
+    echo: \`\${input.emoji} \${input.comment}\`.trim(),
+  })
+)`,
+    usage: `const [state, formAction, pending] = useActionState(
+  async (_prev, formData) => reactionAction(formData),
+  null,
+)
+<form action={formAction}>…</form>`,
+  },
+  noteForm: {
+    declaration: `export const noteFromFormAction = createSafeServerAction(
+  {
+    id: 'playground/note-form',
+    input: z.object({
+      title: z.string().min(1),
+      body: z.string().max(200),
+    }),
+  },
+  async ({ input }) => ({
+    saved: true,
+    title: input.title,
+    bodyLength: input.body.length,
+  })
+)`,
+    usage: `<form
+  action={async (formData) => {
+    const r = await noteFromFormAction(formData)
+    setFormResult(r)
+  }}
+>…</form>`,
+  },
+} as const
+
+function CodeSnippetPair({
+  declaration,
+  usage,
+}: {
+  declaration: string
+  usage: string
+}) {
+  return (
+    <div className='mb-4 grid gap-3 border-b border-border/70 pb-4 sm:grid-cols-2'>
+      <div className='min-w-0 space-y-1.5'>
+        <p className='text-xs font-medium text-muted-foreground'>
+          <code className='font-mono text-foreground/80'>actions.ts</code>{' '}
+          (declaration)
+        </p>
+        <pre className='max-h-64 overflow-auto rounded-lg border border-border bg-muted/30 p-3 text-left text-[11px] leading-snug font-mono whitespace-pre text-foreground'>
+          {declaration}
+        </pre>
+      </div>
+      <div className='min-w-0 space-y-1.5'>
+        <p className='text-xs font-medium text-muted-foreground'>
+          Client (this page)
+        </p>
+        <pre className='max-h-64 overflow-auto rounded-lg border border-border bg-muted/30 p-3 text-left text-[11px] leading-snug font-mono whitespace-pre text-foreground'>
+          {usage}
+        </pre>
+      </div>
+    </div>
+  )
+}
 
 function ResultPanel({ label, result }: { label: string; result: unknown }) {
   return (
@@ -34,10 +193,12 @@ function ResultPanel({ label, result }: { label: string; result: unknown }) {
 function Section({
   title,
   description,
+  snippets,
   children,
 }: {
   title: string
   description: string
+  snippets?: { declaration: string; usage: string }
   children: React.ReactNode
 }) {
   return (
@@ -46,6 +207,12 @@ function Section({
         <h2 className='text-base font-semibold tracking-tight'>{title}</h2>
         <p className='text-sm text-muted-foreground'>{description}</p>
       </div>
+      {snippets ? (
+        <CodeSnippetPair
+          declaration={snippets.declaration}
+          usage={snippets.usage}
+        />
+      ) : null}
       {children}
     </section>
   )
@@ -56,11 +223,15 @@ export function ServerActionPlayground() {
   const [pingResult, setPingResult] = useState<unknown>(null)
   const [greetResult, setGreetResult] = useState<unknown>(null)
   const [quantityResult, setQuantityResult] = useState<unknown>(null)
+  const [tagErrResult, setTagErrResult] = useState<unknown>(null)
   const [secretResult, setSecretResult] = useState<unknown>(null)
   const [formResult, setFormResult] = useState<unknown>(null)
 
   const [name, setName] = useState('Playground')
   const [quantity, setQuantity] = useState(3)
+  const [tagErrOutcome, setTagErrOutcome] = useState<'success' | 'conflict'>(
+    'conflict'
+  )
   const [token, setToken] = useState('')
 
   const [reactionState, reactionFormAction, reactionPending] = useActionState(
@@ -86,7 +257,11 @@ export function ServerActionPlayground() {
           <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
             createSafeServerAction
           </code>{' '}
-          from anzen: success payloads, validation, authorization, FormData,{' '}
+          from anzen: success payloads, validation,{' '}
+          <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
+            tagErr
+          </code>
+          , authorization, FormData,{' '}
           <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
             useActionState
           </code>
@@ -101,6 +276,7 @@ export function ServerActionPlayground() {
       <Section
         title='Ping (no input)'
         description='Action with only context id; call with no arguments.'
+        snippets={SNIPPETS.ping}
       >
         <div className='flex flex-col gap-4'>
           <Button
@@ -127,6 +303,7 @@ export function ServerActionPlayground() {
       <Section
         title='Greet (validated object)'
         description='Zod validates the body; try an empty name to see VALIDATION_ERROR.'
+        snippets={SNIPPETS.greet}
       >
         <div className='flex flex-col gap-4'>
           <div className='flex max-w-md flex-col gap-2'>
@@ -163,6 +340,7 @@ export function ServerActionPlayground() {
       <Section
         title='Quantity (coerced number)'
         description='Use 0 or 100 to trigger validation failure.'
+        snippets={SNIPPETS.quantity}
       >
         <div className='flex flex-col gap-4'>
           <div className='flex max-w-xs flex-col gap-2'>
@@ -200,8 +378,51 @@ export function ServerActionPlayground() {
       <Separator />
 
       <Section
+        title='Tagged error (ctx.tagErr)'
+        description='Handlers call tagErr(code, ctx) to return a custom error code and payload without throwing SERVER_ERROR. Try conflict to see RESOURCE_CONFLICT.'
+        snippets={SNIPPETS.tagErr}
+      >
+        <div className='flex flex-col gap-4'>
+          <div className='flex max-w-md flex-col gap-2'>
+            <label className='text-sm font-medium' htmlFor='tag-err-outcome'>
+              Outcome
+            </label>
+            <select
+              id='tag-err-outcome'
+              value={tagErrOutcome}
+              onChange={(e) =>
+                setTagErrOutcome(e.target.value as 'success' | 'conflict')
+              }
+              className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+            >
+              <option value='success'>Success (reserved)</option>
+              <option value='conflict'>Conflict (tagErr)</option>
+            </select>
+          </div>
+          <Button
+            type='button'
+            onClick={() => {
+              startTransition(async () => {
+                const r = await tagErrDemoAction({ outcome: tagErrOutcome })
+                setTagErrResult(r)
+              })
+            }}
+            className='w-fit'
+          >
+            Run
+          </Button>
+          {tagErrResult !== null && (
+            <ResultPanel label='Result' result={tagErrResult} />
+          )}
+        </div>
+      </Section>
+
+      <Separator />
+
+      <Section
         title='Secret token (authorize)'
         description='Use token anzen to pass authorize; anything else returns UNAUTHORIZED.'
+        snippets={SNIPPETS.secret}
       >
         <div className='flex flex-col gap-4'>
           <div className='flex max-w-md flex-col gap-2'>
@@ -239,6 +460,7 @@ export function ServerActionPlayground() {
       <Section
         title='Redirect (next/navigation)'
         description='Handler calls redirect(). anzen treats it as a native Next error and rethrows it, so the framework performs the navigation instead of returning SERVER_ERROR.'
+        snippets={SNIPPETS.redirect}
       >
         <div className='flex flex-col gap-3'>
           <Button
@@ -265,6 +487,7 @@ export function ServerActionPlayground() {
       <Section
         title='useActionState + FormData'
         description='React keeps the last safe action result as state; `isPending` comes from the hook (third tuple item).'
+        snippets={SNIPPETS.reaction}
       >
         <form
           action={reactionFormAction}
@@ -311,6 +534,7 @@ export function ServerActionPlayground() {
       <Section
         title='FormData'
         description='Submit as multipart form; server parses FormData then validates.'
+        snippets={SNIPPETS.noteForm}
       >
         <form
           className='flex flex-col gap-4'

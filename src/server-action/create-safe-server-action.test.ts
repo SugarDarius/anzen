@@ -13,12 +13,14 @@ import {
   createSafeServerAction,
   DEFAULT_ACTION_ID,
 } from './create-safe-server-action'
+import type { ServerActionErrorContext } from './types'
 
 describe('default context', () => {
   test('provides default context when no input schema', async () => {
     const action = createSafeServerAction({}, async (ctx) => {
       expectTypeOf(ctx).toEqualTypeOf<{
         readonly id: string
+        readonly tagErr: (code: string, ctx: ServerActionErrorContext) => never
       }>()
       expect(ctx.id).toBe(DEFAULT_ACTION_ID)
       return { ok: true }
@@ -546,5 +548,25 @@ describe('assertsNoThrow fallbacks', () => {
           call[0].includes('Falling back to build-in error context')
       )
     ).toBe(true)
+  })
+})
+
+describe('tagged errors', () => {
+  test('returns tagged error when the handler throws a tagged error', async () => {
+    const action = createSafeServerAction(
+      { id: 'tagged-error' },
+      async ({ tagErr }) => {
+        tagErr('CONFLICT', { message: 'resource already exists' })
+      }
+    )
+
+    const result = await action()
+    expect(result).toEqual({
+      success: false,
+      error: {
+        code: 'CONFLICT',
+        ctx: { message: 'resource already exists' },
+      },
+    })
   })
 })
