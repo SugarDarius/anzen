@@ -51,10 +51,21 @@ export type ValidationError = {
   readonly ctx: ServerActionErrorContext
 }
 
+/**
+ * Tagged error.
+ * It represents an error expected to be used in the server action
+ * defined by developers themselves.
+ */
+export type TaggedError = {
+  readonly code: string
+  readonly ctx: ServerActionErrorContext
+}
+
 export type SafeServerActionError =
   | ValidationError
   | UnauthorizedError
   | ServerError
+  | TaggedError
 
 export type SafeServerActionResultSuccess<TOutput> = {
   readonly success: true

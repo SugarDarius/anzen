@@ -7,6 +7,7 @@ import {
   isNativeError,
   isNextNativeError,
 } from '../utils'
+import { KTaggedError } from './errors'
 import type {
   ServerActionAuthFunctionParams,
   CreateSafeServerActionOptions,
@@ -139,6 +140,7 @@ export function createSafeServerAction<
             return onInputValidationError_fallback(parsedInput.issues)
           }
         )
+
         return {
           success: false,
           error: {
@@ -207,12 +209,29 @@ export function createSafeServerAction<
 
       if (isNextNativeError(err)) {
         log.info(`ℹ️ Ignoring native Next.js error in server action '${id}'`)
+        log.info(
+          `✅ Server action '${id}' executed successfully in ${executionClock.get()}`
+        )
         throw err
+      }
+
+      if (err instanceof KTaggedError) {
+        log.info(
+          `✅ Server action '${id}' executed successfully in ${executionClock.get()}`
+        )
+        return {
+          success: false,
+          error: {
+            code: err.code,
+            ctx: err.ctx,
+          },
+        }
       }
 
       log.error(
         `🔴 Server action '${id}' failed to execute after ${executionClock.get()}`
       )
+
       const ctx = await assertsNoThrow(
         () => onError(err),
         () => onError_fallbackNoThrow(err)

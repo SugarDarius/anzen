@@ -32,3 +32,4 @@ export type {
   SafeServerActionResultError,
 } from './server-action/types'
 export { createSafeServerAction } from './server-action/create-safe-server-action'
+export { tagErr } from './server-action/errors'
