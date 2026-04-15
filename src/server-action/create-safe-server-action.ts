@@ -8,7 +8,7 @@ import {
   isNextNativeError,
 } from '../utils'
 import type {
-  AuthFunctionParams,
+  ServerActionAuthFunctionParams,
   CreateSafeServerActionOptions,
   CreateSafeServerActionReturnType,
   InferServerActionProvidedInput,
@@ -149,7 +149,7 @@ export function createSafeServerAction<
       const authParams = {
         id,
         ...(input ? { input } : {}),
-      } as AuthFunctionParams<TInput>
+      } as ServerActionAuthFunctionParams<TInput>
 
       auth = await authorize(authParams)
     } catch (err: unknown) {
