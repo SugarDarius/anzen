@@ -162,16 +162,13 @@ export function createSafeServerAction<
     } catch (err: unknown) {
       executionClock.stop()
 
-      if (isNextNativeError(err)) {
-        log.info(
-          `ℹ️ Ignoring native Next.js error while authorizing server action '${id}'`
-        )
-        throw err
-      }
-
       log.error(
         `🔴 Server action '${id}' not authorized after ${executionClock.get()}`
       )
+
+      if (isNextNativeError(err)) {
+        throw err
+      }
 
       const ctx = await assertsNoThrow(
         () => onError(err),

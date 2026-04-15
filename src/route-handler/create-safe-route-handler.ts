@@ -305,16 +305,13 @@ export function createSafeRouteHandler<
     } catch (err: unknown) {
       executionClock.stop()
 
-      if (isNextNativeError(err)) {
-        log.info(
-          `ℹ️ Ignoring native Next.js error while authorizing route handler '${id}'`
-        )
-        throw err
-      }
-
       log.error(
         `🛑 Request not authorized for route handler '${id}' after ${executionClock.get()}`
       )
+
+      if (isNextNativeError(err)) {
+        throw err
+      }
       return await onErrorResponse(err)
     }
 
@@ -346,15 +343,19 @@ export function createSafeRouteHandler<
     } catch (err) {
       executionClock.stop()
 
-      if (!isNextNativeError(err)) {
-        log.error(
-          `🛑 Route handler '${id} failed to execute after ${executionClock.get()}'`
-        )
-        return await onErrorResponse(err)
-      } else {
+      if (isNextNativeError(err)) {
         log.info('ℹ️ Ignoring native Next.js error')
+        log.info(
+          `✅ Route handler '${id}' executed successfully in ${executionClock.get()}`
+        )
+
         throw err
       }
+
+      log.error(
+        `🛑 Route handler '${id} failed to execute after ${executionClock.get()}'`
+      )
+      return await onErrorResponse(err)
     }
   }
 }

@@ -127,7 +127,11 @@ export function createSafePageServerComponent<
 
       auth = await authorize(authParams)
     } catch (err: unknown) {
-      log.error(`🛑 Page server component '${id}' not authorized`)
+      executionClock.stop()
+      log.error(
+        `🛑 Page server component '${id}' not authorized after ${executionClock.get()}`
+      )
+
       throw err
     }
 
@@ -153,15 +157,17 @@ export function createSafePageServerComponent<
     } catch (err: unknown) {
       executionClock.stop()
 
-      if (!isNextNativeError(err)) {
-        log.error(
-          `🛑 Page server component '${id}' failed to execute after ${executionClock.get()}`
+      if (isNextNativeError(err)) {
+        log.info(
+          `ℹ️ Ignoring native Next.js error while executing page server component '${id}' after ${executionClock.get()}`
         )
-        return await onError(err)
-      } else {
-        log.info('ℹ️ Ignoring native Next.js error')
         throw err
       }
+
+      log.error(
+        `🛑 Page server component '${id}' failed to execute after ${executionClock.get()}`
+      )
+      return await onError(err)
     }
   }
 }
@@ -270,7 +276,10 @@ export function createSafeLayoutServerComponent<
 
       auth = await authorize(authParams)
     } catch (err: unknown) {
-      log.error(`🛑 Layout server component '${id}' not authorized`)
+      executionClock.stop()
+      log.error(
+        `🛑 Layout server component '${id}' not authorized after ${executionClock.get()}`
+      )
       throw err
     }
 
@@ -297,15 +306,17 @@ export function createSafeLayoutServerComponent<
     } catch (err: unknown) {
       executionClock.stop()
 
-      if (!isNextNativeError(err)) {
-        log.error(
-          `🛑 Layout server component '${id}' failed to execute after ${executionClock.get()}`
+      if (isNextNativeError(err)) {
+        log.info(
+          `ℹ️ Ignoring native Next.js error while executing layout server component '${id}' after ${executionClock.get()}`
         )
-        return await onError(err)
-      } else {
-        log.info('ℹ️ Ignoring native Next.js error')
         throw err
       }
+
+      log.error(
+        `🛑 Layout server component '${id}' failed to execute after ${executionClock.get()}`
+      )
+      return await onError(err)
     }
   }
 }
