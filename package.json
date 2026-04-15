@@ -1,7 +1,7 @@
 {
   "name": "@sugardarius/anzen",
   "version": "2.3.0",
-  "description": "Fast, flexible, framework validation agnostic, type‑safe factories for creating route handlers, page and layout Server Component files in Next.js.",
+  "description": "Fast, flexible, framework validation agnostic, type‑safe factories for creating server actions, route handlers, page and layout Server Component files in Next.js.",
   "license": "MIT",
   "packageManager": "npm@11.8.0",
   "workspaces": [
@@ -54,6 +54,7 @@
   },
   "keywords": [
     "nextjs",
+    "safe server actions",
     "safe route handlers",
     "safe page server components",
     "safe layout server components",
