@@ -16,6 +16,13 @@ export type {
 } from './types'
 export { createSafeRouteHandler } from './create-safe-route-handler'
 export type {
+  ServerActionAuthFunction,
+  ServerActionAuthFunctionParams,
+  CreateSafeServerActionOptions,
+  CreateSafeServerActionReturnType,
+  InferServerActionProvidedInput,
+  SafeServerActionContext,
+  SafeServerActionHandler,
   ServerActionErrorContext,
   ServerError,
   UnauthorizedError,
