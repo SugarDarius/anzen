@@ -452,8 +452,7 @@ describe('authorize', () => {
         authorize: () => {
           throw new Error('boom')
         },
-        onErrorResponse: () =>
-          new Response('authorize error', { status: 503 }),
+        onErrorResponse: () => new Response('authorize error', { status: 503 }),
       },
       async () => Response.json({}, { status: 200 })
     )
