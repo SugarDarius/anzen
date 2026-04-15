@@ -2,14 +2,13 @@
 [![size](https://img.shields.io/bundlephobia/minzip/%40sugardarius%2Fanzen?style=flat&labelColor=101010&label=size&color=FFC799)](https://bundlephobia.com/package/@sugardarius/anzen)
 [![license](https://img.shields.io/github/license/sugardarius/anzen?style=flat&labelColor=101010&color=FFC799)](https://github.com/SugarDarius/anzen/blob/main/LICENSE)
 
-Fast, flexible, framework validation agnostic, type‑safe factories for creating route handlers, page and layout Server Component files in Next.js.
+Fast, flexible, framework validation agnostic, type‑safe factories for creating server actions, route handlers, page and layout Server Component files in Next.js.
 
 - 🔧 Framework validation agnostic, use a validation library of your choice supporting [Standard Schema](https://standardschema.dev/).
 - 🧠 Focused functionalities, use only features you want.
 - 🧹 Clean and flexible API.
 - 🔒 Type-safe.
 - 🌱 Dependency free. Only [Next.js](https://nextjs.org/) is required as peer dependency.
-- 🪶 Lightweight. Less than 140kB unpacked.
 
 ## Install
 
@@ -18,6 +17,52 @@ npm i @sugardarius/anzen
 ```
 
 ## Usage
+
+### Server Actions
+
+```tsx
+import { object, string, datelike } from 'decoders'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+import { auth } from '~/lib/auth'
+import { db } from '~/lib/db'
+
+export const createThread = createSafeServerAction(
+  {
+    id: 'create-thread-action',
+    input: object({
+      spaceId: string,
+      createdAt: datelike,
+      comment: object({
+        createdAt: datelike,
+        content: string,
+      }),
+    }),
+    authorize: async ({ input }) => {
+      const session = await auth()
+      if (!session.user) {
+        throw new Error('user is not authenticated')
+      }
+
+      if (!session.access.includes(input.spaceId)) {
+        throw new Error('user has not access')
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({
+    auth, // Auth context is inferred from the authorize function
+    input, // Input it inferred from the input validation
+  }) => {
+    const inserted = await db.createThread({
+      thread: { ...input, authorId: auth.user.id },
+    })
+
+    return { inserted }
+  }
+)
+```
 
 ### Route Handlers
 
