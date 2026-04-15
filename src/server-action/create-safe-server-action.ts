@@ -188,6 +188,9 @@ export function createSafeServerAction<
 
     const ctx = {
       id,
+      tagErr: (code: string, ctx: ServerActionErrorContext): never => {
+        throw new KTaggedError(code, ctx)
+      },
       ...(auth ? { auth } : {}),
       ...(input ? { input } : {}),
     } as SafeServerActionContext<TInput, AC>

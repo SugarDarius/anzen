@@ -19,29 +19,3 @@ export class KTaggedError extends Error {
     this.name = 'KTaggedError'
   }
 }
-
-/**
- * Throws a developer defined tagged error.
- * @example
- * ```ts
- * // Server
- * export const myAction = createSafeServerAction({
- *  id: 'my action,
- * }, async (ctx) => {
- *  tagErr('CONFLICT', {
- *    message: 'resource already exists',
- *  })
- * })
- *
- * // Client
- * const result = await myAction()
- * if (result.success === false) {
- *  if (result.error.code === 'CONFLICT') {
- *    return <span>{result.error.ctx.message}</span>
- *  }
- * }
- * ```
- */
-export function tagErr(code: string, ctx: ServerActionErrorContext): never {
-  throw new KTaggedError(code, ctx)
-}

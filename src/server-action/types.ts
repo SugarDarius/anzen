@@ -270,6 +270,30 @@ export type SafeServerActionContext<
    * Server action ID
    */
   readonly id: string
+  /**
+   * Tag error function
+   * Throws a developer defined tagged error.
+   * @example
+   * ```ts
+   * // Server
+   * export const myAction = createSafeServerAction({
+   *  id: 'my action,
+   * }, async ({ tagErr }) => {
+   *  tagErr('CONFLICT', {
+   *    message: 'resource already exists',
+   *  })
+   * })
+   *
+   * // Client
+   * const result = await myAction()
+   * if (result.success === false) {
+   *  if (result.error.code === 'CONFLICT') {
+   *    return <span>{result.error.ctx.message}</span>
+   *  }
+   * }
+   * ```
+   */
+  readonly tagErr: (code: string, ctx: ServerActionErrorContext) => never
 } & (AC extends AuthContext
   ? {
       /**
