@@ -117,7 +117,7 @@ export type ServerActionAuthFunction<
    * ```
    */
   params: ServerActionAuthFunctionParams<TInput>
-) => Awaitable<AC | Response>
+) => Awaitable<AC | never>
 
 export type OnError = (err: unknown) => Awaitable<ServerActionErrorContext>
 export type OnInputValidationError = (

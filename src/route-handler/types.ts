@@ -89,7 +89,7 @@ export type RouteHandlerAuthFunction<
     TBody,
     TFormData
   >
-) => Awaitable<AC | Response>
+) => Awaitable<AC | Response | never>
 
 export type OnValidationErrorResponse = (
   issues: readonly StandardSchemaV1.Issue[]

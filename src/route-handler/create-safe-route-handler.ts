@@ -156,7 +156,6 @@ export function createSafeRouteHandler<
 
   const authorize = options.authorize ?? (async () => undefined)
 
-  // Next.js API Route handler declaration
   return async function (
     req: TReq,
     providedContext: ProvidedRouteContext
@@ -205,7 +204,7 @@ export function createSafeRouteHandler<
       searchParams = parsedSearchParams.value
     }
 
-    // Do not mutate / consume the original request
+    // NOTE: Do not mutate / consume the original request
     const clonedReq_forBody = req.clone() as TReq
 
     let body = undefined
@@ -274,34 +273,52 @@ export function createSafeRouteHandler<
       formData = parsedFormData.value
     }
 
-    // Do not mutate / consume the original request
-    // Due to `NextRequest` limitations as the req is cloned it's always a Request
-    const clonedReq_forAuth = req.clone()
-    const authParams = {
-      id,
-      url,
-      req: clonedReq_forAuth,
-      ...(segments ? { segments } : {}),
-      ...(searchParams ? { searchParams } : {}),
-      ...(body ? { body } : {}),
-      ...(formData ? { formData } : {}),
-    } as RouteHandlerAuthFunctionParams<
-      TRouteDynamicSegments,
-      TSearchParams,
-      TBody,
-      TFormData
-    >
-    const authOrResponse = await authorize(authParams)
-    if (authOrResponse instanceof Response) {
-      log.error(`🛑 Request not authorized for route handler '${id}'`)
-      return authOrResponse
+    let auth = undefined
+    try {
+      // NOTE: Do not mutate / consume the original request
+      // Due to `NextRequest` limitations as the req is cloned it's always a Request
+      const clonedReq_forAuth = req.clone()
+      const authParams = {
+        id,
+        url,
+        req: clonedReq_forAuth,
+        ...(segments ? { segments } : {}),
+        ...(searchParams ? { searchParams } : {}),
+        ...(body ? { body } : {}),
+        ...(formData ? { formData } : {}),
+      } as RouteHandlerAuthFunctionParams<
+        TRouteDynamicSegments,
+        TSearchParams,
+        TBody,
+        TFormData
+      >
+      const authOrResponse = await authorize(authParams)
+      if (authOrResponse instanceof Response) {
+        executionClock.stop()
+        log.error(
+          `🛑 Request not authorized for route handler '${id}' after ${executionClock.get()}`
+        )
+        return authOrResponse
+      }
+
+      auth = authOrResponse
+    } catch (err: unknown) {
+      executionClock.stop()
+
+      log.error(
+        `🛑 Request not authorized for route handler '${id}' after ${executionClock.get()}`
+      )
+
+      if (isNextNativeError(err)) {
+        throw err
+      }
+      return await onErrorResponse(err)
     }
 
-    // Build safe route handler context
     const ctx = {
       id,
       url,
-      ...(authOrResponse ? { auth: authOrResponse } : {}),
+      ...(auth ? { auth: auth } : {}),
       ...(segments ? { segments } : {}),
       ...(searchParams ? { searchParams } : {}),
       ...(body ? { body } : {}),
@@ -314,7 +331,6 @@ export function createSafeRouteHandler<
       TFormData
     >
 
-    // Let's catch any error that might happen in the handler
     try {
       const response = await handlerFn(ctx, req)
 
@@ -327,15 +343,19 @@ export function createSafeRouteHandler<
     } catch (err) {
       executionClock.stop()
 
-      if (!isNextNativeError(err)) {
-        log.error(
-          `🛑 Route handler '${id} failed to execute after ${executionClock.get()}'`
-        )
-        return await onErrorResponse(err)
-      } else {
+      if (isNextNativeError(err)) {
         log.info('ℹ️ Ignoring native Next.js error')
+        log.info(
+          `✅ Route handler '${id}' executed successfully in ${executionClock.get()}`
+        )
+
         throw err
       }
+
+      log.error(
+        `🛑 Route handler '${id} failed to execute after ${executionClock.get()}'`
+      )
+      return await onErrorResponse(err)
     }
   }
 }

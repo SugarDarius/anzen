@@ -506,7 +506,7 @@ describe('assertsNoThrow fallbacks', () => {
         (call: unknown[]) =>
           typeof call[0] === 'string' &&
           call[0].includes('onError') &&
-          call[0].includes('Falling back to default error context')
+          call[0].includes('Falling back to build-in error context')
       )
     ).toBe(true)
   })

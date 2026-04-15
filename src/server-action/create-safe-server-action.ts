@@ -89,6 +89,13 @@ export function createSafeServerAction<
     }
   }
 
+  const onError_fallbackNoThrow = (err: unknown) => {
+    log.error(
+      `🔴 'onError' callback in server action '${id}' threw an error. Falling back to build-in error context.`
+    )
+    return onError_fallback(err)
+  }
+
   const onError = options.onError ?? onError_fallback
 
   const onInputValidationError_fallback = (
@@ -126,7 +133,7 @@ export function createSafeServerAction<
           () => onInputValidationError(parsedInput.issues),
           () => {
             log.error(
-              `🔴 'onInputValidationError' function threw an error while validating input for server action '${id}'`
+              `🔴 'onInputValidationError' callback in server action '${id}' threw an error while validating input. Falling back to build-in input validation error context.`
             )
 
             return onInputValidationError_fallback(parsedInput.issues)
@@ -155,25 +162,17 @@ export function createSafeServerAction<
     } catch (err: unknown) {
       executionClock.stop()
 
-      if (isNextNativeError(err)) {
-        log.info(
-          `ℹ️ Ignoring native Next.js error while authorizing server action '${id}'`
-        )
-        throw err
-      }
-
       log.error(
         `🔴 Server action '${id}' not authorized after ${executionClock.get()}`
       )
 
+      if (isNextNativeError(err)) {
+        throw err
+      }
+
       const ctx = await assertsNoThrow(
         () => onError(err),
-        () => {
-          log.error(
-            `🔴 'onError' function threw an error. Falling back to default error context.`
-          )
-          return onError_fallback(err)
-        }
+        () => onError_fallbackNoThrow(err)
       )
 
       return {
@@ -216,12 +215,7 @@ export function createSafeServerAction<
       )
       const ctx = await assertsNoThrow(
         () => onError(err),
-        () => {
-          log.error(
-            `🔴 'onError' function threw an error. Falling back to build-in error context.`
-          )
-          return onError_fallback(err)
-        }
+        () => onError_fallbackNoThrow(err)
       )
 
       return {

@@ -399,6 +399,135 @@ describe('authorize', () => {
 
     expect(response.status).toBe(200)
   })
+
+  test('passes a cloned Request to authorize that is not the same reference as the handler request', async () => {
+    let authorizeReq: Request | undefined
+    let handlerReq: Request | undefined
+
+    const GET = createSafeRouteHandler(
+      {
+        authorize: async ({ req }) => {
+          authorizeReq = req
+          return { authorized: true }
+        },
+      },
+      async (_ctx, req) => {
+        handlerReq = req
+        return Response.json({}, { status: 200 })
+      }
+    )
+
+    const request = new Request('http://localhost:3000/')
+    await GET(request, { params: undefined })
+
+    expect(authorizeReq).toBeDefined()
+    expect(handlerReq).toBeDefined()
+    expect(authorizeReq).not.toBe(handlerReq)
+    expect(authorizeReq?.url).toBe(handlerReq?.url)
+  })
+
+  test('returns onErrorResponse when authorize throws a normal error', async () => {
+    const thrown = new Error('authorize failed')
+    const GET = createSafeRouteHandler(
+      {
+        id: 'auth-throw-route',
+        authorize: () => {
+          throw thrown
+        },
+      },
+      async () => Response.json({}, { status: 200 })
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(500)
+    expect(data).toBe('Internal server error')
+  })
+
+  test('uses custom onErrorResponse when authorize throws', async () => {
+    const GET = createSafeRouteHandler(
+      {
+        authorize: () => {
+          throw new Error('boom')
+        },
+        onErrorResponse: () =>
+          new Response('authorize error', { status: 503 }),
+      },
+      async () => Response.json({}, { status: 200 })
+    )
+
+    const request = new Request('http://localhost:3000/')
+    const response = await GET(request, { params: undefined })
+    const data = await response.text()
+
+    expect(response.status).toBe(503)
+    expect(data).toBe('authorize error')
+  })
+
+  test('rethrows Next.js redirect errors from authorize', async () => {
+    const redirectError = new Error('NEXT_REDIRECT') as Error & {
+      digest: string
+    }
+    redirectError.digest = 'NEXT_REDIRECT;replace;/redirect-path;307;'
+
+    const GET = createSafeRouteHandler(
+      {
+        authorize: () => {
+          throw redirectError
+        },
+      },
+      async () => Response.json({}, { status: 200 })
+    )
+
+    const request = new Request('http://localhost:3000/')
+    await expect(GET(request, { params: undefined })).rejects.toBe(
+      redirectError
+    )
+  })
+
+  test('rethrows Next.js notFound-style errors from authorize', async () => {
+    const notFoundError = new Error('NEXT_NOT_FOUND') as Error & {
+      digest: string
+    }
+    notFoundError.digest = 'NEXT_HTTP_ERROR_FALLBACK;404'
+
+    const GET = createSafeRouteHandler(
+      {
+        authorize: () => {
+          throw notFoundError
+        },
+      },
+      async () => Response.json({}, { status: 200 })
+    )
+
+    const request = new Request('http://localhost:3000/')
+    await expect(GET(request, { params: undefined })).rejects.toBe(
+      notFoundError
+    )
+  })
+
+  test('rethrows Next.js unauthorized-style errors from authorize', async () => {
+    const unauthorizedError = new Error('NEXT_UNAUTHORIZED') as Error & {
+      digest: string
+    }
+    unauthorizedError.digest = 'NEXT_HTTP_ERROR_FALLBACK;401'
+
+    const GET = createSafeRouteHandler(
+      {
+        authorize: () => {
+          throw unauthorizedError
+        },
+      },
+      async () => Response.json({}, { status: 200 })
+    )
+
+    const request = new Request('http://localhost:3000/')
+    await expect(GET(request, { params: undefined })).rejects.toBe(
+      unauthorizedError
+    )
+  })
 })
 
 describe('on error response', () => {
