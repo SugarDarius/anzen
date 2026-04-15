@@ -18,7 +18,9 @@ export type OnValidationError = (
   issues: readonly StandardSchemaV1.Issue[]
 ) => Awaitable<never>
 
-export type BaseOptions<TSegments extends TSegmentsDict | undefined> = {
+export type ServerComponentBaseOptions<
+  TSegments extends TSegmentsDict | undefined,
+> = {
   /**
    * ID for the server component.
    * Used when logging in development or when `debug` is enabled.
@@ -125,7 +127,7 @@ export type CreateSafePageServerComponentOptions<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
-> = BaseOptions<TSegments> & {
+> = ServerComponentBaseOptions<TSegments> & {
   /**
    * Search params used in the route.
    *
@@ -152,7 +154,7 @@ export type CreateSafeLayoutServerComponentOptions<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSlots extends readonly string[] | undefined,
-> = BaseOptions<TSegments> & {
+> = ServerComponentBaseOptions<TSegments> & {
   /**
    * Function to use to authorize the server component.
    * By default it always authorize the server component.

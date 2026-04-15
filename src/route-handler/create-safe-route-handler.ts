@@ -1,12 +1,11 @@
-import { createLogger, createExecutionClock, isNextNativeError } from './utils'
+import { createLogger, createExecutionClock, isNextNativeError } from '../utils'
 import {
   parseWithDictionary,
   validateWithSchema,
   type StandardSchemaV1,
-} from './standard-schema'
+} from '../standard-schema'
+import type { Awaitable, AuthContext } from '../types'
 import type {
-  Awaitable,
-  AuthContext,
   TSegmentsDict,
   TSearchParamsDict,
   TBodySchema,
@@ -16,7 +15,7 @@ import type {
   CreateSafeRouteHandlerReturnType,
   SafeRouteHandler,
   SafeRouteHandlerContext,
-  AuthFunctionParams,
+  RouteHandlerAuthFunctionParams,
 } from './types'
 
 /** @internal exported for testing only */
@@ -286,7 +285,7 @@ export function createSafeRouteHandler<
       ...(searchParams ? { searchParams } : {}),
       ...(body ? { body } : {}),
       ...(formData ? { formData } : {}),
-    } as AuthFunctionParams<
+    } as RouteHandlerAuthFunctionParams<
       TRouteDynamicSegments,
       TSearchParams,
       TBody,

@@ -69,7 +69,9 @@ export type SafeServerActionResultError<TError> = {
 }
 
 // TODO: find better way to type it 👇🏻
-export type AuthFunctionParams<TInput extends TInputSchema | undefined> = {
+export type ServerActionAuthFunctionParams<
+  TInput extends TInputSchema | undefined,
+> = {
   /**
    * Server action ID
    */
@@ -83,7 +85,7 @@ export type AuthFunctionParams<TInput extends TInputSchema | undefined> = {
     }
   : EmptyObjectType)
 
-export type AuthFunction<
+export type ServerActionAuthFunction<
   AC extends AuthContext | undefined,
   TInput extends TInputSchema | undefined,
 > = (
@@ -114,7 +116,7 @@ export type AuthFunction<
    * }
    * ```
    */
-  params: AuthFunctionParams<TInput>
+  params: ServerActionAuthFunctionParams<TInput>
 ) => Awaitable<AC | Response>
 
 export type OnError = (err: unknown) => Awaitable<ServerActionErrorContext>
@@ -122,7 +124,10 @@ export type OnInputValidationError = (
   issues: readonly StandardSchemaV1.Issue[]
 ) => Awaitable<ServerActionErrorContext>
 
-export type BaseOptions<TInput extends TInputSchema | undefined> = {
+export type CreateSafeServerActionOptions<
+  TInput extends TInputSchema | undefined,
+  AC extends AuthContext | undefined,
+> = {
   /**
    * ID for the server action.
    * Used when logging in development or when `debug` is enabled.
@@ -211,12 +216,7 @@ export type BaseOptions<TInput extends TInputSchema | undefined> = {
    * ```
    */
   onInputValidationError?: OnInputValidationError
-}
 
-export type CreateSafeServerActionOptions<
-  TInput extends TInputSchema | undefined,
-  AC extends AuthContext | undefined,
-> = BaseOptions<TInput> & {
   /**
    * Function to use to authorize the server action.
    * By default it always authorize the server action.
@@ -224,7 +224,7 @@ export type CreateSafeServerActionOptions<
    * Returns an unauthorized error when the server action is not authorized
    * or never when `redirect`, `notFound`, `forbidden` or `unauthorized` are thrown.
    */
-  authorize?: AuthFunction<AC, TInput>
+  authorize?: ServerActionAuthFunction<AC, TInput>
 }
 
 export type SafeServerActionResult<TOutput, TError> =

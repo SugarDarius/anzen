@@ -2,7 +2,7 @@ export type {
   TSegmentsDict,
   TSearchParamsDict,
   OnValidationError,
-  BaseOptions,
+  ServerComponentBaseOptions,
   PageAuthFunctionParams,
   LayoutAuthFunctionParams,
   PageAuthFunction,

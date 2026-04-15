@@ -1,9 +1,7 @@
+export type { Awaitable, AuthContext } from './types'
 export type {
-  Awaitable,
-  AuthContext,
-  AuthFunction,
-  AuthFunctionParams,
-  BaseOptions,
+  RouteHandlerAuthFunction,
+  RouteHandlerAuthFunctionParams,
   TSegmentsDict,
   TSearchParamsDict,
   TBodySchema,
@@ -14,9 +12,16 @@ export type {
   CreateSafeRouteHandlerReturnType,
   SafeRouteHandler,
   SafeRouteHandlerContext,
-} from './types'
-export { createSafeRouteHandler } from './create-safe-route-handler'
+} from './route-handler/types'
+export { createSafeRouteHandler } from './route-handler/create-safe-route-handler'
 export type {
+  ServerActionAuthFunction,
+  ServerActionAuthFunctionParams,
+  CreateSafeServerActionOptions,
+  CreateSafeServerActionReturnType,
+  InferServerActionProvidedInput,
+  SafeServerActionContext,
+  SafeServerActionHandler,
   ServerActionErrorContext,
   ServerError,
   UnauthorizedError,

@@ -311,7 +311,7 @@ export const GET = createSafeRouteHandler({ debug: true }, async () => {
 
 You can configure route handler options to validation using a validation library dynamic route segments, URL query parameters, request json body or request form data body 👇🏻
 
-#### `authorize?: AuthFunction<AC, TSegments, TSearchParams, TBody, TFormData>`
+#### `authorize?: RouteHandlerAuthFunction<AC, TSegments, TSearchParams, TBody, TFormData>`
 
 Function to use to authorize the request. By default it always authorize the request.
 
