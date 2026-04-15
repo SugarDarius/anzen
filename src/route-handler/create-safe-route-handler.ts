@@ -156,7 +156,6 @@ export function createSafeRouteHandler<
 
   const authorize = options.authorize ?? (async () => undefined)
 
-  // Next.js API Route handler declaration
   return async function (
     req: TReq,
     providedContext: ProvidedRouteContext
@@ -205,7 +204,7 @@ export function createSafeRouteHandler<
       searchParams = parsedSearchParams.value
     }
 
-    // Do not mutate / consume the original request
+    // NOTE: Do not mutate / consume the original request
     const clonedReq_forBody = req.clone() as TReq
 
     let body = undefined
@@ -276,7 +275,7 @@ export function createSafeRouteHandler<
 
     let auth = undefined
     try {
-      // Do not mutate / consume the original request
+      // NOTE: Do not mutate / consume the original request
       // Due to `NextRequest` limitations as the req is cloned it's always a Request
       const clonedReq_forAuth = req.clone()
       const authParams = {
@@ -319,7 +318,6 @@ export function createSafeRouteHandler<
       return await onErrorResponse(err)
     }
 
-    // Build safe route handler context
     const ctx = {
       id,
       url,
@@ -336,7 +334,6 @@ export function createSafeRouteHandler<
       TFormData
     >
 
-    // Let's catch any error that might happen in the handler
     try {
       const response = await handlerFn(ctx, req)
 
