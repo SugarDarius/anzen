@@ -178,12 +178,535 @@ npm i @sugardarius/anzen
 
 ## Usage
 
-<Tabs defaultValue='route-handler'>
+<Tabs defaultValue='server-action'>
   <TabsList className="mx-auto max-w-full overflow-x-auto sticky top-18 z-50 bg-muted/60 backdrop-blur-sm shadow-sm">
+    <TabsTrigger value='server-action' className='cursor-pointer'>Server Action<Badge className="ml-1 px-1 text-[12px] py-0.5 leading-none">new</Badge></TabsTrigger>
     <TabsTrigger value='route-handler' className='cursor-pointer'>Route.js</TabsTrigger>
     <TabsTrigger value='page-server-components' className='cursor-pointer'>Page.js<Badge className="ml-1 px-1 text-[12px] py-0.5 leading-none">new</Badge></TabsTrigger>
     <TabsTrigger value='layout-server-components' className='cursor-pointer'>Layout.js<Badge className="ml-1 px-1 text-[12px] py-0.5 leading-none">new</Badge></TabsTrigger>
   </TabsList>
+  <TabsContent value='server-action'>
+
+```tsx title="actions/create-thread.ts"
+'use server'
+
+import { object, string, datelike } from 'decoders'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+import { auth } from '~/lib/auth'
+import { db } from '~/lib/db'
+
+export const createThread = createSafeServerAction(
+  {
+    id: 'create-thread-action',
+    input: object({
+      spaceId: string,
+      createdAt: datelike,
+      comment: object({
+        createdAt: datelike,
+        content: string,
+      }),
+    }),
+    authorize: async ({ input }) => {
+      const session = await auth()
+      if (!session.user) {
+        throw new Error('user is not authenticated')
+      }
+
+      if (!session.access.includes(input.spaceId)) {
+        throw new Error('user has not access')
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({ auth, input, id }) => {
+    const inserted = await db.createThread({
+      thread: { ...input, authorId: auth.user.id },
+    })
+
+    return { inserted, actionId: id }
+  }
+)
+```
+
+Calling the action from a Client Component always yields a result object (never throws for validation, authorization failures, or ordinary handler errors):
+
+```tsx title="components/create-thread-form.tsx"
+'use client'
+
+import { createThread } from '~/actions/create-thread'
+
+export function CreateThreadForm() {
+  async function onSubmit(formData: FormData) {
+    const result = await createThread(formData)
+    if (result.success) {
+      console.log(result.output.inserted)
+    } else {
+      console.error(result.error.code, result.error.ctx)
+    }
+  }
+
+  return <form action={onSubmit}>…</form>
+}
+```
+
+## Framework validation agnostic
+
+The factory is validation-library agnostic. The `input` schema must implement the [Standard Schema](https://standardschema.dev/) interface, so you can use [Zod](https://zod.dev/), [Valibot](https://valibot.dev/), [decoders](https://decoders.cc/), or any compatible library.
+
+```tsx title="actions/update-profile.ts"
+'use server'
+
+import { z } from 'zod'
+import { object, string } from 'decoders'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+// Zod
+export const updateProfile = createSafeServerAction(
+  {
+    input: z.object({
+      displayName: z.string().min(1),
+      bio: z.string().max(500).optional(),
+    }),
+  },
+  async ({ input }) => ({ saved: input.displayName })
+)
+
+// decoders
+export const renameSpace = createSafeServerAction(
+  {
+    input: object({
+      spaceId: string,
+      name: string,
+    }),
+  },
+  async ({ input }) => ({ id: input.spaceId, name: input.name })
+)
+```
+
+## Synchronous validations
+
+As with other Anzen factories, schemas should be synchronous. The [Standard Schema](https://github.com/standard-schema/standard-schema) contract discourages async validation. If a schema resolves validation asynchronously, behavior is undefined and may throw at runtime.
+
+## API
+
+`createSafeServerAction` takes an `options` object and an `action` function. It returns a Next.js server action: a function you can pass to `<form action={…}>`, call from client code, or invoke on the server.
+
+### Function signature
+
+```tsx title="node_modules/@sugardarius/anzen/index.d.ts"
+import {
+  type CreateSafeServerActionOptions,
+  type SafeServerActionContext,
+  createSafeServerAction,
+} from '@sugardarius/anzen'
+
+/** With input schema */
+export const myAction = createSafeServerAction(
+  options: CreateSafeServerActionOptions<TInput, AC> & { input: TInput },
+  action: (ctx: SafeServerActionContext<TInput, AC>) => Promise<TOutput>
+): (providedInput: FormData | InferOutput<TInput>) => Promise<SafeServerActionResult<TOutput, SafeServerActionError>>
+
+/** Without input — omit `input`; the action may be called with no argument */
+export const ping = createSafeServerAction(
+  options: CreateSafeServerActionOptions<undefined, AC>,
+  action: (ctx: SafeServerActionContext<undefined, AC>) => Promise<TOutput>
+): (providedInput?: undefined) => Promise<SafeServerActionResult<TOutput, SafeServerActionError>>
+```
+
+### Result shape
+
+Every invocation resolves to a discriminated union:
+
+- `success: true` and `output` — the action completed normally.
+- `success: false` and `error` — structured failure. `error.code` is one of:
+  - `VALIDATION_ERROR` — input did not match the schema (`ctx` from `onInputValidationError`, default includes Standard Schema issues).
+  - `UNAUTHORIZED_ERROR` — `authorize` threw a non–Next.js error (`ctx` from `onError`).
+  - `SERVER_ERROR` — the action body threw an unexpected error (`ctx` from `onError`).
+  - Any string — expected domain errors from `tagErr` in the handler.
+
+See [Error handling](#error-handling) for how each path behaves and how to customize payloads.
+
+### Options
+
+When creating a safe server action you can use a bunch of options for helping you achieve different tasks 👇🏻
+
+#### `id?: string`
+
+Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
+By default the id is set to `[unknown:server:action]`.
+
+```tsx title="actions/ping.ts"
+'use server'
+
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+export const ping = createSafeServerAction(
+  {
+    id: 'monitoring/ping',
+  },
+  async ({ id }) => {
+    return { pong: true, actionId: id }
+  }
+)
+```
+
+#### `onError?: OnError`
+
+Callback triggered when `authorize` throws (except [Next.js control-flow errors](#nextjs-control-flow-in-the-handler)) and when the action handler throws an error that is not a tagged error.
+
+By default it returns a simple context (message / JSON) and the error is logged into the console.
+
+Use it if you want to map known error types to a stable `ctx` for the client. By design, this callback is not meant for navigation (`redirect`, `notFound`) or for rethrowing — handle those in `authorize`, in the handler, or in the UI.
+
+```tsx title="actions/save-document.ts"
+'use server'
+
+import { createSafeServerAction } from '@sugardarius/anzen'
+import { z } from 'zod'
+
+class ConflictError extends Error {
+  constructor(readonly docId: string) {
+    super('version conflict')
+    this.name = 'ConflictError'
+  }
+}
+
+export const saveDocument = createSafeServerAction(
+  {
+    id: 'documents/save',
+    input: z.object({ docId: z.string(), body: z.string() }),
+    onError: async (err) => {
+      if (err instanceof ConflictError) {
+        return { message: 'Version conflict', docId: err.docId }
+      }
+      return { message: 'Unexpected error' }
+    },
+  },
+  async ({ input }) => {
+    await persist(input)
+    return { saved: true }
+  }
+)
+```
+
+#### `debug?: boolean`
+
+Use this option to enable debug mode. It will add logs in the server action to help you trace validation, authorization, and execution.
+
+By default it's set to `false` for production builds. In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
+
+```tsx title="actions/debug-demo.ts"
+'use server'
+
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+export const debugDemo = createSafeServerAction({ debug: true }, async () => {
+  return { ok: true }
+})
+```
+
+#### `authorize?: ServerActionAuthFunction<AC, TInput>`
+
+Function to use to authorize the server action. By default it always authorizes the action (no `auth` on the context).
+
+It runs **after** input validation when `input` is defined, so you always see validated `input` in `authorize` and never run authorization on bad payloads.
+
+**Parameters:**
+
+- `id: string` — Server action id (from `id` option or the default).
+- `input` — Present only when an `input` schema is configured. Type is the schema’s output.
+
+**Outcomes:**
+
+- **Return a value** — That value becomes `auth` on the handler context (type-inferred).
+- **Throw a normal error** — The action resolves to `{ success: false, error: { code: 'UNAUTHORIZED_ERROR', ctx } }` where `ctx` comes from `onError` (or the built-in fallback). Use this for “not logged in”, “forbidden”, invalid token, etc.
+- **Throw `redirect`, `notFound`, or other Next.js special errors** — The error is rethrown; Next.js handles it. The client does not receive a result object for that path.
+
+###### Basic authorization (no `input`)
+
+Useful for actions that only need a session, or when the payload is not part of auth.
+
+```tsx title="actions/list-notifications.ts"
+'use server'
+
+import { createSafeServerAction } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+export const listNotifications = createSafeServerAction(
+  {
+    id: 'notifications/list',
+    authorize: async ({ id }) => {
+      const session = await auth()
+      if (!session?.user) {
+        throw new Error('Unauthenticated')
+      }
+      return { user: session.user }
+    },
+  },
+  async ({ auth }) => {
+    return { items: await fetchNotifications(auth.user.id) }
+  }
+)
+```
+
+###### Authorization with validated `input`
+
+When the user must be allowed to act on a specific resource id (or similar), validate the payload first, then enforce access in `authorize`.
+
+```tsx title="actions/delete-comment.ts"
+'use server'
+
+import { z } from 'zod'
+import { createSafeServerAction } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+export const deleteComment = createSafeServerAction(
+  {
+    id: 'comments/delete',
+    input: z.object({ commentId: z.string().uuid() }),
+    authorize: async ({ input }) => {
+      const session = await auth()
+      if (!session?.user) {
+        throw new Error('Unauthenticated')
+      }
+      const allowed = await canDeleteComment(session.user.id, input.commentId)
+      if (!allowed) {
+        throw new Error('Forbidden')
+      }
+      return { user: session.user }
+    },
+  },
+  async ({ input }) => {
+    await db.comment.delete({ where: { id: input.commentId } })
+    return { deleted: true }
+  }
+)
+```
+
+#### `input?: TInput`
+
+Server action input schema: a [Standard Schema](https://standardschema.dev/) value. When set, callers pass either a plain object matching the inferred type or `FormData`. For `FormData`, entries are converted with `Object.fromEntries` before validation, so field names must match your schema keys.
+
+When omitted, the exported function accepts no argument (or `undefined`) and the handler context has no `input`.
+
+```tsx title="actions/submit-note.ts"
+'use server'
+
+import { z } from 'zod'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+export const submitNote = createSafeServerAction(
+  {
+    id: 'notes/submit',
+    input: z.object({
+      title: z.string().min(1),
+      body: z.string().max(5000),
+    }),
+  },
+  async ({ input }) => {
+    await saveNote(input)
+    return { id: crypto.randomUUID() }
+  }
+)
+```
+
+```tsx title="components/note-form.tsx"
+'use client'
+
+import { submitNote } from '~/actions/submit-note'
+
+export function NoteForm() {
+  return (
+    <form
+      action={async (formData) => {
+        const result = await submitNote(formData)
+        // …
+      }}
+    >
+      <input name='title' />
+      <textarea name='body' />
+      <button type='submit'>Save</button>
+    </form>
+  )
+}
+```
+
+#### `onInputValidationError?: OnInputValidationError`
+
+Callback triggered when input validation returns issues. By default issues are logged and `ctx` is `{ issues }` (Standard Schema issue list).
+
+Use it to return a friendlier or stable shape for the client (for example a single `message` plus optional `issues`).
+
+```tsx title="actions/update-nickname.ts"
+'use server'
+
+import { z } from 'zod'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+export const updateNickname = createSafeServerAction(
+  {
+    id: 'profile/nickname',
+    input: z.object({ nickname: z.string().min(2).max(32) }),
+    onInputValidationError: async (issues) => ({
+      message: 'Invalid nickname',
+      issues,
+    }),
+  },
+  async ({ input }) => ({ nickname: input.nickname })
+)
+```
+
+### Action context
+
+The handler receives a single context object:
+
+- `id` — Resolved action id.
+- `tagErr(code, ctx)` — Ends the action with `{ success: false, error: { code, ctx } }` (see below).
+- `auth` — Present when `authorize` returned a value; type matches that return type.
+- `input` — Present when `input` was configured; type is the schema output.
+
+```tsx title="actions/example-context.ts"
+'use server'
+
+import { createSafeServerAction } from '@sugardarius/anzen'
+import { z } from 'zod'
+
+export const example = createSafeServerAction(
+  {
+    id: 'example',
+    input: z.object({ q: z.string() }),
+    authorize: async () => ({ role: 'admin' as const }),
+  },
+  async ({ id, auth, input, tagErr }) => {
+    if (input.q === '') {
+      tagErr('EMPTY_QUERY', { message: 'Query required' })
+    }
+    return { id, role: auth.role, q: input.q }
+  }
+)
+```
+
+### Error handling
+
+By design, the factory wraps the pipeline so **most failures become a result object** instead of throwing to the client. That keeps Client Components simple: one `await`, then branch on `result.success`.
+
+**`VALIDATION_ERROR`** — The payload did not satisfy `input`. No `authorize` or handler run. `error.ctx` is whatever `onInputValidationError` returns (default: `{ issues }`).
+
+**`UNAUTHORIZED_ERROR`** — `authorize` threw a non–Next.js error. `error.ctx` comes from `onError`. Use this for authentication and authorization failures you model as throws inside `authorize`.
+
+**`SERVER_ERROR`** — The handler threw an error that is neither a tagged error nor a Next.js special error. `error.ctx` comes from `onError`. Use `onError` to map internal errors to safe, serializable fields for the UI.
+
+**Tagged errors (`tagErr`)** — Deliberate domain outcomes (conflict, “already exists”, etc.). `error.code` is the string you passed to `tagErr`; `error.ctx` is your object. They are not logged as unexpected server failures.
+
+```tsx title="components/handle-result.tsx"
+'use client'
+
+import { saveDocument } from '~/actions/save-document'
+
+export function SaveButton(props: { docId: string; body: string }) {
+  return (
+    <button
+      type='button'
+      onClick={async () => {
+        const result = await saveDocument({
+          docId: props.docId,
+          body: props.body,
+        })
+        if (result.success) {
+          return
+        }
+        switch (result.error.code) {
+          case 'VALIDATION_ERROR':
+            console.warn(result.error.ctx)
+            break
+          case 'UNAUTHORIZED_ERROR':
+            console.warn('Not allowed', result.error.ctx)
+            break
+          case 'SERVER_ERROR':
+            console.error(result.error.ctx)
+            break
+          default:
+            if (result.error.code === 'CONFLICT') {
+              console.warn('Conflict', result.error.ctx)
+            }
+        }
+      }}
+    >
+      Save
+    </button>
+  )
+}
+```
+
+### Expected errors with `tagErr`
+
+Use `tagErr` for business rules you want to express in the handler without throwing, so the client always gets a typed `error.code`.
+
+```tsx title="actions/reserve-slot.ts"
+'use server'
+
+import { z } from 'zod'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+export const reserveSlot = createSafeServerAction(
+  {
+    id: 'reserve-slot',
+    input: z.object({ slotId: z.string() }),
+  },
+  async ({ input, tagErr }) => {
+    const taken = await isSlotTaken(input.slotId)
+    if (taken) {
+      tagErr('SLOT_TAKEN', { slotId: input.slotId })
+    }
+    return { ok: true as const }
+  }
+)
+```
+
+```tsx
+const result = await reserveSlot({ slotId: 'a1' })
+if (!result.success && result.error.code === 'SLOT_TAKEN') {
+  // result.error.ctx.slotId
+}
+```
+
+### Next.js control flow in the handler
+
+If the action calls `redirect()` or throws other Next.js special errors inside `authorize` or the handler body, those errors are **rethrown**. They do not produce `{ success: false, … }`. Use that when navigation or framework errors should short-circuit the request the same way as in a normal Server Action.
+
+<Callout>
+  **Note:** Next.js control-flow errors are not logged as failures; they are
+  intentional framework behavior.
+</Callout>
+
+## Fair use note
+
+Please note that if you are not using input validation, `authorize`, a shared `{ success, output | error }` envelope, or `tagErr`, you may not need this factory. A plain async function with `'use server'` is enough when you are happy to throw or return values directly.
+
+`createSafeServerAction` is most valuable when you want Standard Schema input validation, optional auth context on the handler, consistent structured errors for Client Components, and `tagErr` for domain-specific failure codes.
+
+```tsx title="actions/plain-vs-safe.ts"
+'use server'
+
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+// Calling 👇🏻
+export const safePing = createSafeServerAction({}, async () => ({
+  at: new Date().toISOString(),
+}))
+
+// is equal to declare the server action this way 👇🏻
+export async function plainPing() {
+  return { at: new Date().toISOString() }
+}
+
+// excepts `createSafeServerAction` will provide by default a native error handling
+// and will return a result (structured) object. That's the only advantage.
+```
+
+  </TabsContent>
   <TabsContent value='route-handler'>
 
 ```tsx
@@ -313,7 +836,7 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
-### Base options
+### Options
 
 When creating a safe route handler you can use a bunch of options for helping you achieve different tasks 👇🏻
 
@@ -353,10 +876,6 @@ export const GET = createSafeRouteHandler({ debug: true }, async () => {
   return new Response(null, { status: 200 })
 })
 ```
-
-### Route handler options
-
-You can configure route handler options to validation using a validation library dynamic route segments, URL query parameters, request json body or request form data body 👇🏻
 
 #### `authorize?: RouteHandlerAuthFunction<AC, TSegments, TSearchParams, TBody, TFormData>`
 
