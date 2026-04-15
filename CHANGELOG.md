@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Misc, updating `package.json` metadata.
+
 ## [2.3.0] - 2026-04-15
 
 - Introducing `createSafeServerAction` to validate inputs, and authorize server actions in Next.js.
