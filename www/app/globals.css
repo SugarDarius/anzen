@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+/* @import 'tailwindcss';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
@@ -131,4 +131,9 @@
   [data-rehype-pretty-code-title] {
     display: none !important;
   }
-}
+} */
+
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
