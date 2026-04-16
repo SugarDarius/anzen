@@ -1,5 +1,7 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared'
+
 import { siteConfig } from '~/config/site'
+import { NPMIcon } from '~/components/icons/npm'
 
 export function baseOptions(): BaseLayoutProps {
   return {
@@ -8,5 +10,14 @@ export function baseOptions(): BaseLayoutProps {
       url: '/docs',
     },
     githubUrl: siteConfig.github.url,
+    links: [
+      {
+        url: siteConfig.npm.url,
+        type: 'icon',
+        label: siteConfig.npm.name,
+        text: siteConfig.npm.name,
+        icon: <NPMIcon />,
+      },
+    ],
   }
 }
