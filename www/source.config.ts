@@ -21,7 +21,7 @@ export default defineConfig({
     rehypeCodeOptions: {
       engine: 'oniguruma',
       themes: {
-        light: 'vesper',
+        light: 'github-light',
         dark: 'vesper',
       },
       includeExplanation: 'scopeName',
