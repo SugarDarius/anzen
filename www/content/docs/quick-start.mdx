@@ -64,6 +64,7 @@ export const createThread = createSafeServerAction(
     }),
   },
   async ({ id, input }) => {
+    //         ^^^^^ Input is inferred from the input validation
     return { id, title: input.title }
   }
 )
@@ -94,8 +95,9 @@ export const createThread = createSafeServerAction(
       return { user: session.user }
     },
   },
-  async ({ id, input }) => {
-    return { id, title: input.title }
+  async ({ id, input, auth }) => {
+    //                ^^^^ Auth context is inferred from the authorize function
+    return { id, title: input.title, username: auth.user.name }
   }
 )
   ```
