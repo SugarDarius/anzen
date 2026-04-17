@@ -10,10 +10,6 @@ import './globals.css'
 import { cn } from '~/lib/utils'
 import { baseUrl, siteConfig } from '~/config/site'
 
-// import { ThemeProvider } from '~/components/theme-provider'
-// import { SiteHeader } from '~/components/site-header'
-// import { SiteFooter } from '~/components/site-footer'
-
 const GeistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -69,38 +65,6 @@ export const viewport: Viewport = {
     { media: '(prefers-color-scheme: dark)', color: 'black' },
   ],
 }
-
-// export default function RootLayout({
-//   children,
-// }: Readonly<{
-//   children: React.ReactNode
-// }>) {
-//   return (
-//     <html lang='en' suppressHydrationWarning>
-//       <body
-//         className={cn(
-//           GeistSans.variable,
-//           GeistMono.variable,
-//           'font-sans antialiased'
-//         )}
-//       >
-//         <ThemeProvider
-//           attribute='class'
-//           defaultTheme='system'
-//           enableSystem
-//           disableTransitionOnChange
-//         >
-//           <div className='container mx-auto relative flex min-h-dvh flex-col px-8 max-w-5xl border-x border-x-muted'>
-//             <SiteHeader />
-//             {children}
-//             <SiteFooter />
-//           </div>
-//         </ThemeProvider>
-//         <Analytics />
-//       </body>
-//     </html>
-//   )
-// }
 
 export default function RootLayout({
   children,
