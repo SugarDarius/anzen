@@ -49,6 +49,33 @@ The returned function matches what Next.js expects for `GET`, `POST`, etc. Use *
 
 Types: `CreateSafeRouteHandlerOptions`, `SafeRouteHandlerContext`, `RouteHandlerAuthFunction`, etc.
 
+### Using `NextRequest` type
+
+By default the factory uses the native `Request` type. If you want to use the `NextRequest` type from [Next.js](https://nextjs.org/), you can do it by just using the `NextRequest` type in the factory handler.
+
+```ts title="api/next-request/route.ts"
+import { NextRequest } from 'next/server'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler(
+  {
+    id: 'next/request',
+    authorize: async ({
+      // [!code highlight]
+      // Due to `NextRequest` limitations as the req is cloned it's always a `Request`
+      req,
+    }) => {
+      console.log(req)
+      return { user: 'John Doe' }
+    },
+  },
+  async (ctx, req: NextRequest) => {
+    console.log('pathname', req.nextUrl.pathname)
+    return new Response(null, 200)
+  }
+)
+```
+
 ## Options
 
 When creating a safe route handler you can use a bunch of options for helping you achieve different tasks 👇🏻
