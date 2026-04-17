@@ -75,6 +75,8 @@ Your bundle is safe.
   </TabsList>
   <TabsContent value='server-action'>
   ```ts title="actions/create-thread.ts"
+    'use server'
+    
     import { object, string, datelike } from 'decoders'
     import { createSafeServerAction } from '@sugardarius/anzen'
 
