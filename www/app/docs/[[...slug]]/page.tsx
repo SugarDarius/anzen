@@ -5,6 +5,7 @@ import {
   DocsDescription,
   DocsPage,
   DocsTitle,
+  PageLastUpdate,
 } from 'fumadocs-ui/layouts/docs/page'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 
@@ -74,6 +75,9 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           />
         </DocsBody>
       </div>
+      {page.data.lastModified ? (
+        <PageLastUpdate date={page.data.lastModified} />
+      ) : null}
     </DocsPage>
   )
 }
