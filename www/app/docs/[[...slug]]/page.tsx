@@ -9,7 +9,7 @@ import {
 } from 'fumadocs-ui/layouts/docs/page'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 
-import { source } from '~/lib/source'
+import { getPageImage, source } from '~/lib/source'
 import { getMDXComponents } from '~/mdx-components'
 import { RetroGrid } from '~/components/retro-grid'
 import { PageActions } from '~/components/ai/page-actions'
@@ -32,6 +32,9 @@ export async function generateMetadata(
   return {
     title: page.data.title,
     description: page.data.description,
+    openGraph: {
+      images: getPageImage(page).url,
+    },
   }
 }
 
