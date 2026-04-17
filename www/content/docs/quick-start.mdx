@@ -12,8 +12,114 @@ icon: Rocket
     [Valibot](https://valibot.dev/)
 </Callout>
 
-## Install
+## Server Action
+
+<Steps>
+  <Step>
+
+Install `anzen` and a validation library.
 
 ```npm
-npm i @sugardarius/anzen
+npm i @sugardarius/anzen decoders
 ```
+
+  </Step>
+  <Step>
+  Create a server action using the `createSafeServerAction` factory.
+
+```ts title="actions/create-thread.ts""
+'use server'
+
+import { object, string } from 'decoders'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+// [!code highlight]
+export const createThread = createSafeServerAction(
+  {
+    // [!code highlight]
+    id: 'create-thread-action',
+  },
+  async ({ id }) => {
+    return { id }
+  }
+)
+```
+
+  </Step>
+  <Step>
+  Validate your input.
+
+```ts title="actions/create-thread.ts"
+import { object, string, datelike } from 'decoders'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+export const createThread = createSafeServerAction(
+  {
+    id: 'create-thread-action',
+    // [!code highlight]
+    input: object({
+      // [!code highlight]
+      title: string,
+      // [!code highlight]
+    }),
+  },
+  async ({ id, input }) => {
+    return { id, title: input.title }
+  }
+)
+```
+
+  </Step>
+  <Step>
+  Authorize the action (if required).
+  
+```ts title="actions/create-thread.ts"
+import { object, string, datelike } from 'decoders'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+import { auth } from '~/lib/auth'
+
+export const createThread = createSafeServerAction(
+  {
+    id: 'create-thread-action',
+    input: object({
+      title: string,
+    }),
+    // [!code highlight]
+    authorize: async () => {
+      const session = await auth()
+      if (!session.user) {
+        throw new Error('user is not authenticated')
+      }
+      return { user: session.user }
+    },
+  },
+  async ({ id, input }) => {
+    return { id, title: input.title }
+  }
+)
+  ```
+  
+  </Step>
+  <Step>
+  Call the action from a Client Component.
+```tsx title="app/page.tsx"
+import { createThread } from '~/actions/create-thread'
+
+export default function Form() {
+  return (
+    <form action={async (formData) => {
+      // [!code highlight]
+      const result = await createThread(formData)
+      console.log(result)
+    }}>
+      <input id='title' name='title' />
+      <button type='submit'>Create Thread</button>
+    </form>
+  )
+}
+```
+  </Step>
+</Steps>
+
+## Route handler
