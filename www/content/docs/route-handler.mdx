@@ -53,12 +53,14 @@ Types: `CreateSafeRouteHandlerOptions`, `SafeRouteHandlerContext`, `RouteHandler
 
 When creating a safe route handler you can use a bunch of options for helping you achieve different tasks 👇🏻
 
-#### `id?: string`
+#### id
+
+`id?: string`
 
 Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
 By default the id is set to `[unknown:route:handler]`.
 
-```tsx
+```ts title="api/id/route.ts"
 export const POST = createSafeRouteHandler(
   {
     id: 'auth/login',
@@ -69,20 +71,24 @@ export const POST = createSafeRouteHandler(
 )
 ```
 
-#### `onErrorResponse?: (err: unknown) => Awaitable<Response>`
+#### onErrorResponse
+
+`onErrorResponse?: (err: unknown) => Awaitable<Response>`
 
 Callback triggered when the request fails.
 By default it returns a simple `500` response and the error is logged into the console.
 Use it if your handler use custom errors and you want to manage them properly by returning a proper response.
 You can read more about it under the [Error handling](#error-handling) section.
 
-#### `debug?: boolean`
+#### debug
+
+`debug?: boolean`
 
 Use this options to enable debug mode. It will add logs in the handler to help you debug the request.
 By default it's set to `false` for production builds.
 In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
 
-```tsx
+```ts title="api/debug/route.ts"
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
 export const GET = createSafeRouteHandler({ debug: true }, async () => {
@@ -90,7 +96,9 @@ export const GET = createSafeRouteHandler({ debug: true }, async () => {
 })
 ```
 
-#### `authorize?: RouteHandlerAuthFunction<AC, TSegments, TSearchParams, TBody, TFormData>`
+#### authorize
+
+`authorize?: RouteHandlerAuthFunction<AC, TSegments, TSearchParams, TBody, TFormData>`
 
 Function to use to authorize the request. By default it always authorize the request.
 
@@ -115,7 +123,7 @@ The `authorize` function receives validated props (`segments`, `searchParams`, `
 
 ###### Basic authorization
 
-```tsx
+```ts title="api/authorize/route.ts"
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { auth } from '~/lib/auth'
 
@@ -139,7 +147,7 @@ export const GET = createSafeRouteHandler(
 
 ###### Authorization with validated segments
 
-```tsx
+```ts title="api/authorize/[accountId]/[projectId]/route.ts"
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { auth } from '~/lib/auth'
@@ -177,7 +185,7 @@ export const GET = createSafeRouteHandler(
 
 ###### Authorization with validated body
 
-```tsx
+```ts title="api/authorize/body/route.ts"
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
@@ -204,7 +212,7 @@ export const POST = createSafeRouteHandler(
 
 ###### Authorization with all validated props
 
-```tsx
+```ts title="api/authorize/all/route.ts"
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { auth } from '~/lib/auth'
@@ -245,13 +253,15 @@ export const POST = createSafeRouteHandler(
 
 > The original request is cloned from the incoming request to avoid side effects and to make it consumable in the `authorize` function. Due to `NextRequest` limitations, the cloned request is always a `Request` type.
 
-#### `segments?: TSegments`
+#### segments
+
+`segments?: TSegments`
 
 [Dynamic route segments](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#dynamic-route-segments) used for the route handler path. By design it will handle if the segments are a `Promise` or not.
 
 Please note the expected input is a `StandardSchemaDictionary`.
 
-```tsx title="/api/accounts/[accountId]/projects/[projectId]/route.ts"
+```ts title="/api/accounts/[accountId]/projects/[projectId]/route.ts"
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
@@ -268,11 +278,13 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
-#### `onSegmentsValidationErrorResponse?: OnValidationErrorResponse`
+#### onSegmentsValidationErrorResponse
+
+`onSegmentsValidationErrorResponse?: OnValidationErrorResponse`
 
 Callback triggered when dynamic segments validations returned issues. By default it returns a simple `400` response and issues are logged into the console.
 
-```tsx
+```ts title="api/on-segments-validation-error/route.ts"
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
@@ -292,13 +304,15 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
-#### `searchParams?: TSearchParams`
+#### searchParams
+
+`searchParams?: TSearchParams`
 
 Search params used in the route.
 
 Please note the expected input is a `StandardSchemaDictionary`.
 
-```tsx
+```ts title="api/search-params/route.ts"
 import { string, numeric, optional } from 'decoders'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
@@ -315,11 +329,13 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
-#### `onSearchParamsValidationErrorResponse?: OnValidationErrorResponse`
+#### onSearchParamsValidationErrorResponse
+
+`onSearchParamsValidationErrorResponse?: OnValidationErrorResponse`
 
 Callback triggered when search params validations returned issues. By default it returns a simple `400` response and issues are logged into the console.
 
-```tsx
+```ts title="api/on-search-params-validation-error/route.ts"
 import { string, numeric, optional } from 'decoders'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
@@ -339,7 +355,9 @@ export const GET = createSafeRouteHandler(
 )
 ```
 
-#### `body?: TBody`
+#### body
+
+`body?: TBody`
 
 Request body.
 
@@ -351,7 +369,7 @@ Please note the body is parsed as JSON, so it must be a valid JSON object. Body 
 
 Why making the distinction? `formData` is used as a `StandardSchemaDictionary` whereas `body` is used as a `StandardSchemaV1`.
 
-```tsx
+```ts title="api/body/route.ts"
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
@@ -371,11 +389,13 @@ export const POST = createSafeRouteHandler(
 
 > When validating the body the request is cloned to let you consume the body in the original request (e.g second arguments of handler function).
 
-#### `onBodyValidationErrorResponse?: OnValidationErrorResponse`
+#### onBodyValidationErrorResponse
+
+`onBodyValidationErrorResponse?: OnValidationErrorResponse`
 
 Callback triggered when body validation returned issues. By default it returns a simple `400` response and issues are logged into the console.
 
-```tsx
+```ts title="api/on-body-validation-error/route.ts"
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
@@ -396,7 +416,9 @@ export const POST = createSafeRouteHandler(
 )
 ```
 
-#### `formData?: TFormData`
+#### formData
+
+`formData?: TFormData`
 
 Request form data.
 
@@ -408,7 +430,7 @@ Please note formData shouldn't be used with `body` at the same time. They are **
 
 Why making the distinction? `formData` is used as a `StandardSchemaDictionary` whereas `body` is used as a `StandardSchemaV1`.
 
-```tsx
+```ts title="api/form-data/route.ts"
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
@@ -427,11 +449,13 @@ export const POST = createSafeRouteHandler(
 
 > When validating the form data the request is cloned to let you consume the form data in the original request (e.g second arguments of handler function).
 
-#### `onFormDataValidationErrorResponse?: OnValidationErrorResponse`
+#### onFormDataValidationErrorResponse
+
+`onFormDataValidationErrorResponse?: OnValidationErrorResponse`
 
 Callback triggered when form data validation returned issues. By default it returns a simple `400` response and issues are logged into the console.
 
-```tsx
+```ts title="api/on-form-data-validation-error/route.ts"
 import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
@@ -451,7 +475,9 @@ export const POST = createSafeRouteHandler(
 )
 ```
 
-## Handler context (`SafeRouteHandlerContext`)
+## Handler context
+
+`SafeRouteHandlerContext` is the context object that is passed to the handler.
 
 | Field          | When                                                    |
 | -------------- | ------------------------------------------------------- |
@@ -471,7 +497,7 @@ By design the factory will catch any error thrown in the route handler will retu
 
 You can customize the error response if you want to fine tune error response management.
 
-```tsx
+```ts title="api/on-error/route.ts"
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 import { HttpError, DbUnknownError } from '~/lib/errors'
 import { db } from '~/lib/db'
@@ -514,7 +540,7 @@ Validation must be **synchronous**. The [Standard Schema](https://github.com/sta
 
 Please note that if you're not using any of the proposed options in `createSafeRouteHandler` it means you're surely don't need it.
 
-```tsx
+```ts title="api/plain-vs-safe/route.ts"
 // Calling 👇🏻
 export const GET = createSafeRouteHandler({}, async () => {
   return new Response(null, { status: 200 })
@@ -531,6 +557,6 @@ export function GET() {
 ## See also
 
 - [Get started](/docs/get-started)
-- [createSafeServerAction](/docs/server-action)
-- [createSafePageServerComponent](/docs/page-server-component)
-- [createSafeLayoutServerComponent](/docs/layout-server-component)
+- [Safe server action](/docs/server-action)
+- [Safe page server component](/docs/page-server-component)
+- [Safe layout server component](/docs/layout-server-component)
