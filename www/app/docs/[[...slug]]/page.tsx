@@ -54,6 +54,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       full={page.data.full}
       breadcrumb={{ enabled: true }}
       className='relative'
+      tableOfContent={{ style: 'clerk' }}
       footer={{
         enabled: true,
         component: (
