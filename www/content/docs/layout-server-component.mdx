@@ -1,0 +1,441 @@
+---
+title: createSafeLayoutServerComponent
+description: API reference for the safe App Router layout factory — segments, children, optional parallel slots, and authorization.
+icon: PanelTop
+---
+
+`createSafeLayoutServerComponent` wraps a **default-exported** [`layout`](https://nextjs.org/docs/app/api-reference/file-conventions/layout) Server Component. It validates **dynamic segments**, passes **`children`** (and optional **parallel route slots**), supports **authorization**, and aligns with Next.js error boundaries. Import from **`@sugardarius/anzen/server-components`**.
+
+Layouts do **not** receive `searchParams` in this factory (same as the page vs layout split in the underlying API).
+
+## Import
+
+```ts
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+```
+
+## Signature
+
+```ts
+function createSafeLayoutServerComponent<
+  AC = undefined,
+  TSegments = undefined,
+  TSlots extends readonly string[] | undefined = undefined,
+>(
+  options: CreateSafeLayoutServerComponentOptions<AC, TSegments, TSlots>,
+  layout: (ctx: SafeLayoutServerComponentContext<AC, TSegments, TSlots>) => Promise<React.ReactElement>
+): (props: LayoutProvidedProps<TSlots>) => Promise<React.ReactElement>
+```
+
+`LayoutProvidedProps` includes `params`, `children`, and when `experimental_slots` is set, **named slot props** matching your slot names.
+
+## Options
+
+When creating a safe layout server component you can use a bunch of options for helping you achieve different tasks 👇🏻
+
+#### `id?: string`
+
+Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
+By default the id is set to `[unknown:layout:server:component]`.
+
+```tsx title="app/races/[id]/layout.tsx"
+export default createSafeLayoutServerComponent(
+  {
+    id: 'races/[id]/layout',
+  },
+  async ({ id }) => {
+    return <div>Layout {id}</div>
+  }
+)
+```
+
+#### `onError?: (err: unknown) => Awaitable<never>`
+
+Callback triggered when the layout server component throws an unhandled error.
+By default it rethrows the error as a service hatch to Next.js do its job and use error boundaries. The error is logged into the console.
+Use it if you want to manage unexpected errors properly to log, trace or define behaviors like using `notFound` or `redirect`.
+
+```tsx title="app/layout.tsx"
+import { notFound } from 'next/navigation'
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+
+export default createSafeLayoutServerComponent(
+  {
+    onError: async (err: unknown): Promise<never> => {
+      if (err instanceof NotFoundError) {
+        notFound()
+      }
+      throw err
+    },
+  },
+  async () => {
+    return <div>Hello</div>
+  }
+)
+```
+
+#### `debug?: boolean`
+
+Use this options to enable debug mode. It will add logs in the layout server component to help you debug the request.
+By default it's set to `false` for production builds.
+In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
+
+```tsx title="app/layout.tsx"
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+
+export default createSafeLayoutServerComponent({ debug: true }, async () => {
+  return <div>Hello</div>
+})
+```
+
+Layout server components support the same options as page server components except `searchParams` and `onSearchParamsValidationError`. Additionally, layout server components receive `children` in their context.
+
+#### `authorize?: LayoutAuthFunction<AC, TSegments>` (Layout only)
+
+Function to use to authorize the layout server component. By default it always authorize the server component.
+
+Return never (throws an error, `notFound`, `forbidden`, `unauthorized`, or `redirect`) when the request to the server component is not authorized.
+
+The `authorize` function receives validated attributes (`segments`) when they are defined, allowing you to use validated data for authorization logic.
+
+**Parameters:**
+
+- `id: string` - Server component ID
+- `segments?:` - Validated route dynamic segments (if `segments` option is defined)
+
+```tsx title="app/accounts/[accountId]/layout.tsx"
+import { z } from 'zod'
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+import { auth } from '~/lib/auth'
+import { notFound, unauthorized } from 'next/navigation'
+
+export default createSafeLayoutServerComponent(
+  {
+    segments: {
+      accountId: z.string(),
+    },
+    authorize: async ({ segments }) => {
+      const session = await auth.getSession()
+      if (!session) {
+        unauthorized()
+      }
+
+      const hasAccess = await checkAccountAccess(
+        session.user.id,
+        segments.accountId
+      )
+      if (!hasAccess) {
+        notFound()
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({ auth, segments, children }) => {
+    return (
+      <div>
+        <header>Account: {segments.accountId}</header>
+        {children}
+      </div>
+    )
+  }
+)
+```
+
+You can configure layout server component options' validation using a validation library dynamic route segments 👇🏻
+
+#### `authorize?: LayoutAuthFunction<AC, TSegments>`
+
+Function to use to authorize the layout server component. By default it always authorize the layout server component.
+
+Return never (throws an error, `notFound`, `forbidden`, `unauthorized`, or `redirect`) when the request to the server component is not authorized.
+
+The `authorize` function receives validated attribute (`segments`) when they are defined, allowing you to use validated data for authorization logic.
+
+**Parameters:**
+
+- `id: string` - Server component ID
+- `segments?:` - Validated route dynamic segments (if `segments` option is defined)
+
+###### Basic authorization
+
+```tsx title="app/layout.tsx"
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+import { auth } from '~/lib/auth'
+import { unauthorized } from 'next/navigation'
+
+export default createSafeLayoutServerComponent(
+  {
+    authorize: async () => {
+      const session = await auth.getSession()
+      if (!session) {
+        unauthorized()
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({ auth }) => {
+    return <div>Hello {auth.user.name}!</div>
+  }
+)
+```
+
+###### Authorization with validated segments
+
+```tsx title="app/accounts/[accountId]/projects/[projectId]/layout.tsx"
+import { z } from 'zod'
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+import { auth } from '~/lib/auth'
+import { notFound } from 'next/navigation'
+
+export default createSafeLayoutServerComponent(
+  {
+    segments: {
+      accountId: z.string(),
+      projectId: z.string(),
+    },
+    authorize: async ({ segments }) => {
+      // segments are already validated at this point
+      const session = await auth.getSession()
+      if (!session) {
+        throw new Error('Unauthorized')
+      }
+
+      // Check if user has access to this account
+      const hasAccess = await checkAccountAccess(
+        session.user.id,
+        segments.accountId
+      )
+      if (!hasAccess) {
+        notFound()
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({ auth, segments }) => {
+    return (
+      <div>
+        {auth.user.name} - {segments.accountId}/{segments.projectId}
+      </div>
+    )
+  }
+)
+```
+
+#### `segments?: TSegments`
+
+[Dynamic route segments](https://nextjs.org/docs/app/api-reference/file-conventions/layout#params) used for the layout server component path. By design it will handle automatically if the segments are a `Promise` or not.
+
+Please note the expected input is a `StandardSchemaDictionary`.
+
+```tsx title="app/accounts/[accountId]/projects/[projectId]/layout.tsx"
+import { z } from 'zod'
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+
+export default createSafeLayoutServerComponent(
+  {
+    segments: {
+      accountId: z.string(),
+      projectId: z.string().optional(),
+    },
+  },
+  async ({ segments }) => {
+    return (
+      <div>
+        Account: {segments.accountId} - Project: {segments.projectId}
+      </div>
+    )
+  }
+)
+```
+
+#### `onSegmentsValidationError?: OnValidationError`
+
+Callback triggered when dynamic segments validations returned issues. By default it throws a `ValidationError` and issues are logged into the console.
+
+```tsx title="app/accounts/[accountId]/projects/[projectId]/layout.tsx"
+import { z } from 'zod'
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+import { notFound } from 'next/navigation'
+
+export default createSafeLayoutServerComponent(
+  {
+    segments: {
+      accountId: z.string(),
+      projectId: z.string().optional(),
+    },
+    onSegmentsValidationError: async (issues) => {
+      console.error('Invalid segments', issues)
+      notFound()
+    },
+  },
+  async ({ segments }) => {
+    return (
+      <div>
+        Account: {segments.accountId} - Project: {segments.projectId}
+      </div>
+    )
+  }
+)
+```
+
+#### 🧪 `experimental_slots?: string[]`
+
+Slots used in the layout when using [Next.js parallel routes](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes) (experimental).
+
+When defined, the slots are provided in the context as `experimental_slots` with the slot names as keys and `React.ReactNode` as values. The factory validates that all expected slots are provided and throws a `MissingLayoutSlotsError` if any slots are missing.
+
+```tsx title="app/dashboard/layout.tsx"
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+
+export default createSafeLayoutServerComponent(
+  {
+    experimental_slots: ['analytics', 'team'] as const,
+    //                                           ^^^^^👆🏻
+    //                                           Required for proper type inference
+  },
+  async ({ children, experimental_slots }) => {
+    return (
+      <div>
+        <aside>
+          {experimental_slots.analytics ?? (
+            <div>Analytics slot: No matching route</div>
+          )}
+        </aside>
+        <main>{children}</main>
+        <footer>
+          {experimental_slots.team ?? <div>Team slot: No matching route</div>}
+        </footer>
+      </div>
+    )
+  }
+)
+```
+
+<Callout>
+**Why `as const` is required?**
+
+The `as const` assertion is necessary for proper type inference because Next.js generates explicit types for parallel route slots at build time.
+Next.js typegen creates a `LayoutSlotMap` interface in `.next/types/routes.d.ts` that maps each route to its slot names as a union type (e.g., `"/playground/parallel": "analytics" | "team"`).
+
+The `LayoutProps` from `createSafeLayoutServerComponent` needs to stick to the Next.js typing requirements for build time.
+
+Without `as const`, TypeScript will infer the option `experimental_slots` as an index signature like `{[x: string]: React.ReactNode}` instead of an explicit signature as expected by Next.js
+This prevents the type system from matching the exact slot names that Next.js expects, breaking type safety, and build.
+
+</Callout>
+
+## Using children in layout server components
+
+The `children` prop is automatically provided in the context for layout server components.
+
+```tsx title="app/layout.tsx"
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+
+export default createSafeLayoutServerComponent({}, async ({ children }) => {
+  return (
+    <div>
+      <header>Header</header>
+      <main>{children}</main>
+      <footer>Footer</footer>
+    </div>
+  )
+})
+```
+
+## Handler context (`SafeLayoutServerComponentContext`)
+
+| Field | When |
+| --- | --- |
+| `id` | Always. |
+| `children` | Always — page content; may be a fragment when no child page exists. |
+| `auth` | When `authorize` returned a value. |
+| `segments` | When `segments` was configured. |
+| `experimental_slots` | When `experimental_slots` was configured. Empty object when no matching parallel routes. |
+
+## Error handling
+
+By design the factory will catch any error thrown in the layout server component and rethrow it by default to let Next.js handle it with error boundaries.
+
+<Callout>
+  **Note:** Next.js native errors (`redirect`, `notFound`, `forbidden`,
+  `unauthorized`) are silent (e.g not logged). These errors are part of
+  Next.js's control flow and are expected behavior, so they won't clutter your
+  logs.
+</Callout>
+
+You can customize the error handling if you want to fine tune error management.
+
+```tsx title="app/layout.tsx"
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+import { NotFoundError, DbUnknownError } from '~/lib/errors'
+import { db } from '~/lib/db'
+import { notFound } from 'next/navigation'
+
+export default createSafeLayoutServerComponent(
+  {
+    onError: async (err: unknown): Promise<never> => {
+      // Take it as an example not as a real use case 😅
+      if (err instanceof NotFoundError) {
+        notFound()
+      } else if (err instanceof DbUnknownError) {
+        console.error('Database error', err)
+        throw err
+      }
+
+      throw err
+    },
+  },
+  async ({ children }) => {
+    const [data, err] = await db.findUnique({ id: 'liveblocks' })
+
+    if (err) {
+      throw new DbUnknownError(err.message, 500)
+    }
+
+    if (data === null) {
+      throw new NotFoundError()
+    }
+
+    return (
+      <main>
+        <header>{data.name}</header>
+        {children}
+      </main>
+    )
+  }
+)
+```
+
+## Synchronous Validation
+
+Validation must be **synchronous**. The [Standard Schema](https://github.com/standard-schema/standard-schema) contract discourages async validation. If a schema resolves validation asynchronously, behavior is undefined and may throw at runtime.
+
+## Fair use note
+
+Please note that if you're not using any of the proposed options `createSafeLayoutServerComponent` it means you're surely don't need it.
+
+```tsx title="app/layout.tsx"
+// Calling 👇🏻
+export default createSafeLayoutServerComponent({}, async ({ children }) => {
+  return <div>{children}</div>
+})
+
+// is equal to declare the layout server component this way 👇🏻
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <div>{children}</div>
+}
+```
+
+## See also
+
+- [Get started](/docs/get-started)
+- [createSafeServerAction](/docs/server-action)
+- [createSafeRouteHandler](/docs/route-handler)
+- [createSafePageServerComponent](/docs/page-server-component)
