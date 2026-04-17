@@ -54,6 +54,39 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       full={page.data.full}
       breadcrumb={{ enabled: true }}
       className='relative'
+      footer={{
+        enabled: true,
+        component: (
+          <footer className='container pt-6 flex items-center justify-between relative border-t'>
+            <span className='text-sm  text-fd-secondary-foreground'>
+              &copy; 2026{' '}
+              <a
+                href={`${siteConfig.github.url}/blob/main/LICENSE`}
+                rel='noreferrer'
+                target='_blank'
+                className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
+              >
+                MIT License
+              </a>
+              , with ❤️{' '}
+              <span className='hidden sm:inline'>
+                by{' '}
+                {siteConfig.authors.map((author) => (
+                  <a
+                    key={author.name}
+                    href={author.url}
+                    target='_blank'
+                    rel='noreferrer'
+                    className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
+                  >
+                    {author.name}
+                  </a>
+                ))}
+              </span>
+            </span>
+          </footer>
+        ),
+      }}
     >
       <div className='absolute top-0 w-full h-[84px] left-0 right-0'>
         <div className='absolute inset-0'>
