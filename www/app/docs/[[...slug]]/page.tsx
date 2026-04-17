@@ -51,7 +51,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       breadcrumb={{ enabled: true }}
       className='relative'
     >
-      <div className='absolute top-0 w-full h-[84px]'>
+      <div className='absolute top-0 w-full h-[84px] left-0 right-0'>
         <div className='absolute inset-0'>
           <RetroGrid />
         </div>
