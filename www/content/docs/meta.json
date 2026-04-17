@@ -1,3 +1,9 @@
 {
-  "pages": ["---Introduction---", "index"]
+  "pages": [
+    "---Introduction---",
+    "index",
+    "quick-start",
+    "---API Reference---",
+    "------"
+  ]
 }
