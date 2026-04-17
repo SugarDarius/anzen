@@ -75,6 +75,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           />
         </DocsBody>
       </div>
+      <div className='w-full border-t' />
       {page.data.lastModified ? (
         <PageLastUpdate date={page.data.lastModified} />
       ) : null}
