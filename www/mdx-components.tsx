@@ -198,6 +198,7 @@ import {
 } from 'fumadocs-ui/components/codeblock'
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom'
 import { cn } from './lib/utils'
+import { Callout } from './components/callout'
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
@@ -219,6 +220,7 @@ export function getMDXComponents(components?: MDXComponents) {
         )}
       />
     ),
+    Callout,
     CodeBlockTab: ({
       className,
       ...props
