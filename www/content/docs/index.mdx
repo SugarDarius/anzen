@@ -4,12 +4,6 @@ description: Fast, flexible, framework validation agnostic, type‑safe factorie
 icon: CircleQuestionMark
 ---
 
-## Install
-
-```npm
-npm i @sugardarius/anzen
-```
-
 ## Philosophy
 
 While [server
@@ -64,6 +58,12 @@ Your bundle is safe.
 
 </Cards>
 
+## Install
+
+```npm
+npm i @sugardarius/anzen
+```
+
 ## Usage
 
 <Tabs defaultValue='server-action'>
@@ -76,7 +76,7 @@ Your bundle is safe.
   <TabsContent value='server-action'>
   ```ts title="actions/create-thread.ts"
     'use server'
-    
+
     import { object, string, datelike } from 'decoders'
     import { createSafeServerAction } from '@sugardarius/anzen'
 
