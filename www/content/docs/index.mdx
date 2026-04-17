@@ -65,3 +65,197 @@ Your bundle is safe.
 </Cards>
 
 ## Usage
+
+<Tabs defaultValue='server-action'>
+  <TabsList>
+    <TabsTrigger value='server-action'>Server Action</TabsTrigger>
+    <TabsTrigger value='route-handler'>Route Handler</TabsTrigger>
+    <TabsTrigger value='page-server-component'>Page Server Component</TabsTrigger>
+    <TabsTrigger value='layout-server-component'>Layout Server Component</TabsTrigger>
+  </TabsList>
+  <TabsContent value='server-action'>
+  ```ts title="actions/create-thread.ts"
+    import { object, string, datelike } from 'decoders'
+    import { createSafeServerAction } from '@sugardarius/anzen'
+
+    import { auth } from '~/lib/auth'
+    import { db } from '~/lib/db'
+
+    export const createThread = createSafeServerAction(
+      {
+        id: 'create-thread-action',
+        input: object({
+          spaceId: string,
+          createdAt: datelike,
+          comment: object({
+            createdAt: datelike,
+            content: string,
+          }),
+        }),
+        authorize: async ({ input }) => {
+          const session = await auth()
+          if (!session.user) {
+            throw new Error('user is not authenticated')
+          }
+
+          if (!session.access.includes(input.spaceId)) {
+            throw new Error('user has not access')
+          }
+
+          return { user: session.user }
+        },
+      },
+      async ({ auth, input, id }) => {
+        const inserted = await db.createThread({
+          thread: { ...input, authorId: auth.user.id },
+        })
+
+        return { inserted, actionId: id }
+      }
+    )
+    ```
+
+  </TabsContent>
+  <TabsContent value='route-handler'>
+  ```ts title="api/authorize"
+    import { object, string, number } from 'decoders'
+    import { createSafeRouteHandler } from '@sugardarius/anzen'
+    import { auth } from '~/lib/auth'
+
+    export const POST = createSafeRouteHandler(
+      {
+        authorize: async ({ req }) => {
+          const session = await auth.getSession(req)
+          if (!session) {
+            return new Response(null, { status: 401 })
+          }
+
+          return { user: session.user }
+        },
+      },
+      async ({ auth, body }, req): Promise<Response> => {
+        return Response.json({ user: auth.user, body }, { status: 200 })
+      }
+    )
+    ```
+
+  </TabsContent>
+  <TabsContent value='page-server-component'>
+    ```tsx title="app/[accountId]/page.tsx"
+    import { unauthorized } from 'next/navigation'
+    import { string } from 'decoders'
+    import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
+
+    import { auth } from '~/lib/auth'
+    import { getAccount } from '~/lib/db'
+
+    import { AccountSummary } from '~/components/account-summary'
+
+    export default createSafePageServerComponent(
+      {
+        authorize: async ({ segments }) => {
+          const session = await auth.getSession()
+          if (!session) {
+            unauthorized()
+          }
+
+          return { user: session.user }
+        },
+        segments: {
+          accountId: string,
+        },
+      }, async ({ auth, segments })  => {
+        const account = await getAccount({ id: segments.accountId})
+        return <AccountSummary user={auth.user} account={account} />
+      }
+    )
+    ```
+
+  </TabsContent>
+  <TabsContent value='layout-server-component'>
+    ```tsx title="app/[accountId]/layout.tsx"
+    import { notFound, unauthorized } from 'next/navigation'
+    import { string } from 'decoders'
+    import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+
+    import { auth } from '~/lib/auth'
+
+    import { AccountHeader } from '~/components/account-header'
+
+    export default createSafeLayoutServerComponent(
+      {
+        authorize: async ({ segments }) => {
+          const session = await auth.getSession()
+          if (!session) {
+            unauthorized()
+          }
+
+          return { user: session.user }
+        },
+        segments: {
+          accountId: string,
+        },
+      }, async ({ auth, segments, children }) => {
+        const account = await getAccount({ id: segments.accountId})
+        return (
+          <div>
+            <AccountHeader user={auth.user} accountId={segments.accountId} />
+            {children}
+          </div>
+        )
+      }
+    ```
+
+  </TabsContent>
+</Tabs>
+
+## Framework validation agnostic
+
+All factories are framework validation agnostic. You can use whatever you want as framework validation as long as it implements the [Standard Schema](https://standardschema.dev/) common interface. You can use your favorite validation library like [decoders](https://decoders.cc/). [Zod](https://zod.dev/), or [Validbot](https://valibot.dev/).
+
+```ts title="actions/update-profile.ts"
+'use server'
+
+import { z } from 'zod'
+import { object, string } from 'decoders'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+// Zod
+export const updateProfile = createSafeServerAction(
+  {
+    input: z.object({
+      displayName: z.string().min(1),
+      bio: z.string().max(500).optional(),
+    }),
+  },
+  async ({ input }) => ({ saved: input.displayName })
+)
+
+// decoders
+export const renameSpace = createSafeServerAction(
+  {
+    input: object({
+      spaceId: string,
+      name: string,
+    }),
+  },
+  async ({ input }) => ({ id: input.spaceId, name: input.name })
+)
+```
+
+## Synchronous validations
+
+The [Standard Schema](https://github.com/standard-schema/standard-schema) contract discourages async validation. If a schema resolves validation asynchronously, behavior is undefined and may throw at runtime.
+So all Anzen's factories do not support async validations by design. An **error** will be **thrown** if you try to use async validation.
+
+## Learn more
+
+<Cards>
+  <Card title='Get started' href='/docs/quick-start'>
+    Get started with Anzen quickly in your app.
+  </Card>
+
+  <Card title='API Reference' href='/docs/server-action'>
+    API Reference for all Anzen's factories.
+  </Card>
+</Cards>
