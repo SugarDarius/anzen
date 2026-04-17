@@ -7,7 +7,7 @@ export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
       title: siteConfig.title,
-      url: '/docs',
+      url: '/',
     },
     githubUrl: siteConfig.github.url,
     links: [
