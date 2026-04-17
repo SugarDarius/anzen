@@ -1,5 +1,6 @@
 import { HomeLayout } from 'fumadocs-ui/layouts/home'
 import { BaseLayoutProps } from 'fumadocs-ui/layouts/shared'
+import { BookOpen } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { baseOptions } from '~/lib/shared-layout'
 
@@ -9,7 +10,12 @@ export default function Layout({ children }: { children: ReactNode }) {
     links: [
       ...(baseOptions().links ?? []),
       {
-        text: 'Documentation',
+        text: (
+          <div className='flex items-center rounded-full bg-fd-background justify-center w-fit gap-1.5 transition-all shadow-xs hover:bg-fd-accent px-2 py-1'>
+            <BookOpen className='size-4' />
+            <span className='text-sm font-medium'>Documentation</span>
+          </div>
+        ),
         url: '/docs',
       },
     ],
