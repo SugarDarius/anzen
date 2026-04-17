@@ -1,7 +1,6 @@
 ---
-title: createSafeRouteHandler
+title: Safe route handler
 description: API reference for the safe Route Handler factory — segments, search params, JSON body or form data, auth, and HTTP error responses.
-icon: Waypoints
 ---
 
 `createSafeRouteHandler` wraps a [Next.js Route Handler](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) (`route.ts` / `route.js`) with optional validation of dynamic **segments**, **search params**, **JSON body** or **form data**, optional **authorization**, and centralized error handling. Schemas use [Standard Schema](https://standardschema.dev/); dictionaries use the package’s **Standard Schema dictionary** shape (see types `TSegmentsDict`, `TSearchParamsDict`, `TFormDataDict`).
@@ -23,9 +22,27 @@ function createSafeRouteHandler<
   TFormData = undefined,
   TReq extends Request = Request,
 >(
-  options: CreateSafeRouteHandlerOptions<AC, TSegments, TSearchParams, TBody, TFormData>,
-  handler: (ctx: SafeRouteHandlerContext<AC, TSegments, TSearchParams, TBody, TFormData>, req: TReq) => Promise<Response>
-): (req: TReq, providedContext: { params: Awaitable<any> | undefined }) => Promise<Response>
+  options: CreateSafeRouteHandlerOptions<
+    AC,
+    TSegments,
+    TSearchParams,
+    TBody,
+    TFormData
+  >,
+  handler: (
+    ctx: SafeRouteHandlerContext<
+      AC,
+      TSegments,
+      TSearchParams,
+      TBody,
+      TFormData
+    >,
+    req: TReq
+  ) => Promise<Response>
+): (
+  req: TReq,
+  providedContext: { params: Awaitable<any> | undefined }
+) => Promise<Response>
 ```
 
 The returned function matches what Next.js expects for `GET`, `POST`, etc. Use **`NextRequest`** as `TReq` by annotating the handler’s second parameter if you need `nextUrl` and friends; the cloned request passed to **`authorize`** is still a web **`Request`** (see below).
@@ -436,15 +453,15 @@ export const POST = createSafeRouteHandler(
 
 ## Handler context (`SafeRouteHandlerContext`)
 
-| Field | When |
-| --- | --- |
-| `id` | Always. |
-| `url` | Parsed request URL. |
-| `auth` | When `authorize` returned an object. |
-| `segments` | When `segments` option is set and validation succeeded. |
-| `searchParams` | When `searchParams` option is set. |
-| `body` | When `body` option is set. |
-| `formData` | When `formData` option is set. |
+| Field          | When                                                    |
+| -------------- | ------------------------------------------------------- |
+| `id`           | Always.                                                 |
+| `url`          | Parsed request URL.                                     |
+| `auth`         | When `authorize` returned an object.                    |
+| `segments`     | When `segments` option is set and validation succeeded. |
+| `searchParams` | When `searchParams` option is set.                      |
+| `body`         | When `body` option is set.                              |
+| `formData`     | When `formData` option is set.                          |
 
 The handler’s **second argument** is the original **`req`** (use `NextRequest` in the signature if needed).
 

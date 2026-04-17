@@ -1,7 +1,6 @@
 ---
-title: createSafeLayoutServerComponent
+title: Safe layout server component
 description: API reference for the safe App Router layout factory — segments, children, optional parallel slots, and authorization.
-icon: PanelTop
 ---
 
 `createSafeLayoutServerComponent` wraps a **default-exported** [`layout`](https://nextjs.org/docs/app/api-reference/file-conventions/layout) Server Component. It validates **dynamic segments**, passes **`children`** (and optional **parallel route slots**), supports **authorization**, and aligns with Next.js error boundaries. Import from **`@sugardarius/anzen/server-components`**.
@@ -23,7 +22,9 @@ function createSafeLayoutServerComponent<
   TSlots extends readonly string[] | undefined = undefined,
 >(
   options: CreateSafeLayoutServerComponentOptions<AC, TSegments, TSlots>,
-  layout: (ctx: SafeLayoutServerComponentContext<AC, TSegments, TSlots>) => Promise<React.ReactElement>
+  layout: (
+    ctx: SafeLayoutServerComponentContext<AC, TSegments, TSlots>
+  ) => Promise<React.ReactElement>
 ): (props: LayoutProvidedProps<TSlots>) => Promise<React.ReactElement>
 ```
 
@@ -347,12 +348,12 @@ export default createSafeLayoutServerComponent({}, async ({ children }) => {
 
 ## Handler context (`SafeLayoutServerComponentContext`)
 
-| Field | When |
-| --- | --- |
-| `id` | Always. |
-| `children` | Always — page content; may be a fragment when no child page exists. |
-| `auth` | When `authorize` returned a value. |
-| `segments` | When `segments` was configured. |
+| Field                | When                                                                                     |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| `id`                 | Always.                                                                                  |
+| `children`           | Always — page content; may be a fragment when no child page exists.                      |
+| `auth`               | When `authorize` returned a value.                                                       |
+| `segments`           | When `segments` was configured.                                                          |
 | `experimental_slots` | When `experimental_slots` was configured. Empty object when no matching parallel routes. |
 
 ## Error handling

@@ -1,7 +1,6 @@
 ---
-title: createSafeServerAction
-description: API reference for the safe server action factory — validation, authorization, structured results, and tagErr.
-icon: Zap
+title: Safe server action
+description: API reference for the safe server action factory — validation, authorization, structured results.
 ---
 
 `createSafeServerAction` builds a [Next.js Server Action](https://nextjs.org/docs/app/getting-started/mutating-data) with optional [Standard Schema](https://standardschema.dev/) input validation, optional authorization, and a consistent **`{ success, output | error }`** result for callers. Validation-library agnostic: use Zod, Valibot, decoders, or any compatible schema.
@@ -21,10 +20,16 @@ The factory has two overloads: **with** an `input` schema (callers pass a plain 
 function createSafeServerAction<TOutput, AC = undefined>(
   options: CreateSafeServerActionOptions<undefined, AC>,
   handler: (ctx: SafeServerActionContext<undefined, AC>) => Promise<TOutput>
-): (providedInput?: undefined) => Promise<SafeServerActionResult<TOutput, SafeServerActionError>>
+): (
+  providedInput?: undefined
+) => Promise<SafeServerActionResult<TOutput, SafeServerActionError>>
 
 // With input schema
-function createSafeServerAction<TOutput, TInput extends StandardSchemaV1, AC = undefined>(
+function createSafeServerAction<
+  TOutput,
+  TInput extends StandardSchemaV1,
+  AC = undefined,
+>(
   options: CreateSafeServerActionOptions<TInput, AC> & { input: TInput },
   handler: (ctx: SafeServerActionContext<TInput, AC>) => Promise<TOutput>
 ): (
@@ -268,12 +273,12 @@ export const updateNickname = createSafeServerAction(
 
 The handler receives a single context object:
 
-| Field | When |
-| --- | --- |
-| `id` | Always — resolved action id. |
+| Field               | When                                                      |
+| ------------------- | --------------------------------------------------------- |
+| `id`                | Always — resolved action id.                              |
 | `tagErr(code, ctx)` | Always — ends the action with a tagged error (see below). |
-| `auth` | When `authorize` returned a value. |
-| `input` | When an `input` schema was configured. |
+| `auth`              | When `authorize` returned a value.                        |
+| `input`             | When an `input` schema was configured.                    |
 
 ## Return value
 

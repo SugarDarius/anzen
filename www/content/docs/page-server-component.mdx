@@ -1,7 +1,6 @@
 ---
-title: createSafePageServerComponent
+title: Safe page server component
 description: API reference for the safe App Router page factory — validated segments and search params, authorization, and error handling.
-icon: FileText
 ---
 
 `createSafePageServerComponent` wraps a **default-exported** [`page`](https://nextjs.org/docs/app/api-reference/file-conventions/page) Server Component. It validates **dynamic segments** and **search params** with [Standard Schema](https://standardschema.dev/) dictionaries, runs optional **authorization**, and exposes a typed **`ctx`** to your render function. Import from the **`@sugardarius/anzen/server-components`** entry.
@@ -21,8 +20,13 @@ function createSafePageServerComponent<
   TSearchParams = undefined,
 >(
   options: CreateSafePageServerComponentOptions<AC, TSegments, TSearchParams>,
-  page: (ctx: SafePageServerComponentContext<AC, TSegments, TSearchParams>) => Promise<React.ReactElement>
-): (props: { params: Awaitable<any>; searchParams: Awaitable<any> }) => Promise<React.ReactElement>
+  page: (
+    ctx: SafePageServerComponentContext<AC, TSegments, TSearchParams>
+  ) => Promise<React.ReactElement>
+): (props: {
+  params: Awaitable<any>
+  searchParams: Awaitable<any>
+}) => Promise<React.ReactElement>
 ```
 
 The returned function is what you `export default` from `page.tsx`.
@@ -354,11 +358,11 @@ export default createSafePageServerComponent(
 
 ## Handler context (`SafePageServerComponentContext`)
 
-| Field | When |
-| --- | --- |
-| `id` | Always. |
-| `auth` | When `authorize` returned a value. |
-| `segments` | When `segments` was configured. |
+| Field          | When                                |
+| -------------- | ----------------------------------- |
+| `id`           | Always.                             |
+| `auth`         | When `authorize` returned a value.  |
+| `segments`     | When `segments` was configured.     |
 | `searchParams` | When `searchParams` was configured. |
 
 There is **no** `children` on the page context (use the layout factory for that).
