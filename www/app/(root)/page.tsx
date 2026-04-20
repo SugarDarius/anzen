@@ -4,6 +4,7 @@ import { Card, Cards } from 'fumadocs-ui/components/card'
 import { CodeExamples } from '~/components/code-examples'
 import { RetroGrid } from '~/components/retro-grid'
 import { Button } from '~/components/ui/button'
+import { siteConfig } from '~/config/site'
 
 export default function Page() {
   return (
@@ -177,11 +178,19 @@ export default function Page() {
         <div className='container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4'>
           <div className='flex items-center gap-2'>
             <span className='text-sm text-fd-muted-foreground'>
-              @sugardarius/anzen
+              &copy; 2026{' '}
+              <a
+                href={`${siteConfig.github.url}/blob/main/LICENSE`}
+                rel='noreferrer'
+                target='_blank'
+                className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
+              >
+                MIT License
+              </a>
             </span>
           </div>
           <p className='text-sm text-fd-muted-foreground'>
-            Built by{' '}
+            Built with ❤️ by{' '}
             <a
               href='https://github.com/SugarDarius'
               className='text-fd-foreground hover:underline underline-offset-4'
