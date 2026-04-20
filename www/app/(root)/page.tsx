@@ -49,7 +49,9 @@ export default function Page() {
             </a>
           </Button>
         </div>
-        <CodeExamples />
+        <div className='w-full px-4 md:px-0'>
+          <CodeExamples />
+        </div>
       </section>
 
       <footer className='py-8 border-t border-border'>
