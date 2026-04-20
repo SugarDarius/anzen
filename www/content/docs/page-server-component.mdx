@@ -35,7 +35,9 @@ The returned function is what you `export default` from `page.tsx`.
 
 When creating a safe page server component you can use a bunch of options for helping you achieve different tasks 👇🏻
 
-#### `id?: string`
+#### id
+
+`id?: string`
 
 Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
 By default the id is set to `[unknown:page:server:component]`.
@@ -51,7 +53,9 @@ export default createSafePageServerComponent(
 )
 ```
 
-#### `onError?: (err: unknown) => Awaitable<never>`
+#### onError
+
+`onError?: (err: unknown) => Awaitable<never>`
 
 Callback triggered when the pageserver component throws an unhandled error.
 By default it rethrows the error as a service hatch to Next.js do its job and use error boundaries. The error is logged into the console.
@@ -76,7 +80,9 @@ export default createSafePageServerComponent(
 )
 ```
 
-#### `debug?: boolean`
+#### debug
+
+`debug?: boolean`
 
 Use this options to enable debug mode. It will add logs in the page server component to help you debug the request.
 By default it's set to `false` for production builds.
@@ -92,7 +98,9 @@ export default createSafePageServerComponent({ debug: true }, async () => {
 
 You can configure page server component options' validation using a validation library dynamic route segments and URL query parameters 👇🏻
 
-#### `authorize?: PageAuthFunction<AC, TSegments, TSearchParams>`
+#### authorize
+
+`authorize?: PageAuthFunction<AC, TSegments, TSearchParams>`
 
 Function to use to authorize the page server component. By default it always authorize the server component.
 
@@ -242,7 +250,9 @@ export default createSafePageServerComponent(
 )
 ```
 
-#### `segments?: TSegments`
+#### segments
+
+`segments?: TSegments`
 
 [Dynamic route segments](https://nextjs.org/docs/app/api-reference/file-conventions/page#params) used for the page server component path. By design it will handle automatically if the segments are a `Promise` or not.
 
@@ -269,7 +279,9 @@ export default createSafePageServerComponent(
 )
 ```
 
-#### `onSegmentsValidationError?: OnValidationError`
+#### onSegmentsValidationError
+
+`onSegmentsValidationError?: OnValidationError`
 
 Callback triggered when dynamic segments validations returned issues. By default it throws a `ValidationError` and issues are logged into the console.
 
@@ -299,7 +311,9 @@ export default createSafePageServerComponent(
 )
 ```
 
-#### `searchParams?: TSearchParams`
+#### searchParams
+
+`searchParams?: TSearchParams`
 
 Search params used in the page.
 
@@ -326,7 +340,9 @@ export default createSafePageServerComponent(
 )
 ```
 
-#### `onSearchParamsValidationError?: OnValidationError`
+#### onSearchParamsValidationError
+
+`onSearchParamsValidationError?: OnValidationError`
 
 Callback triggered when search params validations returned issues. By default it throws a `ValidationError` and issues are logged into the console.
 
@@ -356,7 +372,9 @@ export default createSafePageServerComponent(
 )
 ```
 
-## Handler context (`SafePageServerComponentContext`)
+## Handler context
+
+`SafePageServerComponentContext` is the context object that is passed to the handler
 
 | Field          | When                                |
 | -------------- | ----------------------------------- |
