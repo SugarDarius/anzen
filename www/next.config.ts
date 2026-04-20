@@ -7,6 +7,20 @@ const withMdx = createMDX()
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ['@takumi-rs/image-response'],
+  async headers() {
+    return [
+      {
+        source: '/',
+        headers: [
+          {
+            key: 'Link',
+            value:
+              '</.well-known/api-catalog>; rel="api-catalog", </docs>; rel="service-doc", </llms.txt>; rel="describedby"',
+          },
+        ],
+      },
+    ]
+  },
   async rewrites() {
     return [
       {
