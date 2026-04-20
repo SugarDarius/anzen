@@ -1,10 +1,16 @@
 import Link from 'next/link'
 import { CodeExamples } from '~/components/code-examples'
+import { RetroGrid } from '~/components/retro-grid'
 import { Button } from '~/components/ui/button'
 
 export default function Page() {
   return (
-    <div className='flex flex-col w-full h-full'>
+    <div className='flex flex-col w-full h-full relative'>
+      <div className='absolute top-0 max-w-4xl inset-x-0 mx-auto h-[84px]'>
+        <div className='absolute inset-0'>
+          <RetroGrid />
+        </div>
+      </div>
       <section className='py-24 md:py-32'>
         <div className='container mx-auto px-4 text-center'>
           <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-fd-secondary/30 text-sm text-fd-muted-foreground mb-6'>
