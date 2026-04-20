@@ -6,13 +6,15 @@ icon: CircleQuestionMark
 
 ## Why?
 
-Without a shared pattern, server actions and route handlers often accumulate one-off checks, inconsistent error handling, and types that drift from runtime behavior. The examples below contrast **plain Next.js** with the same flows using **Anzen** — validation, authorization, and structured results in one place.
+Without a shared pattern, server actions, route handlers, and **page or layout** Server Components often accumulate one-off checks, inconsistent error handling, and types that drift from runtime behavior. The examples below contrast **plain Next.js** with the same flows using **Anzen** — validation, authorization, and structured results in one place.
 
 <div className="not-prose my-8">
   <Tabs defaultValue="ba-sa">
     <TabsList>
       <TabsTrigger value="ba-sa">Server Action</TabsTrigger>
       <TabsTrigger value="ba-rh">Route Handler</TabsTrigger>
+      <TabsTrigger value="ba-psc">Page Server Component</TabsTrigger>
+      <TabsTrigger value="ba-lsc">Layout Server Component</TabsTrigger>
     </TabsList>
     <TabsContent value="ba-sa">
       <div className="flex flex-col gap-5">
@@ -173,6 +175,171 @@ export const POST = createSafeRouteHandler(
   // [!code highlight]
   async ({ auth, body }, req): Promise<Response> => {
     return Response.json({ user: auth.user, body }, { status: 200 })
+  }
+)
+```
+
+        </ComparePane>
+      </div>
+    </TabsContent>
+    <TabsContent value="ba-psc">
+      <div className="flex flex-col gap-5">
+        <ComparePane variant="before" label="Before">
+
+```tsx title="app/[accountId]/page.tsx"
+import { unauthorized } from 'next/navigation'
+
+import { auth } from '~/lib/auth'
+import { getAccount } from '~/lib/db'
+
+import { AccountSummary } from '~/components/account-summary'
+
+type PageProps = { params: Promise<{ accountId: string }> }
+
+export default async function Page({ params }: PageProps) {
+  const { accountId } = await params
+
+  // Segment shape is unchecked until you validate it by hand
+  // [!code highlight]
+  if (typeof accountId !== 'string' || !accountId) {
+    unauthorized()
+  }
+
+  // Auth + data loading interleaved in the page body
+  // [!code highlight]
+  const session = await auth.getSession()
+  if (!session) {
+    unauthorized()
+  }
+
+  const account = await getAccount({ id: accountId })
+  return <AccountSummary user={session.user} account={account} />
+}
+```
+
+        </ComparePane>
+        <ComparePane variant="after" label="After">
+
+```tsx title="app/[accountId]/page.tsx"
+import { unauthorized } from 'next/navigation'
+import { string } from 'decoders'
+import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
+
+import { auth } from '~/lib/auth'
+import { getAccount } from '~/lib/db'
+
+import { AccountSummary } from '~/components/account-summary'
+
+// Segments + authorize + page body composed by the factory
+// [!code highlight]
+export default createSafePageServerComponent(
+  {
+    // [!code highlight]
+    authorize: async ({ segments }) => {
+      const session = await auth.getSession()
+      if (!session) {
+        unauthorized()
+      }
+
+      return { user: session.user }
+    },
+    // Route params validated as one Standard Schema dictionary
+    // [!code highlight]
+    segments: {
+      accountId: string,
+    },
+  },
+  // [!code highlight]
+  async ({ auth, segments }) => {
+    const account = await getAccount({ id: segments.accountId })
+    return <AccountSummary user={auth.user} account={account} />
+  }
+)
+```
+
+        </ComparePane>
+      </div>
+    </TabsContent>
+    <TabsContent value="ba-lsc">
+      <div className="flex flex-col gap-5">
+        <ComparePane variant="before" label="Before">
+
+```tsx title="app/[accountId]/layout.tsx"
+import type { ReactNode } from 'react'
+import { unauthorized } from 'next/navigation'
+
+import { auth } from '~/lib/auth'
+
+import { AccountHeader } from '~/components/account-header'
+
+type LayoutProps = {
+  params: Promise<{ accountId: string }>
+  children: ReactNode
+}
+
+export default async function Layout({ params, children }: LayoutProps) {
+  const { accountId } = await params
+
+  // Same manual segment checks repeated as in the page file
+  // [!code highlight]
+  if (typeof accountId !== 'string' || !accountId) {
+    unauthorized()
+  }
+
+  // [!code highlight]
+  const session = await auth.getSession()
+  if (!session) {
+    unauthorized()
+  }
+
+  return (
+    <div>
+      <AccountHeader user={session.user} accountId={accountId} />
+      {children}
+    </div>
+  )
+}
+```
+
+        </ComparePane>
+        <ComparePane variant="after" label="After">
+
+```tsx title="app/[accountId]/layout.tsx"
+import { unauthorized } from 'next/navigation'
+import { string } from 'decoders'
+import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
+
+import { auth } from '~/lib/auth'
+import { getAccount } from '~/lib/db'
+
+import { AccountHeader } from '~/components/account-header'
+
+// [!code highlight]
+export default createSafeLayoutServerComponent(
+  {
+    // [!code highlight]
+    authorize: async ({ segments }) => {
+      const session = await auth.getSession()
+      if (!session) {
+        unauthorized()
+      }
+
+      return { user: session.user }
+    },
+    // [!code highlight]
+    segments: {
+      accountId: string,
+    },
+  },
+  // [!code highlight]
+  async ({ auth, segments, children }) => {
+    const account = await getAccount({ id: segments.accountId })
+    return (
+      <div>
+        <AccountHeader user={auth.user} accountId={segments.accountId} />
+        {children}
+      </div>
+    )
   }
 )
 ```
