@@ -3,20 +3,15 @@
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock'
 
 import {
-  docsUsageLayoutServerComponent,
-  docsUsagePageServerComponent,
-  docsUsageRouteHandler,
   docsUsageServerAction,
   docsUsageTitles,
 } from '~/lib/docs-usage-snippets'
 import { getFumadocsCodeBlockIconHtml } from '~/lib/fumadocs-code-block-icon'
-import { SHIKI_DUAL_THEMES } from '~/lib/shiki-themes'
 import { cn } from '~/lib/utils'
 
-const shikiOptions = { themes: SHIKI_DUAL_THEMES }
+const shikiOptions = { themes: { light: 'github-light', dark: 'vesper' } }
 
 const iconTs = getFumadocsCodeBlockIconHtml('ts')
-const iconTsx = getFumadocsCodeBlockIconHtml('tsx')
 
 const examples = [
   {
@@ -25,27 +20,6 @@ const examples = [
     code: docsUsageServerAction,
     title: docsUsageTitles.serverAction,
     icon: iconTs,
-  },
-  {
-    label: 'Route Handler',
-    lang: 'ts' as const,
-    code: docsUsageRouteHandler,
-    title: docsUsageTitles.routeHandler,
-    icon: iconTs,
-  },
-  {
-    label: 'Page Server Component',
-    lang: 'tsx' as const,
-    code: docsUsagePageServerComponent,
-    title: docsUsageTitles.pageServerComponent,
-    icon: iconTsx,
-  },
-  {
-    label: 'Layout Server Component',
-    lang: 'tsx' as const,
-    code: docsUsageLayoutServerComponent,
-    title: docsUsageTitles.layoutServerComponent,
-    icon: iconTsx,
   },
 ] as const
 

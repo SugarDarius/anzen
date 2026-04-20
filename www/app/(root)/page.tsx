@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { Card, Cards } from 'fumadocs-ui/components/card'
+
 import { CodeExamples } from '~/components/code-examples'
 import { RetroGrid } from '~/components/retro-grid'
 import { Button } from '~/components/ui/button'
@@ -51,6 +53,123 @@ export default function Page() {
         </div>
         <div className='w-full px-4 md:px-0'>
           <CodeExamples />
+        </div>
+      </section>
+
+      <section className='py-24 md:py-32 border-t border-border'>
+        <div className='container mx-auto px-4'>
+          <h2 className='text-2xl md:text-3xl font-bold text-center mb-4'>
+            Why Anzen?
+          </h2>
+          <p className='text-fd-muted-foreground text-center mb-12 max-w-2xl mx-auto'>
+            Anzen means &quot;safe&quot; in Japanese. Build secure, type-safe
+            Next.js APIs with confidence.
+          </p>
+          <Cards className='grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto'>
+            <Card
+              icon={
+                <div className='flex items-center justify-center size-6'>
+                  🔧
+                </div>
+              }
+              title='Framework validation agnostic'
+            >
+              Use a validation library supporting Standard Schema.
+            </Card>
+
+            <Card
+              icon={
+                <div className='flex items-center justify-center size-6'>
+                  🧠
+                </div>
+              }
+              title='Focused functionalities'
+            >
+              Use only the features you need.
+            </Card>
+
+            <Card
+              icon={
+                <div className='flex items-center justify-center size-6'>
+                  🧹
+                </div>
+              }
+              title='Clean and flexible API'
+            >
+              Make it your own.
+            </Card>
+
+            <Card
+              icon={
+                <div className='flex items-center justify-center size-6'>
+                  🔒
+                </div>
+              }
+              title='Type-safe'
+            >
+              Full TypeScript inference.
+            </Card>
+
+            <Card
+              icon={
+                <div className='flex items-center justify-center size-6'>
+                  🌱
+                </div>
+              }
+              title='Dependency free'
+            >
+              Only Next.js is required as a peer dependency.
+            </Card>
+
+            <Card
+              icon={
+                <div className='flex items-center justify-center size-6'>
+                  🪶
+                </div>
+              }
+              title='Lightweight'
+            >
+              Your bundle is safe.
+            </Card>
+          </Cards>
+        </div>
+      </section>
+
+      <section className='py-16 border-t border-border'>
+        <div className='container mx-auto px-4 text-center'>
+          <h2 className='text-2xl md:text-3xl font-bold mb-4'>
+            Framework validation agnostic
+          </h2>
+          <p className='text-fd-muted-foreground max-w-2xl mx-auto mb-8'>
+            Use any validation library that implements the{' '}
+            <a
+              href='https://standardschema.dev'
+              className='text-fd-foreground underline underline-offset-4 hover:text-fd-muted-foreground transition-colors'
+            >
+              Standard Schema
+            </a>{' '}
+            interface. Mix and match as needed.
+          </p>
+          <div className='flex flex-wrap justify-center gap-4'>
+            {(
+              [
+                ['decoders', 'https://decoders.cc/docs'],
+                ['Zod', 'https://zod.dev'],
+                ['Valibot', 'https://valibot.dev'],
+                ['ArkType', 'https://arktype.io'],
+              ] as const
+            ).map(([label, href]) => (
+              <a
+                key={label}
+                href={href}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='px-4 py-2 rounded-full border border-border bg-fd-secondary/30 text-sm font-medium text-fd-foreground hover:bg-fd-secondary/50 hover:border-fd-border transition-colors'
+              >
+                {label}
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
