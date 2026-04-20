@@ -149,3 +149,13 @@
     }
   }
 }
+
+@layer base {
+  a {
+    @apply no-underline underline-offset-6 decoration-dashed transition-all duration-150 ease-out decoration-1;
+
+    &:hover {
+      @apply underline;
+    }
+  }
+}
