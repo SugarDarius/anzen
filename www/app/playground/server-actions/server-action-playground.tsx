@@ -157,19 +157,19 @@ function CodeSnippetPair({
   return (
     <div className='mb-4 grid gap-3 border-b border-border/70 pb-4 sm:grid-cols-2'>
       <div className='min-w-0 space-y-1.5'>
-        <p className='text-xs font-medium text-muted-foreground'>
-          <code className='font-mono text-foreground/80'>actions.ts</code>{' '}
+        <p className='text-xs font-medium text-fd-muted-foreground'>
+          <code className='font-mono text-fd-foreground/80'>actions.ts</code>{' '}
           (declaration)
         </p>
-        <pre className='max-h-64 overflow-auto rounded-lg border border-border bg-muted/30 p-3 text-left text-[11px] leading-snug font-mono whitespace-pre text-foreground'>
+        <pre className='max-h-64 overflow-auto rounded-lg border border-border bg-fd-muted/30 p-3 text-left text-[11px] leading-snug font-mono whitespace-pre text-fd-foreground'>
           {declaration}
         </pre>
       </div>
       <div className='min-w-0 space-y-1.5'>
-        <p className='text-xs font-medium text-muted-foreground'>
+        <p className='text-xs font-medium text-fd-muted-foreground'>
           Client (this page)
         </p>
-        <pre className='max-h-64 overflow-auto rounded-lg border border-border bg-muted/30 p-3 text-left text-[11px] leading-snug font-mono whitespace-pre text-foreground'>
+        <pre className='max-h-64 overflow-auto rounded-lg border border-border bg-fd-muted/30 p-3 text-left text-[11px] leading-snug font-mono whitespace-pre text-fd-foreground'>
           {usage}
         </pre>
       </div>
@@ -180,10 +180,10 @@ function CodeSnippetPair({
 function ResultPanel({ label, result }: { label: string; result: unknown }) {
   return (
     <div className='space-y-2'>
-      <p className='text-xs font-medium uppercase tracking-wide text-muted-foreground'>
+      <p className='text-xs font-medium uppercase tracking-wide text-fd-muted-foreground'>
         {label}
       </p>
-      <pre className='max-h-48 overflow-auto rounded-lg border border-border bg-muted/40 p-3 text-left text-xs leading-relaxed font-mono text-foreground'>
+      <pre className='max-h-48 overflow-auto rounded-lg border border-border bg-fd-muted/40 p-3 text-left text-xs leading-relaxed font-mono text-fd-foreground'>
         {JSON.stringify(result, null, 2)}
       </pre>
     </div>
@@ -205,7 +205,7 @@ function Section({
     <section className='rounded-xl border border-border bg-card/40 p-5 shadow-sm'>
       <div className='mb-4 space-y-1'>
         <h2 className='text-base font-semibold tracking-tight'>{title}</h2>
-        <p className='text-sm text-muted-foreground'>{description}</p>
+        <p className='text-sm text-fd-muted-foreground'>{description}</p>
       </div>
       {snippets ? (
         <CodeSnippetPair
@@ -245,28 +245,28 @@ export function ServerActionPlayground() {
       <div className='space-y-2'>
         <Link
           href='/playground'
-          className='text-sm text-muted-foreground transition-colors hover:text-foreground'
+          className='text-sm text-fd-muted-foreground transition-colors hover:text-fd-foreground'
         >
           ← Playground
         </Link>
         <h1 className='text-2xl font-semibold tracking-tight'>
           Safe server actions
         </h1>
-        <p className='text-sm text-muted-foreground'>
+        <p className='text-sm text-fd-muted-foreground'>
           Examples using{' '}
-          <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
+          <code className='rounded bg-fd-muted px-1.5 py-0.5 font-mono text-xs'>
             createSafeServerAction
           </code>{' '}
           from anzen: success payloads, validation,{' '}
-          <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
+          <code className='rounded bg-fd-muted px-1.5 py-0.5 font-mono text-xs'>
             tagErr
           </code>
           , authorization, FormData,{' '}
-          <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
+          <code className='rounded bg-fd-muted px-1.5 py-0.5 font-mono text-xs'>
             useActionState
           </code>
           , and Next.js{' '}
-          <code className='rounded bg-muted px-1.5 py-0.5 font-mono text-xs'>
+          <code className='rounded bg-fd-muted px-1.5 py-0.5 font-mono text-xs'>
             redirect
           </code>
           .
@@ -475,7 +475,7 @@ export function ServerActionPlayground() {
           >
             Go to playground home
           </Button>
-          <p className='text-xs text-muted-foreground'>
+          <p className='text-xs text-fd-muted-foreground'>
             You should land on <code className='font-mono'>/playground</code>{' '}
             with no JSON result panel — the redirect ends the action.
           </p>

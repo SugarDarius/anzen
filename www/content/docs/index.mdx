@@ -6,6 +6,8 @@ icon: CircleQuestionMark
 
 ## Why?
 
+> Anzen means safe in Japanese.
+
 Without a shared pattern, server actions, route handlers, and **page or layout** Server Components often accumulate one-off checks, inconsistent error handling, and types that drift from runtime behavior. The examples below contrast **plain Next.js** with the same flows using **Anzen** — validation, authorization, and structured results in one place.
 
 <div className="not-prose my-8">
@@ -523,11 +525,12 @@ npm i @sugardarius/anzen
   </TabsContent>
   <TabsContent value='layout-server-component'>
     ```tsx title="app/[accountId]/layout.tsx"
-    import { notFound, unauthorized } from 'next/navigation'
+    import { unauthorized } from 'next/navigation'
     import { string } from 'decoders'
     import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
 
     import { auth } from '~/lib/auth'
+    import { getAccount } from '~/lib/db'
 
     import { AccountHeader } from '~/components/account-header'
 
@@ -553,6 +556,7 @@ npm i @sugardarius/anzen
           </div>
         )
       }
+    )
     ```
 
   </TabsContent>

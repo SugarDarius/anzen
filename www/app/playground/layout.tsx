@@ -6,7 +6,7 @@ export default createSafeLayoutServerComponent(
   },
   async ({ children }) => {
     return (
-      <div className='flex w-full flex-col items-center py-8'>
+      <div className='flex w-full flex-col items-center py-8 px-8'>
         {children}
       </div>
     )
