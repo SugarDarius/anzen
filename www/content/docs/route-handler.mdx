@@ -1,0 +1,589 @@
+---
+title: Safe route handler
+description: API reference for the safe Route Handler factory — segments, search params, JSON body or form data, auth, and HTTP error responses.
+---
+
+`createSafeRouteHandler` wraps a [Next.js Route Handler](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) (`route.ts` / `route.js`) with optional validation of dynamic **segments**, **search params**, **JSON body** or **form data**, optional **authorization**, and centralized error handling. Schemas use [Standard Schema](https://standardschema.dev/); dictionaries use the package’s **Standard Schema dictionary** shape (see types `TSegmentsDict`, `TSearchParamsDict`, `TFormDataDict`).
+
+## Import
+
+```ts
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+```
+
+## Signature
+
+```ts
+function createSafeRouteHandler<
+  AC = undefined,
+  TSegments = undefined,
+  TSearchParams = undefined,
+  TBody = undefined,
+  TFormData = undefined,
+  TReq extends Request = Request,
+>(
+  options: CreateSafeRouteHandlerOptions<
+    AC,
+    TSegments,
+    TSearchParams,
+    TBody,
+    TFormData
+  >,
+  handler: (
+    ctx: SafeRouteHandlerContext<
+      AC,
+      TSegments,
+      TSearchParams,
+      TBody,
+      TFormData
+    >,
+    req: TReq
+  ) => Promise<Response>
+): (
+  req: TReq,
+  providedContext: { params: Awaitable<any> | undefined }
+) => Promise<Response>
+```
+
+The returned function matches what Next.js expects for `GET`, `POST`, etc. Use **`NextRequest`** as `TReq` by annotating the handler’s second parameter if you need `nextUrl` and friends; the cloned request passed to **`authorize`** is still a web **`Request`** (see below).
+
+Types: `CreateSafeRouteHandlerOptions`, `SafeRouteHandlerContext`, `RouteHandlerAuthFunction`, etc.
+
+### Using `NextRequest` type
+
+By default the factory uses the native `Request` type. If you want to use the `NextRequest` type from [Next.js](https://nextjs.org/), you can do it by just using the `NextRequest` type in the factory handler.
+
+```ts title="api/next-request/route.ts"
+import { NextRequest } from 'next/server'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler(
+  {
+    id: 'next/request',
+    authorize: async ({
+      // [!code highlight]
+      // Due to `NextRequest` limitations as the req is cloned it's always a `Request`
+      req,
+    }) => {
+      console.log(req)
+      return { user: 'John Doe' }
+    },
+  },
+  async (ctx, req: NextRequest) => {
+    console.log('pathname', req.nextUrl.pathname)
+    return new Response(null, 200)
+  }
+)
+```
+
+## Options
+
+When creating a safe route handler you can use a bunch of options for helping you achieve different tasks 👇🏻
+
+#### id
+
+`id?: string`
+
+Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
+By default the id is set to `[unknown:route:handler]`.
+
+```ts title="api/id/route.ts"
+export const POST = createSafeRouteHandler(
+  {
+    id: 'auth/login',
+  },
+  async ({ id }) => {
+    return Response.json({ id })
+  }
+)
+```
+
+#### onErrorResponse
+
+`onErrorResponse?: (err: unknown) => Awaitable<Response>`
+
+Callback triggered when the request fails.
+By default it returns a simple `500` response and the error is logged into the console.
+Use it if your handler use custom errors and you want to manage them properly by returning a proper response.
+You can read more about it under the [Error handling](#error-handling) section.
+
+#### debug
+
+`debug?: boolean`
+
+Use this options to enable debug mode. It will add logs in the handler to help you debug the request.
+By default it's set to `false` for production builds.
+In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
+
+```ts title="api/debug/route.ts"
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler({ debug: true }, async () => {
+  return new Response(null, { status: 200 })
+})
+```
+
+#### authorize
+
+`authorize?: RouteHandlerAuthFunction<AC, TSegments, TSearchParams, TBody, TFormData>`
+
+Function to use to authorize the request. By default it always authorize the request.
+
+Returns a response when the request is not authorized.
+
+The `authorize` function receives validated props (`segments`, `searchParams`, `body`, `formData`) when they are defined, allowing you to use validated data for authorization logic.
+
+<Callout>
+  **Note:** Validated props in the `authorize` function are available since
+  v2.0.0.
+</Callout>
+
+**Parameters:**
+
+- `id: string` - Route handler ID
+- `url: URL` - Parsed request URL
+- `req: Request` - Cloned request (to avoid side effects and make it consumable)
+- `segments?:` - Validated route dynamic segments (if `segments` option is defined)
+- `searchParams?:` - Validated search params (if `searchParams` option is defined)
+- `body?:` - Validated request body (if `body` option is defined)
+- `formData?:` - Validated form data (if `formData` option is defined)
+
+###### Basic authorization
+
+```ts title="api/authorize/route.ts"
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+export const GET = createSafeRouteHandler(
+  {
+    authorize: async ({ req, url }) => {
+      console.log('url', url)
+      const session = await auth.getSession(req)
+      if (!session) {
+        return new Response(null, { status: 401 })
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({ auth }, req): Promise<Response> => {
+    return Response.json({ user: auth.user }, { status: 200 })
+  }
+)
+```
+
+###### Authorization with validated segments
+
+```ts title="api/authorize/[accountId]/[projectId]/route.ts"
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+export const GET = createSafeRouteHandler(
+  {
+    segments: {
+      accountId: z.string(),
+      projectId: z.string(),
+    },
+    authorize: async ({ segments, req }) => {
+      // segments are already validated at this point
+      const session = await auth.getSession(req)
+      if (!session) {
+        return new Response(null, { status: 401 })
+      }
+
+      // Check if user has access to this account
+      const hasAccess = await checkAccountAccess(
+        session.user.id,
+        segments.accountId
+      )
+      if (!hasAccess) {
+        return new Response(null, { status: 403 })
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({ auth, segments }) => {
+    return Response.json({ user: auth.user, segments }, { status: 200 })
+  }
+)
+```
+
+###### Authorization with validated body
+
+```ts title="api/authorize/body/route.ts"
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const POST = createSafeRouteHandler(
+  {
+    body: z.object({
+      apiKey: z.string(),
+    }),
+    authorize: async ({ body, req }) => {
+      // body is already validated at this point
+      const isValidKey = await validateApiKey(body.apiKey)
+      if (!isValidKey) {
+        return new Response(null, { status: 401 })
+      }
+
+      return { apiKey: body.apiKey }
+    },
+  },
+  async ({ auth, body }) => {
+    return Response.json({ apiKey: auth.apiKey, body }, { status: 200 })
+  }
+)
+```
+
+###### Authorization with all validated props
+
+```ts title="api/authorize/all/route.ts"
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+export const POST = createSafeRouteHandler(
+  {
+    segments: { accountId: z.string() },
+    searchParams: { role: z.string() },
+    body: z.object({ action: z.string() }),
+    authorize: async ({ segments, searchParams, body, req }) => {
+      // All props are validated and available
+      const session = await auth.getSession(req)
+      if (!session) {
+        return new Response(null, { status: 401 })
+      }
+
+      const hasPermission = await checkPermission(
+        session.user.id,
+        segments.accountId,
+        searchParams.role,
+        body.action
+      )
+      if (!hasPermission) {
+        return new Response(null, { status: 403 })
+      }
+
+      return { user: session.user }
+    },
+  },
+  async ({ auth, segments, searchParams, body }) => {
+    return Response.json(
+      { user: auth.user, segments, searchParams, body },
+      { status: 200 }
+    )
+  }
+)
+```
+
+> The original request is cloned from the incoming request to avoid side effects and to make it consumable in the `authorize` function. Due to `NextRequest` limitations, the cloned request is always a `Request` type.
+
+#### segments
+
+`segments?: TSegments`
+
+[Dynamic route segments](https://nextjs.org/docs/app/building-your-application/routing/route-handlers#dynamic-route-segments) used for the route handler path. By design it will handle if the segments are a `Promise` or not.
+
+Please note the expected input is a `StandardSchemaDictionary`.
+
+```ts title="/api/accounts/[accountId]/projects/[projectId]/route.ts"
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler(
+  {
+    segments: {
+      accountId: z.string(),
+      projectId: z.string().optional(),
+    },
+  },
+  async ({ segments }) => {
+    return Response.json({ segments })
+  }
+)
+```
+
+#### onSegmentsValidationErrorResponse
+
+`onSegmentsValidationErrorResponse?: OnValidationErrorResponse`
+
+Callback triggered when dynamic segments validations returned issues. By default it returns a simple `400` response and issues are logged into the console.
+
+```ts title="api/on-segments-validation-error/route.ts"
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler(
+  {
+    segments: {
+      accountId: z.string(),
+      projectId: z.string().optional(),
+    },
+    onSegmentsValidationErrorResponse: (issues) => {
+      return Response.json({ issues }, { status: 400 })
+    },
+  },
+  async ({ segments }) => {
+    return Response.json({ segments })
+  }
+)
+```
+
+#### searchParams
+
+`searchParams?: TSearchParams`
+
+Search params used in the route.
+
+Please note the expected input is a `StandardSchemaDictionary`.
+
+```ts title="api/search-params/route.ts"
+import { string, numeric, optional } from 'decoders'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler(
+  {
+    searchParams: {
+      query: string,
+      page: optional(numeric),
+    },
+  },
+  async ({ searchParams }) => {
+    return Response.json({ searchParams })
+  }
+)
+```
+
+#### onSearchParamsValidationErrorResponse
+
+`onSearchParamsValidationErrorResponse?: OnValidationErrorResponse`
+
+Callback triggered when search params validations returned issues. By default it returns a simple `400` response and issues are logged into the console.
+
+```ts title="api/on-search-params-validation-error/route.ts"
+import { string, numeric, optional } from 'decoders'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const GET = createSafeRouteHandler(
+  {
+    searchParams: {
+      query: string,
+      page: optional(numeric),
+    },
+    onSearchParamsValidationErrorResponse: (issues) => {
+      return Response.json({ issues }, { status: 400 })
+    },
+  },
+  async ({ searchParams }) => {
+    return Response.json({ searchParams })
+  }
+)
+```
+
+#### body
+
+`body?: TBody`
+
+Request body.
+
+Returns a `405` response if the request method is not `POST`, `PUT` or `PATCH`.
+
+Returns a `415`response if the request does not explicitly set the `Content-Type` to `application/json`.
+
+Please note the body is parsed as JSON, so it must be a valid JSON object. Body shouldn't be used with `formData` at the same time. They are **exclusive**.
+
+Why making the distinction? `formData` is used as a `StandardSchemaDictionary` whereas `body` is used as a `StandardSchemaV1`.
+
+```ts title="api/body/route.ts"
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const POST = createSafeRouteHandler(
+  {
+    body: z.object({
+      name: z.string(),
+      model: z.string(),
+      apiKey: z.string(),
+    }),
+  },
+  async ({ body }) => {
+    return Response.json({ body })
+  }
+)
+```
+
+> When validating the body the request is cloned to let you consume the body in the original request (e.g second arguments of handler function).
+
+#### onBodyValidationErrorResponse
+
+`onBodyValidationErrorResponse?: OnValidationErrorResponse`
+
+Callback triggered when body validation returned issues. By default it returns a simple `400` response and issues are logged into the console.
+
+```ts title="api/on-body-validation-error/route.ts"
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const POST = createSafeRouteHandler(
+  {
+    body: z.object({
+      name: z.string(),
+      model: z.string(),
+      apiKey: z.string(),
+    }),
+    onBodyValidationErrorResponse: (issues) => {
+      return Response.json({ issues }, { status: 400 })
+    },
+  },
+  async ({ body }) => {
+    return Response.json({ body })
+  }
+)
+```
+
+#### formData
+
+`formData?: TFormData`
+
+Request form data.
+
+Returns a `405` response if the request method is not `POST`, `PUT` or `PATCH`.
+
+Returns a `415`response if the request does not explicitly set the `Content-Type` to `multipart/form-data` or to `application/x-www-form-urlencoded`.
+
+Please note formData shouldn't be used with `body` at the same time. They are **exclusive**.
+
+Why making the distinction? `formData` is used as a `StandardSchemaDictionary` whereas `body` is used as a `StandardSchemaV1`.
+
+```ts title="api/form-data/route.ts"
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const POST = createSafeRouteHandler(
+  {
+    formData: {
+      id: z.string(),
+      message: z.string(),
+    },
+  },
+  async ({ formData }) => {
+    return Response.json({ formData })
+  }
+)
+```
+
+> When validating the form data the request is cloned to let you consume the form data in the original request (e.g second arguments of handler function).
+
+#### onFormDataValidationErrorResponse
+
+`onFormDataValidationErrorResponse?: OnValidationErrorResponse`
+
+Callback triggered when form data validation returned issues. By default it returns a simple `400` response and issues are logged into the console.
+
+```ts title="api/on-form-data-validation-error/route.ts"
+import { z } from 'zod'
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+
+export const POST = createSafeRouteHandler(
+  {
+    formData: {
+      id: z.string(),
+      message: z.string(),
+    },
+    onFormDataValidationErrorResponse: (issues) => {
+      return Response.json({ issues }, { status: 400 })
+    },
+  },
+  async ({ formData }) => {
+    return Response.json({ formData })
+  }
+)
+```
+
+## Handler context
+
+`SafeRouteHandlerContext` is the context object that is passed to the handler.
+
+| Field          | When                                                    |
+| -------------- | ------------------------------------------------------- |
+| `id`           | Always.                                                 |
+| `url`          | Parsed request URL.                                     |
+| `auth`         | When `authorize` returned an object.                    |
+| `segments`     | When `segments` option is set and validation succeeded. |
+| `searchParams` | When `searchParams` option is set.                      |
+| `body`         | When `body` option is set.                              |
+| `formData`     | When `formData` option is set.                          |
+
+The handler’s **second argument** is the original **`req`** (use `NextRequest` in the signature if needed).
+
+## Error handling
+
+By design the factory will catch any error thrown in the route handler will return a simple response with `500` status.
+
+You can customize the error response if you want to fine tune error response management.
+
+```ts title="api/on-error/route.ts"
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { HttpError, DbUnknownError } from '~/lib/errors'
+import { db } from '~/lib/db'
+
+export const GET = createSafeRouteHandler(
+  {
+    onErrorResponse: async (err: unknown): Promise<Response> => {
+      if (err instanceof HttpError) {
+        return new Response(err.message, { status: err.status })
+      } else if (err instanceof DbUnknownError) {
+        return new Response(err.message, { status: err.status })
+      }
+
+      return new Response('Internal server error', { status: 500 })
+    },
+  },
+  async (): Promise<Response> => {
+    const [data, err] = await db.findUnique({ id: 'liveblocks' })
+
+    if (err) {
+      throw new DbUnknownError(err.message, 500)
+    }
+
+    if (data === null) {
+      throw new HttpError(404)
+    }
+
+    return Response.json({ data })
+  }
+)
+```
+
+Validation failures use the **`on*ValidationErrorResponse`** hooks or the defaults described in **Options** (**400**).
+
+## Synchronous Validation
+
+Validation must be **synchronous**. The [Standard Schema](https://github.com/standard-schema/standard-schema) contract discourages async validation. If a schema resolves validation asynchronously, behavior is undefined and may throw at runtime.
+
+## Fair use note
+
+Please note that if you're not using any of the proposed options in `createSafeRouteHandler` it means you're surely don't need it.
+
+```ts title="api/plain-vs-safe/route.ts"
+// Calling 👇🏻
+export const GET = createSafeRouteHandler({}, async () => {
+  return new Response(null, { status: 200 })
+})
+
+// is equal to declare the route handler this way 👇🏻
+export function GET() {
+  return new Response(null, { status: 200 })
+}
+// excepts `createSafeRouteHandler` will provide by default a native error catching
+// and will return a `500` response. That's the only advantage.
+```
+
+## See also
+
+- [Get started](/docs/get-started)
+- [Safe server action](/docs/server-action)
+- [Safe page server component](/docs/page-server-component)
+- [Safe layout server component](/docs/layout-server-component)

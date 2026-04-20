@@ -1,15 +1,6 @@
-import { z } from 'zod'
-import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { createFromSource } from 'fumadocs-core/search/server'
+import { source } from '~/lib/source'
 
-export const GET = createSafeRouteHandler(
-  {
-    id: 'URL query params <zod>',
-    searchParams: {
-      query: z.string(),
-      page: z.string().optional(),
-    },
-  },
-  async (ctx) => {
-    return Response.json({ searchParams: ctx.searchParams })
-  }
-)
+export const { GET } = createFromSource(source, {
+  language: 'english',
+})

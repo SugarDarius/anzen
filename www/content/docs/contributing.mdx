@@ -1,0 +1,58 @@
+---
+title: Contributing
+description: How to report issues, develop locally, and submit pull requests for Anzen.
+---
+
+Thank you for your interest in improving Anzen. This page describes how we handle issues and pull requests, how to run the project locally, and what we look for in contributions.
+
+## Issues
+
+Use [GitHub Issues](https://github.com/SugarDarius/anzen/issues) for:
+
+- **Bugs** — include a minimal reproduction, Next.js version, and what you expected vs. what happened.
+- **Feature ideas** — describe the problem you are solving. For new factory options or API surface, a short example of the desired usage helps a lot.
+- **Questions** — if something is unclear in the [docs](/docs) or types, ask; it often leads to better documentation.
+
+For larger changes (new factory options, breaking behavior, or new exports), opening an issue before you invest in a PR helps align on direction.
+
+## Pull requests
+
+1. **Fork** the repository and create a **branch** from `main` with a clear name (for example `fix/route-handler-types` or `feat/layout-factory-option`).
+2. **Keep changes focused** — one logical change per PR is easier to review and ship.
+3. **Reference** an existing issue in the description when it applies (`Fixes #123` or `Related to #456`).
+4. **Describe** what changed and why in the PR body, in full sentences.
+
+Pull requests that adjust the public API should preserve backward compatibility unless the issue explicitly calls for a breaking change and it is agreed in the issue thread.
+
+## Local development
+
+From the repository root:
+
+```npm
+npm install
+```
+
+**Library** (`src/`):
+
+- `npm run dev` — watch mode with [tsup](https://tsup.egoist.dev/) while you edit.
+- `npm run test` — run the [Vitest](https://vitest.dev/) suite.
+- `npm run lint` — ESLint, TypeScript (`tsc --noEmit`), and package checks (`publint`, [Are the types wrong?](https://github.com/arethetypeswrong/arethetypeswrong.github.io)).
+- `npm run build` — production build of the package (useful before opening a PR).
+
+**Docs site** (`www/`):
+
+```npm
+npm run dev:www
+```
+
+That runs the Next.js app so you can preview documentation changes.
+
+## What we optimize for
+
+Contributions that fit these goals are most likely to merge:
+
+- **Small, predictable API** — factories stay easy to learn; new options should earn their place.
+- **Strong TypeScript inference** — callers should not need extra assertions when using documented patterns.
+- **Validation-library agnostic** — behavior should remain compatible with [Standard Schema](https://standardschema.dev/) and typical usage in the existing factories.
+
+If you are unsure whether an idea fits, open an issue first and we can discuss it.

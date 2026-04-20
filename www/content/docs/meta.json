@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "---Introduction---",
+    "index",
+    "get-started",
+    "---API Reference---",
+    "server-action",
+    "route-handler",
+    "page-server-component",
+    "layout-server-component",
+    "---Community---",
+    "contributing",
+    "credits"
+  ]
+}

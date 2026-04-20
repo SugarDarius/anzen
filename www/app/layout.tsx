@@ -3,14 +3,12 @@ import { Geist, Geist_Mono } from 'next/font/google'
 
 import { Analytics } from '@vercel/analytics/next'
 
+import { RootProvider } from 'fumadocs-ui/provider/next'
+
 import './globals.css'
 
 import { cn } from '~/lib/utils'
 import { baseUrl, siteConfig } from '~/config/site'
-
-import { ThemeProvider } from '~/components/theme-provider'
-import { SiteHeader } from '~/components/site-header'
-import { SiteFooter } from '~/components/site-footer'
 
 const GeistSans = Geist({
   variable: '--font-geist-sans',
@@ -70,30 +68,17 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang='en' suppressHydrationWarning>
       <body
         className={cn(
           GeistSans.variable,
           GeistMono.variable,
-          'font-sans antialiased'
+          'font-sans antialiased flex flex-col min-h-screen'
         )}
       >
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='system'
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className='container mx-auto relative flex min-h-dvh flex-col px-8 max-w-5xl border-x border-x-muted'>
-            <SiteHeader />
-            {children}
-            <SiteFooter />
-          </div>
-        </ThemeProvider>
+        <RootProvider>{children}</RootProvider>
         <Analytics />
       </body>
     </html>

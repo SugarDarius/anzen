@@ -15,6 +15,7 @@ Server Component files in Next.js.
 - 🧹 Clean and flexible API.
 - 🔒 Type-safe.
 - 🌱 Dependency free. Only [Next.js](https://nextjs.org/) is required as peer dependency.
+- 🪶 Lightweight.
 
 ## Install
 

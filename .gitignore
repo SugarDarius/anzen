@@ -46,3 +46,6 @@ next-env.d.ts
 
 # npm
 .npmrc
+
+# generated content
+.source
