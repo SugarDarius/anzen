@@ -18,7 +18,7 @@ export default function Page() {
           <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-fd-secondary/30 text-sm text-fd-muted-foreground mb-6'>
             <span className='relative flex h-2 w-2'>
               <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-fd-accent opacity-75'></span>
-              <span className='relative inline-flex rounded-full h-2 w-2 bg-fd-diff-add-symbol'></span>
+              <span className='relative inline-flex rounded-full h-2 w-2 bg-cyan-400'></span>
             </span>
             New server action factory is out!
           </div>
