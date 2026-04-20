@@ -34,7 +34,9 @@ function createSafeLayoutServerComponent<
 
 When creating a safe layout server component you can use a bunch of options for helping you achieve different tasks 👇🏻
 
-#### `id?: string`
+#### id
+
+`id?: string`
 
 Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
 By default the id is set to `[unknown:layout:server:component]`.
@@ -50,7 +52,9 @@ export default createSafeLayoutServerComponent(
 )
 ```
 
-#### `onError?: (err: unknown) => Awaitable<never>`
+#### onError
+
+`onError?: (err: unknown) => Awaitable<never>`
 
 Callback triggered when the layout server component throws an unhandled error.
 By default it rethrows the error as a service hatch to Next.js do its job and use error boundaries. The error is logged into the console.
@@ -75,7 +79,9 @@ export default createSafeLayoutServerComponent(
 )
 ```
 
-#### `debug?: boolean`
+#### debug
+
+`debug?: boolean`
 
 Use this options to enable debug mode. It will add logs in the layout server component to help you debug the request.
 By default it's set to `false` for production builds.
@@ -91,7 +97,9 @@ export default createSafeLayoutServerComponent({ debug: true }, async () => {
 
 Layout server components support the same options as page server components except `searchParams` and `onSearchParamsValidationError`. Additionally, layout server components receive `children` in their context.
 
-#### `authorize?: LayoutAuthFunction<AC, TSegments>` (Layout only)
+#### authorize
+
+`authorize?: LayoutAuthFunction<AC, TSegments>`
 
 Function to use to authorize the layout server component. By default it always authorize the server component.
 
@@ -145,7 +153,9 @@ export default createSafeLayoutServerComponent(
 
 You can configure layout server component options' validation using a validation library dynamic route segments 👇🏻
 
-#### `authorize?: LayoutAuthFunction<AC, TSegments>`
+#### authorize
+
+`authorize?: LayoutAuthFunction<AC, TSegments>`
 
 Function to use to authorize the layout server component. By default it always authorize the layout server component.
 
@@ -225,7 +235,9 @@ export default createSafeLayoutServerComponent(
 )
 ```
 
-#### `segments?: TSegments`
+#### segments
+
+`segments?: TSegments`
 
 [Dynamic route segments](https://nextjs.org/docs/app/api-reference/file-conventions/layout#params) used for the layout server component path. By design it will handle automatically if the segments are a `Promise` or not.
 
@@ -252,7 +264,9 @@ export default createSafeLayoutServerComponent(
 )
 ```
 
-#### `onSegmentsValidationError?: OnValidationError`
+#### onSegmentsValidationError
+
+`onSegmentsValidationError?: OnValidationError`
 
 Callback triggered when dynamic segments validations returned issues. By default it throws a `ValidationError` and issues are logged into the console.
 
@@ -282,7 +296,9 @@ export default createSafeLayoutServerComponent(
 )
 ```
 
-#### 🧪 `experimental_slots?: string[]`
+#### experimental_slots 🧪
+
+`experimental_slots?: string[]`
 
 Slots used in the layout when using [Next.js parallel routes](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes) (experimental).
 
@@ -346,7 +362,9 @@ export default createSafeLayoutServerComponent({}, async ({ children }) => {
 })
 ```
 
-## Handler context (`SafeLayoutServerComponentContext`)
+## Handler context
+
+`SafeLayoutServerComponentContext` is the context object that is passed to the handler.
 
 | Field                | When                                                                                     |
 | -------------------- | ---------------------------------------------------------------------------------------- |
