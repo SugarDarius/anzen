@@ -16,6 +16,7 @@ import { Steps, Step } from 'fumadocs-ui/components/steps'
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom'
 import { cn } from './lib/utils'
 import { Callout } from './components/callout'
+import { ComparePane } from './components/compare-pane'
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
@@ -38,6 +39,7 @@ export function getMDXComponents(components?: MDXComponents) {
       />
     ),
     Callout,
+    ComparePane,
     CodeBlockTab: ({
       className,
       ...props

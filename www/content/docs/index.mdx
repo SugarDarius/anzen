@@ -4,6 +4,186 @@ description: Fast, flexible, framework validation agnostic, type‑safe factorie
 icon: CircleQuestionMark
 ---
 
+## Why?
+
+Without a shared pattern, server actions and route handlers often accumulate one-off checks, inconsistent error handling, and types that drift from runtime behavior. The examples below contrast **plain Next.js** with the same flows using **Anzen** — validation, authorization, and structured results in one place.
+
+<div className="not-prose my-8">
+  <Tabs defaultValue="ba-sa">
+    <TabsList>
+      <TabsTrigger value="ba-sa">Server Action</TabsTrigger>
+      <TabsTrigger value="ba-rh">Route Handler</TabsTrigger>
+    </TabsList>
+    <TabsContent value="ba-sa">
+      <div className="flex flex-col gap-5">
+        <ComparePane variant="before" label="Before">
+
+```ts title="actions/create-thread.ts"
+'use server'
+
+import { auth } from '~/lib/auth'
+import { db } from '~/lib/db'
+
+export async function createThread(formData: FormData) {
+  // Read fields from FormData — shape is implicit, not validated as one unit
+  const spaceId = formData.get('spaceId')
+  const commentRaw = formData.get('comment')
+
+  // Ad-hoc guards; each failure path throws a different Error
+  // [!code highlight]
+  if (typeof spaceId !== 'string' || !spaceId) {
+    throw new Error('Invalid spaceId')
+  }
+  if (typeof commentRaw !== 'string') {
+    throw new Error('Invalid comment')
+  }
+
+  // Auth and domain logic live in the same function as parsing
+  // [!code highlight]
+  const session = await auth()
+  if (!session.user) {
+    throw new Error('unauthorized')
+  }
+  if (!session.access.includes(spaceId)) {
+    throw new Error('forbidden')
+  }
+
+  // Nested JSON parsed and asserted by hand
+  // [!code highlight]
+  let comment: { createdAt: string; content: string }
+  try {
+    comment = JSON.parse(commentRaw) as { createdAt: string; content: string }
+  } catch {
+    throw new Error('Invalid comment JSON')
+  }
+
+  return db.createThread({
+    thread: { spaceId, comment, authorId: session.user.id },
+  })
+}
+```
+
+        </ComparePane>
+        <ComparePane variant="after" label="After">
+
+```ts title="actions/create-thread.ts"
+'use server'
+
+import { object, string, datelike } from 'decoders'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+import { auth } from '~/lib/auth'
+import { db } from '~/lib/db'
+
+// Factory wires validation, auth, and handler with a stable result shape
+// [!code highlight]
+export const createThread = createSafeServerAction(
+  {
+    id: 'create-thread-action',
+    // One Standard Schema object — input is inferred + validated together
+    // [!code highlight]
+    input: object({
+      spaceId: string,
+      createdAt: datelike,
+      comment: object({
+        createdAt: datelike,
+        content: string,
+      }),
+    }),
+    // Authorization separated from the business handler
+    // [!code highlight]
+    authorize: async ({ input }) => {
+      const session = await auth()
+      if (!session.user) {
+        throw new Error('user is not authenticated')
+      }
+      if (!session.access.includes(input.spaceId)) {
+        throw new Error('user has not access')
+      }
+      return { user: session.user }
+    },
+  },
+  // Typed `input` + `auth`; callers get `{ success, output | error }`
+  // [!code highlight]
+  async ({ auth, input, id }) => {
+    const inserted = await db.createThread({
+      thread: { ...input, authorId: auth.user.id },
+    })
+    return { inserted, actionId: id }
+  }
+)
+```
+
+        </ComparePane>
+      </div>
+    </TabsContent>
+    <TabsContent value="ba-rh">
+      <div className="flex flex-col gap-5">
+        <ComparePane variant="before" label="Before">
+
+```ts title="api/threads/route.ts"
+import { auth } from '~/lib/auth'
+
+export async function POST(req: Request) {
+  // Session check + early Response inlined in the handler
+  // [!code highlight]
+  const session = await auth.getSession(req)
+  if (!session) {
+    return new Response(null, { status: 401 })
+  }
+
+  // Body: manual parse + runtime type checks
+  // [!code highlight]
+  let body: unknown
+  try {
+    body = await req.json()
+  } catch {
+    return new Response('Invalid JSON', { status: 400 })
+  }
+  if (typeof body !== 'object' || body === null) {
+    return new Response('Invalid body', { status: 400 })
+  }
+
+  return Response.json({ user: session.user, body }, { status: 200 })
+}
+```
+
+        </ComparePane>
+        <ComparePane variant="after" label="After">
+
+```ts title="api/threads/route.ts"
+import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { auth } from '~/lib/auth'
+
+// Route is a factory — shared behavior (e.g. auth) lives in one place
+// [!code highlight]
+export const POST = createSafeRouteHandler(
+  {
+    // Same 401 logic, but declared as a reusable authorize step
+    // [!code highlight]
+    authorize: async ({ req }) => {
+      const session = await auth.getSession(req)
+      if (!session) {
+        return new Response(null, { status: 401 })
+      }
+      return { user: session.user }
+    },
+  },
+  // `auth` is injected; handler focuses on the response
+  // [!code highlight]
+  async ({ auth, body }, req): Promise<Response> => {
+    return Response.json({ user: auth.user, body }, { status: 200 })
+  }
+)
+```
+
+        </ComparePane>
+      </div>
+    </TabsContent>
+
+  </Tabs>
+</div>
+
 ## Philosophy
 
 While [server
