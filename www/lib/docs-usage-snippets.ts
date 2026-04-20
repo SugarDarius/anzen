@@ -2,7 +2,6 @@
  * Code samples from the “Usage” section on the docs home page (`content/docs/index.mdx`).
  * Kept in one place so the marketing page can mirror the docs verbatim.
  */
-
 export const docsUsageServerAction = `'use server'
 
 import { object, string, datelike } from 'decoders'

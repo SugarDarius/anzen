@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "postinstall": "fumadocs-mdx",
     "dev": "next dev --experimental-https -p 3002",
     "build": "next build",
     "start": "next start",
