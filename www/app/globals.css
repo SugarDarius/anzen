@@ -151,11 +151,23 @@
 }
 
 @layer base {
-  a {
+  /* MDX body only (DocsBody uses `prose`): heading anchor links, not sidebar/nav/cards */
+  .prose
+    :is(h1, h2, h3, h4, h5, h6)
+    :where(a):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
     @apply no-underline underline-offset-6 decoration-dashed transition-all duration-150 ease-out decoration-1;
 
     &:hover {
       @apply underline;
     }
+  }
+}
+
+@layer utilities {
+  .prose
+    :where(a:not([data-card])):not(
+      :where([class~='not-prose'], [class~='not-prose'] *)
+    ) {
+    @apply decoration-dashed transition-all duration-150 ease-out decoration-1;
   }
 }
