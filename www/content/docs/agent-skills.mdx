@@ -1,0 +1,49 @@
+---
+title: Agent skills
+description: Install the Anzen agent skill with the open skills CLI so coding agents get consistent guidance on server actions, route handlers, and Server Components.
+---
+
+[Agent skills](https://github.com/vercel-labs/skills#what-are-agent-skills) are reusable instruction sets for coding agents (Cursor, Claude Code, Codex, and [many others](https://github.com/vercel-labs/skills#supported-agents)). They ship as `SKILL.md` files with YAML frontmatter and are installed with the [`npx skills`](https://github.com/vercel-labs/skills) CLI. Browse and discover skills at [skills.sh](https://skills.sh).
+
+This repository includes an **Anzen** skill so agents apply the same patterns as these docs: Standard Schema validation, `authorize` behavior per surface, and when factories are worth using.
+
+## What’s in the repo
+
+| Path                                                                                                 | Role                                                                                              |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| [`skills/anzen/SKILL.md`](https://github.com/SugarDarius/anzen/blob/main/skills/anzen/SKILL.md)      | Main skill: when to use Anzen, steps, imports, validation rules, fair use                         |
+| [`skills/anzen/references/`](https://github.com/SugarDarius/anzen/blob/main/skills/anzen/references) | Short topic files (validation, authorization, each factory) with links back to this documentation |
+
+The skill’s `description` field is written so agents can decide when to load it (Next.js App Router, `@sugardarius/anzen`, safe actions/routes/RSC, and so on).
+
+## Install the skill
+
+**From GitHub** (recommended):
+
+```bash
+npx skills add SugarDarius/anzen
+```
+
+Other useful forms:
+
+```bash
+npx skills add https://github.com/SugarDarius/anzen/tree/main/skills/anzen
+```
+
+**From a local clone** — run at the **repository root** (the folder that contains `skills/anzen/`), not inside `skills/anzen`:
+
+```bash
+npx skills add /path/to/anzen
+```
+
+If the install source exposes several skills, select this one with `--skill anzen`.
+
+## Verify without installing
+
+List skills the CLI finds in the repo:
+
+```bash
+npx skills add . --list
+```
+
+(From the monorepo root, or use `SugarDarius/anzen` once changes are on GitHub.)
