@@ -42,9 +42,6 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params
   const page = source.getPage(params.slug)
 
-  console.log(params.slug)
-  console.log(page)
-
   if (!page) {
     notFound()
   }
