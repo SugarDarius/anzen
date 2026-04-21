@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation'
 import { ImageResponse } from '@takumi-rs/image-response'
-import { generate as DefaultImage } from 'fumadocs-ui/og/takumi'
 
 import { getPageImage, source } from '~/lib/source'
-import { siteConfig } from '~/config/site'
+import { baseUrl } from '~/config/site'
+import { OgImage } from '../../_components/og-image'
 
 export const revalidate = false
 
@@ -16,19 +16,22 @@ export function generateStaticParams() {
 
 export async function GET(
   _req: Request,
-  { params }: RouteContext<'/og/docs/[...slug]'>
+  { params }: RouteContext<'/og/docs/[[...slug]]'>
 ) {
   const { slug } = await params
-  const page = source.getPage(slug.slice(0, -1))
-  if (!page) notFound()
+  const page = source.getPage(slug)
+  if (!page) {
+    notFound()
+  }
+
+  const url = new URL(page.url, baseUrl).toString().replace('https://', '')
 
   return new ImageResponse(
-    <DefaultImage
+    <OgImage
       title={page.data.title}
-      description={page.data.description}
-      site={siteConfig.title}
-      primaryColor='rgba(0, 221, 255, 1)'
-      primaryTextColor='rgba(255, 255, 255, 1)'
+      description={page.data.description ?? ''}
+      date={page.data.lastModified?.toLocaleDateString()}
+      url={url}
     />,
     {
       width: 1200,

@@ -9,11 +9,11 @@ import {
 } from 'fumadocs-ui/layouts/docs/page'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
 
+import { siteConfig } from '~/config/site'
 import { getPageImage, source } from '~/lib/source'
 import { getMDXComponents } from '~/mdx-components'
 import { RetroGrid } from '~/components/retro-grid'
 import { PageActions } from '~/components/ai/page-actions'
-import { siteConfig } from '~/config/site'
 
 export async function generateStaticParams() {
   return source.generateParams()
@@ -42,6 +42,9 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params
   const page = source.getPage(params.slug)
 
+  console.log(params.slug)
+  console.log(page)
+
   if (!page) {
     notFound()
   }
@@ -58,34 +61,6 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       footer={{
         enabled: true,
         component: (
-          // <footer className='container pt-6 flex items-center justify-between relative border-t'>
-          //   <span className='text-sm  text-fd-secondary-foreground'>
-          //     &copy; 2026{' '}
-          //     <a
-          //       href={`${siteConfig.github.url}/blob/main/LICENSE`}
-          //       rel='noreferrer'
-          //       target='_blank'
-          //       className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
-          //     >
-          //       MIT License
-          //     </a>
-          //     , with ❤️{' '}
-          //     <span className='hidden sm:inline'>
-          //       by{' '}
-          //       {siteConfig.authors.map((author) => (
-          //         <a
-          //           key={author.name}
-          //           href={author.url}
-          //           target='_blank'
-          //           rel='noreferrer'
-          //           className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
-          //         >
-          //           {author.name}
-          //         </a>
-          //       ))}
-          //     </span>
-          //   </span>
-          // </footer>
           <footer className='container pt-6 border-t border-border flex-noe'>
             <div className='w-full flex flex-col sm:flex-row items-center justify-between gap-2'>
               <div className='flex items-center gap-2'>
