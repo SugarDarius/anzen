@@ -14,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from 'fumadocs-ui/components/ui/popover'
+import { baseUrl } from '~/config/site'
 
 const cache = new Map<string, string>()
 
@@ -48,9 +49,9 @@ export function PageActions({
   })
 
   const items = useMemo(() => {
-    const pageUrl =
-      typeof window !== 'undefined' ? window.location.href : 'loading'
-    const q = `Read ${pageUrl}, I want to ask questions about it.`
+    const url = new URL(markdownUrl, baseUrl)
+    console.log('url', url.toString())
+    const q = `Read ${url.toString()}, I want to ask questions about it.`
 
     return [
       {
