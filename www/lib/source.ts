@@ -17,3 +17,20 @@ export function getPageImage(page: InferPageType<typeof source>) {
     url: `/og/docs/${segments.join('/')}`,
   }
 }
+
+/**
+ * `getPageImage` URLs end with `image.webp`
+ *  strip that for `source.getPage` to work
+ */
+export function pageSlugFromOgDocsPath(
+  slug: string[] | undefined
+): string[] | undefined {
+  if (!slug?.length) {
+    return slug
+  }
+  if (slug.at(-1) !== 'image.webp') {
+    return slug
+  }
+  const rest = slug.slice(0, -1)
+  return rest.length ? rest : undefined
+}

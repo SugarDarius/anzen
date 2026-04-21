@@ -1,10 +1,18 @@
 import Link from 'next/link'
+import { Metadata } from 'next'
+
 import { Card, Cards } from 'fumadocs-ui/components/card'
 
 import { CodeExamples } from '~/components/code-examples'
 import { RetroGrid } from '~/components/retro-grid'
 import { Button } from '~/components/ui/button'
 import { siteConfig } from '~/config/site'
+
+export const metadata: Metadata = {
+  openGraph: {
+    images: '/og/image.webp',
+  },
+}
 
 export default function Page() {
   return (

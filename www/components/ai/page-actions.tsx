@@ -50,7 +50,6 @@ export function PageActions({
 
   const items = useMemo(() => {
     const url = new URL(markdownUrl, baseUrl)
-    console.log('url', url.toString())
     const q = `Read ${url.toString()}, I want to ask questions about it.`
 
     return [

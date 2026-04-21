@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { ImageResponse } from '@takumi-rs/image-response'
 
-import { getPageImage, source } from '~/lib/source'
+import { getPageImage, pageSlugFromOgDocsPath, source } from '~/lib/source'
 import { baseUrl } from '~/config/site'
 import { OgImage } from '../../_components/og-image'
 
@@ -18,8 +18,8 @@ export async function GET(
   _req: Request,
   { params }: RouteContext<'/og/docs/[[...slug]]'>
 ) {
-  const { slug } = await params
-  const page = source.getPage(slug)
+  const { slug: pathSlug } = await params
+  const page = source.getPage(pageSlugFromOgDocsPath(pathSlug))
   if (!page) {
     notFound()
   }

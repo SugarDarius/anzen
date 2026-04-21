@@ -1,4 +1,4 @@
-import { generateRootOgImageResponse } from './generate-root-image-response'
+import { generateRootOgImageResponse } from '../generate-root-image-response'
 
 export const revalidate = false
 
