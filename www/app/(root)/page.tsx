@@ -186,7 +186,7 @@ export default function Page() {
                 href={`${siteConfig.github.url}/blob/main/LICENSE`}
                 rel='noreferrer'
                 target='_blank'
-                className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
+                className='transition-colors duration-150 ease-out font-semibold text-fd-foreground underline underline-offset-2'
               >
                 MIT License
               </a>
