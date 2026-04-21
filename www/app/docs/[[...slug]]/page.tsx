@@ -99,7 +99,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           <DocsTitle>{page.data.title}</DocsTitle>
           <PageActions
             markdownUrl={`${page.url}.mdx`}
-            githubUrl={`${siteConfig.github.url}/blob/www/main/content/${page.url}.mdx`}
+            githubUrl={`${siteConfig.github.url}/blob/main/www/content/${page.path === 'index.mdx' ? 'docs/index' : page.url}.mdx`}
           />
         </div>
         <DocsDescription>{page.data.description}</DocsDescription>
