@@ -2,7 +2,7 @@
 
 Import: `@sugardarius/anzen`.
 
-Full examples: [README.md](../../../README.md).
+API reference: [server-action.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/server-action.mdx).
 
 ## Options
 

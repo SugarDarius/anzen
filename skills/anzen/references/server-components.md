@@ -2,7 +2,7 @@
 
 Import: `@sugardarius/anzen/server-components`.
 
-Full examples: [README.md](../../../README.md).
+API reference: [page-server-component.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/page-server-component.mdx), [layout-server-component.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/layout-server-component.mdx).
 
 Authorization patterns: [authorization.md](authorization.md).
 

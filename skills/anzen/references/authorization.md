@@ -1,6 +1,6 @@
 # Authorization
 
-Narrative examples: [README.md](../../../README.md).
+Docs: [get-started.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/get-started.mdx) (authorize steps per surface); option details in each API page under **Options** (`authorize`).
 
 `AuthContext` in the library is `Record<string, unknown>`. Use one consistent shape in your app (e.g. `{ user: SessionUser }`).
 

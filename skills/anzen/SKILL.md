@@ -44,7 +44,7 @@ npx skills add /path/to/anzen
 - Wrapping **page** or **layout** Server Components with validated `params` / `searchParams` and optional auth.
 - Choosing validation libraries: any schema that implements Standard Schema; schemas can be **mixed** per option (e.g. Zod for segments, decoders for body) where the API accepts a dictionary vs a single schema.
 
-Do **not** assume every handler must use a factory: empty options still add **default error handling** (see [Fair use](#fair-use) and the package README).
+Do **not** assume every handler must use a factory: empty options still add **default error handling** (see [Fair use](#fair-use) and **Fair use note** in each [API doc](https://github.com/SugarDarius/anzen/tree/main/www/content/docs)).
 
 ## Steps
 
@@ -107,4 +107,8 @@ Reference files live in [`references/`](references/). Read the **References** li
 
 ## Learn more
 
-- Package examples and fair-use notes: [README.md](../../README.md)
+Documentation source in-repo: [`www/content/docs/`](https://github.com/SugarDarius/anzen/tree/main/www/content/docs).
+
+- Overview, examples, validation rules: [index.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/index.mdx)
+- Guided setup (validation & authorization): [get-started.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/get-started.mdx)
+- API reference (includes fair-use notes per factory): [server-action.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/server-action.mdx), [route-handler.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/route-handler.mdx), [page-server-component.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/page-server-component.mdx), [layout-server-component.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/layout-server-component.mdx)

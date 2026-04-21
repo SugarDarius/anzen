@@ -1,6 +1,6 @@
 # Validation and Standard Schema
 
-Narrative examples: [README.md](../../../README.md).
+Docs: [index.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/index.mdx) (framework validation, synchronous validation).
 
 ## Rules
 

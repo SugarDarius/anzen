@@ -2,7 +2,7 @@
 
 Import: `@sugardarius/anzen`.
 
-Full examples: [README.md](../../../README.md).
+API reference: [route-handler.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/docs/route-handler.mdx).
 
 Validation rules for `body` / `formData` and Standard Schema: [validation.md](validation.md).
 
