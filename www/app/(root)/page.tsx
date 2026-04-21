@@ -16,13 +16,16 @@ export default function Page() {
       </div>
       <section className='py-24 md:py-32'>
         <div className='container mx-auto px-4 text-center'>
-          <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-fd-secondary/30 text-sm text-fd-muted-foreground mb-6'>
+          <Link
+            href='/docs/server-action'
+            className='inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-fd-secondary/30 text-sm text-fd-muted-foreground mb-6 shadow-2xs'
+          >
             <span className='relative flex h-2 w-2'>
               <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75'></span>
               <span className='relative inline-flex rounded-full h-2 w-2 bg-cyan-400'></span>
             </span>
             New server action factory is out!
-          </div>
+          </Link>
           <h1 className='text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-balance max-w-4xl mx-auto'>
             Type-safe factories for{' '}
             <span className='text-fd-muted-foreground'>Next.js</span>
