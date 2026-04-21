@@ -7,6 +7,14 @@ description: Install the Anzen agent skill with the open skills CLI so coding ag
 
 This repository includes an **Anzen** skill so agents apply the same patterns as these docs: Standard Schema validation, `authorize` behavior per surface, and when factories are worth using.
 
+## Install the skill
+
+```npm
+npx skills add SugarDarius/anzen
+```
+
+If the install source exposes several skills, select this one with `--skill anzen`.
+
 ## What’s in the repo
 
 | Path                                                                                                 | Role                                                                                              |
@@ -16,34 +24,18 @@ This repository includes an **Anzen** skill so agents apply the same patterns as
 
 The skill’s `description` field is written so agents can decide when to load it (Next.js App Router, `@sugardarius/anzen`, safe actions/routes/RSC, and so on).
 
-## Install the skill
+## References inside the skill
 
-**From GitHub** (recommended):
+[`SKILL.md`](https://github.com/SugarDarius/anzen/blob/main/skills/anzen/SKILL.md) holds the **overview**: when to use Anzen, a short workflow, imports, validation and authorization summaries, fair use, and a **catalog** of reference files. The **`references/`** folder splits deeper material by topic so agents (and humans) can open **only what matches the task** instead of one long page.
 
-```bash
-npx skills add SugarDarius/anzen
-```
+Each reference file is plain Markdown: compact tables for options and behavior, plus links to the **matching API page** in this site’s source (`www/content/docs/*.mdx`) on GitHub for full prose, signatures, and fair-use notes.
 
-Other useful forms:
+| File                                                                                                                  | What it covers                                                                                                         |
+| --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [`validation.md`](https://github.com/SugarDarius/anzen/blob/main/skills/anzen/references/validation.md)               | Standard Schema, synchronous `validate`, dictionary vs single-object schemas, `body` vs `formData` on route handlers   |
+| [`authorization.md`](https://github.com/SugarDarius/anzen/blob/main/skills/anzen/references/authorization.md)         | How `authorize` works for route handlers (including `Response`), server actions, and RSCs; what each callback receives |
+| [`server-actions.md`](https://github.com/SugarDarius/anzen/blob/main/skills/anzen/references/server-actions.md)       | `createSafeServerAction` options, handler context, structured results and error codes                                  |
+| [`route-handlers.md`](https://github.com/SugarDarius/anzen/blob/main/skills/anzen/references/route-handlers.md)       | `createSafeRouteHandler` options, validation callbacks, `(ctx, req)` signature                                         |
+| [`server-components.md`](https://github.com/SugarDarius/anzen/blob/main/skills/anzen/references/server-components.md) | Page vs layout factories, shared base options, `experimental_slots`                                                    |
 
-```bash
-npx skills add https://github.com/SugarDarius/anzen/tree/main/skills/anzen
-```
-
-**From a local clone** — run at the **repository root** (the folder that contains `skills/anzen/`), not inside `skills/anzen`:
-
-```bash
-npx skills add /path/to/anzen
-```
-
-If the install source exposes several skills, select this one with `--skill anzen`.
-
-## Verify without installing
-
-List skills the CLI finds in the repo:
-
-```bash
-npx skills add . --list
-```
-
-(From the monorepo root, or use `SugarDarius/anzen` once changes are on GitHub.)
+Cross-links between reference files (for example route handlers pointing at validation) stay **one level deep** under `references/`, which keeps navigation predictable for tools that load skills incrementally.
