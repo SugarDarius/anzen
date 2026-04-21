@@ -148,7 +148,7 @@ const Terminal = ({ pathname }: { pathname: string }) => {
 
   return (
     <motion.div
-      className='w-full max-w-xl'
+      className='w-full max-w-xl px-2 md:px-0'
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -262,7 +262,7 @@ export default function NotFound() {
   return (
     <div className='flex flex-col w-full h-full min-h-screen relative'>
       <main className='flex-1 flex flex-col items-center justify-center'>
-        <div className='w-full max-w-2xl flex flex-col items-center'>
+        <div className='w-full max-w-2xl flex flex-col items-center py-4 md:py-0'>
           <motion.div
             className='mb-8 text-center'
             initial={{ opacity: 0, y: -20 }}
