@@ -39,6 +39,9 @@ export function CodeExamples({ className }: { className?: string }) {
             codeblock={{
               title,
               icon,
+              viewportProps: {
+                className: 'no-max-h',
+              },
             }}
             options={shikiOptions}
           />
