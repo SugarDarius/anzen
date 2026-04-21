@@ -95,8 +95,10 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
         </div>
       </div>
       <div className='flex flex-col w-full z-1'>
-        <div className='flex items-start justify-between gap-4 mb-8'>
-          <DocsTitle>{page.data.title}</DocsTitle>
+        <div className='flex items-center justify-between gap-4 mb-8'>
+          <DocsTitle className=' text-lg md:text-[1.75em]'>
+            {page.data.title}
+          </DocsTitle>
           <PageActions
             markdownUrl={`${page.url}.mdx`}
             githubUrl={`${siteConfig.github.url}/blob/main/www/content/docs/${page.path}`}

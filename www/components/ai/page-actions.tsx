@@ -130,7 +130,7 @@ export function PageActions({
 
   return (
     <Popover>
-      <div className='inline-flex items-center rounded-md border border-fd-border text-sm [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground bg-fd-popover shadow-xs'>
+      <div className='inline-flex items-center rounded-md border border-fd-border text-sm [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground bg-fd-popover shadow-xs flex-none'>
         <button
           disabled={isLoading}
           onClick={onCopy}
