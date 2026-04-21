@@ -58,33 +58,59 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       footer={{
         enabled: true,
         component: (
-          <footer className='container pt-6 flex items-center justify-between relative border-t'>
-            <span className='text-sm  text-fd-secondary-foreground'>
-              &copy; 2026{' '}
-              <a
-                href={`${siteConfig.github.url}/blob/main/LICENSE`}
-                rel='noreferrer'
-                target='_blank'
-                className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
-              >
-                MIT License
-              </a>
-              , with ❤️{' '}
-              <span className='hidden sm:inline'>
-                by{' '}
-                {siteConfig.authors.map((author) => (
+          // <footer className='container pt-6 flex items-center justify-between relative border-t'>
+          //   <span className='text-sm  text-fd-secondary-foreground'>
+          //     &copy; 2026{' '}
+          //     <a
+          //       href={`${siteConfig.github.url}/blob/main/LICENSE`}
+          //       rel='noreferrer'
+          //       target='_blank'
+          //       className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
+          //     >
+          //       MIT License
+          //     </a>
+          //     , with ❤️{' '}
+          //     <span className='hidden sm:inline'>
+          //       by{' '}
+          //       {siteConfig.authors.map((author) => (
+          //         <a
+          //           key={author.name}
+          //           href={author.url}
+          //           target='_blank'
+          //           rel='noreferrer'
+          //           className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
+          //         >
+          //           {author.name}
+          //         </a>
+          //       ))}
+          //     </span>
+          //   </span>
+          // </footer>
+          <footer className='container pt-6 border-t border-border flex-noe'>
+            <div className='w-full flex flex-col sm:flex-row items-center justify-between gap-2'>
+              <div className='flex items-center gap-2'>
+                <span className='text-sm text-fd-muted-foreground'>
+                  &copy; 2026{' '}
                   <a
-                    key={author.name}
-                    href={author.url}
-                    target='_blank'
+                    href={`${siteConfig.github.url}/blob/main/LICENSE`}
                     rel='noreferrer'
-                    className='transition-colors duration-150 ease-out font-semibold text-foreground underline underline-offset-2'
+                    target='_blank'
+                    className='transition-colors duration-150 ease-out font-semibold text-fd-foreground underline underline-offset-2'
                   >
-                    {author.name}
+                    MIT License
                   </a>
-                ))}
-              </span>
-            </span>
+                </span>
+              </div>
+              <p className='text-sm text-fd-muted-foreground'>
+                Built with ❤️ by{' '}
+                <a
+                  href='https://github.com/SugarDarius'
+                  className='text-fd-foreground hover:underline underline-offset-4'
+                >
+                  {siteConfig.creator}
+                </a>
+              </p>
+            </div>
           </footer>
         ),
       }}

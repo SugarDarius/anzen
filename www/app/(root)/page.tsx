@@ -198,7 +198,7 @@ export default function Page() {
               href='https://github.com/SugarDarius'
               className='text-fd-foreground hover:underline underline-offset-4'
             >
-              SugarDarius
+              {siteConfig.creator}
             </a>
           </p>
         </div>
