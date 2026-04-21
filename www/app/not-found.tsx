@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { motion, AnimatePresence } from 'motion/react'
-import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import { useEffect, useState } from 'react'
 
 import { siteConfig } from '~/config/site'
 import { Button } from '~/components/ui/button'
@@ -53,6 +53,9 @@ const GlitchText = ({ children }: { children: string }) => {
   )
 }
 
+const LINE_REVEAL_DURATION_S = 0.3
+const TYPING_MS_PER_CHAR = 25
+
 const terminalLines = ({ pathname }: { pathname: string }) => {
   return [
     { text: `$ anzen route ${pathname}`, delay: 0 },
@@ -72,32 +75,44 @@ const terminalLines = ({ pathname }: { pathname: string }) => {
 const TypingText = ({
   text,
   className,
+  startDelay = 0,
 }: {
   text: string
   className?: string
+  startDelay?: number
 }) => {
   const [displayed, setDisplayed] = useState('')
   const [done, setDone] = useState(false)
 
   useEffect(() => {
     if (text === '') {
+      setDisplayed('')
       setDone(true)
       return
     }
 
-    let i = 0
-    const interval = setInterval(() => {
-      if (i < text.length) {
-        setDisplayed(text.slice(0, i + 1))
-        i++
-      } else {
-        setDone(true)
-        clearInterval(interval)
-      }
-    }, 25)
+    setDisplayed('')
+    setDone(false)
 
-    return () => clearInterval(interval)
-  }, [text])
+    let intervalId: ReturnType<typeof setInterval> | undefined
+    const timeoutId = setTimeout(() => {
+      let i = 0
+      intervalId = setInterval(() => {
+        if (i < text.length) {
+          setDisplayed(text.slice(0, i + 1))
+          i++
+        } else {
+          setDone(true)
+          if (intervalId !== undefined) clearInterval(intervalId)
+        }
+      }, TYPING_MS_PER_CHAR)
+    }, startDelay * 1000)
+
+    return () => {
+      clearTimeout(timeoutId)
+      if (intervalId !== undefined) clearInterval(intervalId)
+    }
+  }, [text, startDelay])
 
   return (
     <span className={className}>
@@ -118,23 +133,18 @@ const TypingText = ({
   )
 }
 
-const Terminal = () => {
-  const started = useRef(false)
-  const [visibleLines, setVisibleLines] = useState<number[]>([])
-  const pathname = usePathname()
-
+const Terminal = ({ pathname }: { pathname: string }) => {
   const lines = terminalLines({ pathname })
+  const lastLine = lines[lines.length - 1]!
+  const typingDurationS = (lastLine.text.length * TYPING_MS_PER_CHAR) / 1000
+  const afterLastLineS =
+    lastLine.delay + Math.max(LINE_REVEAL_DURATION_S, typingDurationS)
+  const [showPrompt, setShowPrompt] = useState(false)
 
   useEffect(() => {
-    if (!started.current) {
-      started.current = true
-      lines.forEach((line, index) => {
-        setTimeout(() => {
-          setVisibleLines((prev) => [...prev, index])
-        }, line.delay * 1000)
-      })
-    }
-  }, [lines])
+    const t = setTimeout(() => setShowPrompt(true), afterLastLineS * 1000)
+    return () => clearTimeout(t)
+  }, [afterLastLineS])
 
   return (
     <motion.div
@@ -175,18 +185,20 @@ const Terminal = () => {
           </motion.span>
         </div>
 
-        <div className='bg-fd-background p-4 sm:p-6 font-mono text-sm min-h-[280px]'>
+        <div className='bg-fd-background p-4 sm:p-6 font-mono text-sm min-h-[280px] text-fd-'>
           <div className='space-y-2'>
             <AnimatePresence>
               {lines.map((line, index) => {
-                if (!visibleLines.includes(index)) return null
-
                 let textColor = 'text-fd-foreground'
                 if (line.isError) {
                   textColor = 'text-fd-error'
                 }
-                if (line.isSystem || line.isStatus) {
+                if (line.isSystem) {
                   textColor = 'text-fd-muted-foreground'
+                }
+
+                if (line.isStatus) {
+                  textColor = 'text-fd-info'
                 }
                 if (line.isSuggestion) {
                   textColor = 'text-fd-warning'
@@ -194,12 +206,21 @@ const Terminal = () => {
 
                 return (
                   <motion.div
-                    key={index}
+                    key={`${pathname}-${index}`}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{
+                      duration: LINE_REVEAL_DURATION_S,
+                      ease: 'easeOut',
+                      delay: line.delay,
+                    }}
                   >
-                    <TypingText text={line.text} className={textColor} />
+                    <TypingText
+                      text={line.text}
+                      className={textColor}
+                      startDelay={line.delay}
+                    />
                   </motion.div>
                 )
               })}
@@ -207,11 +228,12 @@ const Terminal = () => {
           </div>
 
           <AnimatePresence>
-            {visibleLines.length === lines.length && (
+            {showPrompt && (
               <motion.div
                 className='mt-4'
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
               >
                 <span className='text-fd-foreground'>$ </span>
@@ -236,6 +258,7 @@ const Terminal = () => {
 }
 
 export default function NotFound() {
+  const pathname = usePathname()
   return (
     <div className='flex flex-col w-full h-full min-h-screen relative'>
       <main className='flex-1 flex flex-col items-center justify-center'>
@@ -259,13 +282,13 @@ export default function NotFound() {
             </motion.p>
           </motion.div>
 
-          <Terminal />
+          <Terminal pathname={pathname} />
 
           <motion.div
             className='mt-8 flex flex-col sm:flex-row items-center gap-3'
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 3.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ delay: 4.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
             <Button asChild size='lg' className='group font-medium'>
               <Link href='/docs'>Read the docs</Link>
