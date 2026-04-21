@@ -3,9 +3,5 @@ import type { ReactNode } from 'react'
 import { baseOptions } from '~/lib/shared-layout'
 
 export default function Layout({ children }: { children: ReactNode }) {
-  return (
-    <div>
-      <HomeLayout {...baseOptions()}>{children}</HomeLayout>
-    </div>
-  )
+  return <HomeLayout {...baseOptions()}>{children}</HomeLayout>
 }
