@@ -54,7 +54,7 @@ export function ComparePane({
         <div
           className={cn(
             'min-w-0 flex-1 [&_figure]:my-0 [&_figure]:rounded-lg [&_figure]:border [&_figure]:border-border/80 [&_figure]:shadow-sm',
-            '[&_pre]:max-h-[min(28rem,55vh)] [&_pre]:overflow-auto [&_pre]:text-[13px] [&_pre]:leading-relaxed'
+            '[&_pre]:overflow-auto [&_pre]:text-[13px] [&_pre]:leading-relaxed'
           )}
         >
           {children}

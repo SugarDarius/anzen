@@ -60,7 +60,11 @@ export function getMDXComponents(components?: MDXComponents) {
     ),
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     pre: ({ ref: _ref, className, ...props }) => (
-      <CodeBlock {...props} className={cn(className, 'rounded-sm shadow-xs')}>
+      <CodeBlock
+        {...props}
+        viewportProps={{ className: 'no-max-h' }}
+        className={cn(className, 'rounded-sm shadow-xs')}
+      >
         <Pre>{props.children}</Pre>
       </CodeBlock>
     ),
@@ -71,8 +75,6 @@ export function getMDXComponents(components?: MDXComponents) {
     ...components,
   } satisfies MDXComponents
 }
-
-export const useMDXComponents = getMDXComponents
 
 declare global {
   type MDXProvidedComponents = ReturnType<typeof getMDXComponents>
