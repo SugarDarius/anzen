@@ -13,23 +13,6 @@ export default function Layout({ children }: LayoutProps<'/docs'>) {
         url: '/docs/server-action',
         badge: 'NEW',
       })}
-      tabs={{
-        transform: (option, node) => {
-          const meta = source.getNodeMeta(node)
-          if (!meta || !node.icon) {
-            return null
-          }
-
-          return {
-            ...option,
-            icon: (
-              <div className='[&_svg]:size-full rounded-lg size-full text-(--color-fd-foreground) max-md:bg-(--color-fd-foreground)/10 max-md:border max-md:p-1.5'>
-                {node.icon}
-              </div>
-            ),
-          }
-        },
-      }}
     >
       {children}
     </DocsLayout>
