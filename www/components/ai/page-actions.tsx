@@ -68,7 +68,7 @@ export function PageActions({
           </svg>
         ),
       },
-      {}, // Divider
+      {},
       {
         title: 'Open in ChatGPT',
         subtitle: 'Ask questions about this page',
@@ -146,7 +146,7 @@ export function PageActions({
       <PopoverContent className='flex flex-col'>
         <button
           disabled={isLoading}
-          className='text-sm p-2 rounded-lg flex items-start gap-2 text-start hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4 [&_svg]:mt-0.5 [&_svg]:shrink-0'
+          className='text-sm p-2 rounded-lg flex items-start gap-2 text-start hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4 [&_svg]:mt-0.5 [&_svg]:shrink-0 cursor-pointer'
           onClick={onCopy}
         >
           {checked ? <Check /> : <Copy />}
