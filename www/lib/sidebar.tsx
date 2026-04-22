@@ -1,41 +1,52 @@
 import type { Root } from 'fumadocs-core/page-tree'
-import { cn } from './utils'
 
-export function addSidebarBadge({
+export type PageBadgeDecorator = {
+  type: 'page-badge'
+  url: string
+  component: (params: { pageName: React.ReactNode }) => React.ReactNode
+}
+
+export type PageIconDecorator = {
+  type: 'page-icon'
+  component: (params: { icon: React.ReactNode }) => React.ReactNode
+}
+
+export type SidebarTreeDecorator = PageBadgeDecorator | PageIconDecorator
+
+export function decorateSidebarTree({
   tree,
-  url,
-  badge,
+  decorators,
 }: {
   tree: Root
-  url: string
-  badge: string
+  decorators: SidebarTreeDecorator[]
 }): Root {
   return {
     ...tree,
-    children: tree.children.map((node) => {
-      if (node.type === 'page' && node.url === url) {
-        return {
-          ...node,
-          name: (
-            <>
-              {node.name}
-              <span
-                className={cn(
-                  'inline-flex ms-auto items-center justify-center rounded-full border border-border px-2 py-0.5 text-xs font-semibold w-fit whitespace-nowrap shrink-0 transition-[color,box-shadow] overflow-hidden',
-                  'bg-fd-secondary/30 text-fd-muted-foreground text-[10px] gap-1.5'
-                )}
-              >
-                <span className='relative flex size-1.5'>
-                  <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75'></span>
-                  <span className='relative inline-flex rounded-full size-1.5 bg-cyan-400'></span>
-                </span>
-                {badge}
-              </span>
-            </>
-          ),
+    children: tree.children.map((incoming_node) => {
+      switch (incoming_node.type) {
+        case 'page': {
+          const node = { ...incoming_node }
+          for (const decorator of decorators) {
+            // 👉🏻 Badge decorator
+            if (decorator.type === 'page-badge') {
+              if (node.url === decorator.url) {
+                node.name = decorator.component({ pageName: node.name })
+              }
+            }
+
+            // 👉🏻 Icon decorator
+            if (decorator.type === 'page-icon') {
+              if (node.icon) {
+                node.icon = decorator.component({ icon: node.icon })
+              }
+            }
+          }
+
+          return node
         }
+        default:
+          return incoming_node
       }
-      return node
     }),
   }
 }
