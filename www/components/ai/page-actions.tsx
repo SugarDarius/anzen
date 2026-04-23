@@ -228,7 +228,7 @@ const items: PopoverItem[] = [
       <AiPlatformItem
         key='open-in-t3Chat'
         href={url}
-        title='Open in T3Chat'
+        title='Open in T3.chat'
         icon={<MessageCircle />}
       />
     ),
