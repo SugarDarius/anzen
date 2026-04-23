@@ -19,9 +19,10 @@ export async function GET(
     notFound()
   }
 
-  return new Response(await getLLMText(page), {
+  const text = await getLLMText(page)
+  return new Response(text, {
     headers: {
-      'Content-Type': 'text/markdown',
+      'Content-Type': 'text/markdown; charset=utf-8',
     },
   })
 }
