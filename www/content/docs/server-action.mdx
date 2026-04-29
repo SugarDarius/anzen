@@ -75,29 +75,17 @@ By default it returns a simple context (message / JSON) and the error is logged 
 
 Use it if you want to map known error types to a stable `ctx` for the client. By design, this callback is not meant for navigation (`redirect`, `notFound`) or for rethrowing — handle those in `authorize`, in the handler, or in the UI.
 
-```ts title="actions/save-document.ts"
+```ts title="actions/save-draft.ts"
 'use server'
 
 import { createSafeServerAction } from '@sugardarius/anzen'
 import { z } from 'zod'
 
-class ConflictError extends Error {
-  constructor(readonly docId: string) {
-    super('version conflict')
-    this.name = 'ConflictError'
-  }
-}
-
-export const saveDocument = createSafeServerAction(
+export const saveDraft = createSafeServerAction(
   {
-    id: 'documents/save',
+    id: 'documents/save-draft',
     input: z.object({ docId: z.string(), body: z.string() }),
-    onError: async (err) => {
-      if (err instanceof ConflictError) {
-        return { message: 'Version conflict', docId: err.docId }
-      }
-      return { message: 'Unexpected error' }
-    },
+    onError: async () => ({ message: 'Unexpected error' }),
   },
   async ({ input }) => {
     await persist(input)
@@ -305,12 +293,39 @@ Every call resolves to a **discriminated union**:
 
 By design, the factory wraps the pipeline so **most failures become a result object** instead of throwing to the client. That keeps Client Components simple: one `await`, then branch on `result.success`.
 
-| `error.code`         | Meaning                                                                                                                                                                                                |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `VALIDATION_ERROR`   | The payload did not satisfy `input`. No `authorize` or handler run. `error.ctx` is whatever `onInputValidationError` returns (default: `{ issues }`).                                                  |
-| `UNAUTHORIZED_ERROR` | `authorize` threw a non–Next.js error. `error.ctx` comes from `onError`. Use this for authentication and authorization failures you model as throws inside `authorize`.                                |
-| `SERVER_ERROR`       | The handler threw an error that is neither a tagged error nor a Next.js special error. `error.ctx` comes from `onError`. Use `onError` to map internal errors to safe, serializable fields for the UI. |
-| Tagged (`tagErr`)    | Deliberate domain outcomes ("conflict", "already exists", etc.). `error.code` is the string you passed to `tagErr`; `error.ctx` is your object. They are not logged as unexpected server failures.     |
+| `error.code`            | Meaning                                                                                                                                                                                                |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `VALIDATION_ERROR`      | The payload did not satisfy `input`. No `authorize` or handler run. `error.ctx` is whatever `onInputValidationError` returns (default: `{ issues }`).                                                  |
+| `UNAUTHORIZED_ERROR`    | `authorize` threw a non–Next.js error. `error.ctx` comes from `onError`. Use this for authentication and authorization failures you model as throws inside `authorize`.                                |
+| `SERVER_ERROR`          | The handler threw an error that is neither a tagged error nor a Next.js special error. `error.ctx` comes from `onError`. Use `onError` to map internal errors to safe, serializable fields for the UI. |
+| Tagged error (`tagErr`) | Deliberate domain outcomes ("conflict", "already exists", etc.). `error.code` is the string you passed to `tagErr`; `error.ctx` is your object. They are not logged as unexpected server failures.     |
+
+### Tagged errors
+
+Call `tagErr` from the handler when a failure is expected and typed — for example an optimistic-lock conflict. It never returns: the action resolves to `{ success: false, error: { code, ctx } }` with your `code`, same as in the table row above.
+
+```ts title="actions/save-document.ts"
+'use server'
+
+import { createSafeServerAction } from '@sugardarius/anzen'
+import { z } from 'zod'
+
+export const saveDocument = createSafeServerAction(
+  {
+    id: 'documents/save',
+    input: z.object({ docId: z.string(), body: z.string() }),
+    onError: async () => ({ message: 'Unexpected error' }),
+  },
+  async ({ input, tagErr }) => {
+    const outcome = await persist(input)
+    if (outcome === 'conflict') {
+      // [!code highlight]
+      tagErr('CONFLICT', { docId: input.docId, message: 'Version conflict' })
+    }
+    return { saved: true }
+  }
+)
+```
 
 ```tsx title="components/handle-result.tsx"
 'use client'
@@ -339,11 +354,12 @@ export function SaveButton(props: { docId: string; body: string }) {
           case 'SERVER_ERROR':
             console.error(result.error.ctx)
             break
+          // [!code highlight]
+          case 'CONFLICT':
+            console.warn('Conflict', result.error.ctx)
+            break
           default:
-            // [!code highlight]
-            if (result.error.code === 'CONFLICT') {
-              console.warn('Conflict', result.error.ctx)
-            }
+            console.error('Unexpected error', result.error.ctx)
         }
       }}
     >
