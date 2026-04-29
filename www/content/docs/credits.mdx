@@ -7,4 +7,22 @@ description: Acknowledgments for projects that influenced Anzen’s types and AP
 
 Thanks to [@t3-oss/env-core](https://github.com/t3-oss/t3-env) for the implementation path behind `StandardSchemaDictionary` — the dictionary-of-[Standard Schema](https://standardschema.dev/) fields pattern Anzen uses for things like segments, search params, and form data.
 
+```tsx title="standard-schema-dictionary.ts"
+export type StandardSchemaDictionary<
+  Input = Record<string, unknown>,
+  Output extends Record<keyof Input, unknown> = Input,
+> = {
+  [K in keyof Input]-?: StandardSchemaV1<Input[K], Output[K]>
+}
+
+export namespace StandardSchemaDictionary {
+  export type InferInput<T extends StandardSchemaDictionary> = {
+    [K in keyof T]: StandardSchemaV1.InferInput<T[K]>
+  }
+  export type InferOutput<T extends StandardSchemaDictionary> = {
+    [K in keyof T]: StandardSchemaV1.InferOutput<T[K]>
+  }
+}
+```
+
 Their prior work in [`packages/core/src/standard.ts`](https://github.com/t3-oss/t3-env/blob/main/packages/core/src/standard.ts) informed how that type is modeled in the library. 🙏🏻
