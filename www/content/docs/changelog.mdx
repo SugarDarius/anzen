@@ -1,0 +1,121 @@
+---
+title: Changelog
+description: What's new in Anzen? Latest updates and releases.
+---
+
+## Second version
+
+Focused on server actions, Page and Layout Server Components, safer route handlers, and tighter integration with Next.js App Router patterns.
+
+### 2.3.1
+
+_April 15, 2026_
+
+- Housekeeping: updates to `package.json` metadata.
+
+### 2.3.0
+
+_April 15, 2026_
+
+- **Added** [`createSafeServerAction`](/docs/server-action) — validate inputs and authorize server actions in Next.js.
+- Documented `createSafeServerAction` on this site.
+- **Changed** [`createSafeRouteHandler`](/docs/route-handler): navigation helpers like `redirect` are explicitly supported inside `authorize`.
+- Internal refactor.
+
+### 2.2.1
+
+_February 24, 2026_
+
+- **Changed** [`createSafeRouteHandler`](/docs/route-handler): Next.js framework errors are silenced; returning `never` when using `redirect` inside a Route Handler is allowed.
+
+### 2.2.0
+
+_February 8, 2026_
+
+- **Added** support for [Next.js parallel routes](https://nextjs.org/docs/app/api-reference/file-conventions/parallel-routes) via the `experimental_slots` option on [`createSafeLayoutServerComponent`](/docs/layout-server-component).
+- **Changed** removed TypeScript as a peer dependency.
+
+### 2.1.2
+
+_December 24, 2025_
+
+- **Fixed** `onError` in [`createSafePageServerComponent`](/docs/page-server-component) and [`createSafeLayoutServerComponent`](/docs/layout-server-component): it no longer runs for Next.js native errors.
+
+### 2.1.1
+
+_December 11, 2025_
+
+- **Changed** internal logging.
+
+### 2.1.0
+
+_November 21, 2025_
+
+- **Changed** Next.js native errors are silenced so they do not flood logs.
+- Documentation and meta files updated.
+
+### 2.0.1
+
+_November 13, 2025_
+
+- Package and repository housekeeping.
+
+### 2.0.0
+
+_November 13, 2025_
+
+- **Added** [`createSafePageServerComponent`](/docs/page-server-component) and [`createSafeLayoutServerComponent`](/docs/layout-server-component) (from `@sugardarius/anzen/server-components`) to validate segments and search params and authorize Page and Layout modules.
+- Documented both APIs on this site.
+- **Changed** [`createSafeRouteHandler`](/docs/route-handler): validated props are available on the `authorize` option parameters.
+
+---
+
+## First version
+
+Early stable releases centered on type-safe App Router route handlers.
+
+### 1.1.3
+
+_October 28, 2025_
+
+- **Added** support for Next.js 16 🚀
+
+### 1.1.2
+
+_October 10, 2025_
+
+- **Changed** type handling when using `NextRequest`.
+
+### 1.1.1
+
+_July 16, 2025_
+
+- **Fixed** log message typo when the handler throws.
+
+### 1.1.0
+
+_July 14, 2025_
+
+- **Changed** request type is generic so `NextRequest` can be used cleanly.
+- **Changed** the original request is cloned to avoid side effects and to keep the body consumable inside `authorize`.
+
+### 1.0.2
+
+_June 12, 2025_
+
+- Internal refactor.
+- Route handler duration is logged to the console.
+- **Changed** the original request is cloned when the body is read for validation.
+
+### 1.0.1
+
+_May 20, 2025_
+
+- JSDoc and README updates.
+- Public announcement.
+
+### 1.0.0
+
+_May 9, 2025_
+
+- First public release of the package.
