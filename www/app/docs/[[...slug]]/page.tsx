@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import {
   DocsBody,
@@ -14,6 +15,9 @@ import { getPageImage, source } from '~/lib/source'
 import { getMDXComponents } from '~/mdx-components'
 import { RetroGrid } from '~/components/retro-grid'
 import { PageActions } from '~/components/ai/page-actions'
+import { GithubIcon } from '~/components/icons/github'
+import { Button } from '~/components/ui/button'
+import { ExternalLinkIcon } from 'lucide-react'
 
 export async function generateStaticParams() {
   return source.generateParams()
@@ -47,6 +51,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   }
 
   const MDX = page.data.body
+  const githubUrl = `${siteConfig.github.url}/blob/main/www/content/docs/${page.path}`
 
   return (
     <DocsPage
@@ -54,7 +59,25 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       full={page.data.full}
       breadcrumb={{ enabled: true }}
       className='relative'
-      tableOfContent={{ style: 'clerk' }}
+      tableOfContent={{
+        style: 'clerk',
+        footer: (
+          <div className='flex items-center'>
+            <Button
+              asChild
+              size='xs'
+              variant='ghost'
+              className='w-full justify-start border-transparent border hover:border-fd-border group gap-1.5'
+            >
+              <Link href={githubUrl} target='_blank' rel='noopener noreferrer'>
+                <GithubIcon className='size-3.5' />
+                Edit on Github
+                <ExternalLinkIcon className='size-3 -ml-0.5 opacity-0 transition duration-150 ease-out group-hover:opacity-100' />
+              </Link>
+            </Button>
+          </div>
+        ),
+      }}
       footer={{
         enabled: true,
         component: (
@@ -97,10 +120,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
           <DocsTitle className=' text-lg md:text-[1.75em]'>
             {page.data.title}
           </DocsTitle>
-          <PageActions
-            markdownUrl={`${page.url}.mdx`}
-            githubUrl={`${siteConfig.github.url}/blob/main/www/content/docs/${page.path}`}
-          />
+          <PageActions markdownUrl={`${page.url}.mdx`} githubUrl={githubUrl} />
         </div>
         <DocsDescription>{page.data.description}</DocsDescription>
         <DocsBody>
