@@ -91,7 +91,7 @@
     "decoders": "^2.9.3",
     "eslint": "^9.39.4",
     "prettier": "^3.8.3",
-    "publint": "^0.3.18",
+    "publint": "^0.3.19",
     "release-it": "^19.2.4",
     "tsup": "^8.5.1",
     "turbo": "^2.5.6",
