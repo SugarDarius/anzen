@@ -28,7 +28,7 @@ export async function GET(
 
   return new ImageResponse(
     <OgImage
-      title={page.data.title}
+      title={page.data.title ?? ''}
       description={page.data.description ?? ''}
       date={page.data.lastModified?.toLocaleDateString()}
       url={url}
