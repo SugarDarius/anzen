@@ -13,7 +13,12 @@ import {
   createSafeServerAction,
   DEFAULT_ACTION_ID,
 } from './create-safe-server-action'
-import type { ServerActionErrorContext } from './types'
+import type {
+  InferSafeServerActionResult,
+  SafeServerActionError,
+  SafeServerActionResult,
+  ServerActionErrorContext,
+} from './types'
 
 describe('default context', () => {
   test('provides default context when no input schema', async () => {
@@ -564,5 +569,38 @@ describe('tagged errors', () => {
         ctx: { message: 'resource already exists' },
       },
     })
+  })
+})
+
+describe('infers result type', () => {
+  test('infers the result type from an action with no input', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const signInWithEmail = createSafeServerAction(
+      { id: 'sign-in-with-email' },
+      async () => undefined
+    )
+
+    type ActionResult = InferSafeServerActionResult<typeof signInWithEmail>
+
+    expectTypeOf<ActionResult>().toEqualTypeOf<
+      SafeServerActionResult<undefined, SafeServerActionError>
+    >()
+  })
+
+  test('infers the result type from an action with input', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const greet = createSafeServerAction(
+      {
+        id: 'greet',
+        input: z.object({ name: z.string() }),
+      },
+      async ({ input }) => ({ message: `Hello, ${input.name}` })
+    )
+
+    type ActionResult = InferSafeServerActionResult<typeof greet>
+
+    expectTypeOf<ActionResult>().toEqualTypeOf<
+      SafeServerActionResult<{ message: string }, SafeServerActionError>
+    >()
   })
 })

@@ -27,7 +27,6 @@ export type ServerError = {
  * Triggered when server action is not authorized by the `authorize` function
  * 👉🏻 When `authorize` function throws an error.
  *
- *
  * Context `ctx` is used to store the error context.
  * It can be customized by using the `onError` option when creating the server action.
  */
@@ -323,3 +322,29 @@ export type SafeServerActionHandler<
    */
   ctx: SafeServerActionContext<TInput, AC>
 ) => Promise<TOutput | never>
+
+/**
+ * Infer type helper for safe server actions.
+ * Used to infer the result type of a safe server action.
+ *
+ * @example
+ * ```ts
+ * export const greet = createSafeServerAction(
+ *   { id: 'greet' },
+ *   async ({ input }) => ({ message: `Hello, ${input.name}` })
+ * )
+ *
+ * export type GreetResult = InferSafeServerActionResult<
+ *   typeof greet
+ * >
+ * ```
+ */
+export type InferSafeServerActionResult<
+  /**
+   * Widest safe server action signature, used as a constraint for inference.
+   * Accepts both no-input and with-input actions returned by `createSafeServerAction`.
+   */
+  TAction extends (
+    ...args: never[]
+  ) => Promise<SafeServerActionResult<unknown, SafeServerActionError>>,
+> = Awaited<ReturnType<TAction>>

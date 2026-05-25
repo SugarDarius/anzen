@@ -20,6 +20,7 @@ export type {
   CreateSafeServerActionOptions,
   CreateSafeServerActionReturnType,
   InferServerActionProvidedInput,
+  InferSafeServerActionResult,
   SafeServerActionContext,
   SafeServerActionHandler,
   ServerActionErrorContext,
