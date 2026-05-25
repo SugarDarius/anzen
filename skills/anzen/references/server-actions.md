@@ -32,3 +32,18 @@ Returns `Promise<SafeServerActionResult<TOutput, TError>>`:
 | `UNAUTHORIZED_ERROR` | `authorize` threw |
 | `SERVER_ERROR` | Uncaught error in handler (after `onError` handling) |
 | *(custom string)* | Tagged errors via `tagError` |
+
+## Inferring the result type
+
+Use `InferSafeServerActionResult<typeof myAction>` instead of manually writing `SafeServerActionResult<TOutput, SafeServerActionError>`. Pass the action reference, not a call result.
+
+```ts
+import type { InferSafeServerActionResult } from '@sugardarius/anzen'
+import { signInWithEmail } from '~/actions/sign-in-with-email'
+
+export type SignInWithEmailResult = InferSafeServerActionResult<
+  typeof signInWithEmail
+>
+```
+
+Equivalent to `Awaited<ReturnType<typeof myAction>>`, but named and constrained to safe server actions.

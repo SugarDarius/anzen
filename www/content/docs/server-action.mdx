@@ -37,7 +37,7 @@ function createSafeServerAction<
 ) => Promise<SafeServerActionResult<TOutput, SafeServerActionError>>
 ```
 
-Types exported from the package include `CreateSafeServerActionOptions`, `SafeServerActionContext`, `SafeServerActionResult`, and `SafeServerActionError`.
+Types exported from the package include `CreateSafeServerActionOptions`, `SafeServerActionContext`, `SafeServerActionResult`, `SafeServerActionError`, and `InferSafeServerActionResult`.
 
 ## Options
 
@@ -288,6 +288,55 @@ Every call resolves to a **discriminated union**:
 
 - **`{ success: true, output }`** — Normal completion.
 - **`{ success: false, error }`** — Structured failure.
+
+## Inferring the result type
+
+Use `InferSafeServerActionResult` when you need the result type of an action elsewhere — for example in a Client Component prop, a form action wrapper, or a shared helper — without manually writing `SafeServerActionResult<TOutput, SafeServerActionError>`.
+
+```ts
+import type { InferSafeServerActionResult } from '@sugardarius/anzen'
+import { signInWithEmail } from '~/actions/sign-in-with-email'
+
+export type SignInWithEmailResult = InferSafeServerActionResult<
+  typeof signInWithEmail
+>
+// SafeServerActionResult<undefined, SafeServerActionError>
+```
+
+Pass the action itself (`typeof myAction`), not the result of calling it. The helper resolves to the same discriminated union the action returns at runtime, including the inferred `output` shape and `SafeServerActionError` on the error branch.
+
+```ts title="actions/greet.ts"
+'use server'
+
+import { z } from 'zod'
+import { createSafeServerAction } from '@sugardarius/anzen'
+
+export const greet = createSafeServerAction(
+  {
+    id: 'greet',
+    input: z.object({ name: z.string() }),
+  },
+  async ({ input }) => ({ message: `Hello, ${input.name}` })
+)
+```
+
+```ts title="components/greet-form.tsx"
+'use client'
+
+import type { InferSafeServerActionResult } from '@sugardarius/anzen'
+import { greet } from '~/actions/greet'
+
+type GreetResult = InferSafeServerActionResult<typeof greet>
+
+function handleResult(result: GreetResult) {
+  if (result.success) {
+    console.log(result.output.message)
+    return
+  }
+
+  console.warn(result.error.code, result.error.ctx)
+}
+```
 
 ## Error handling
 

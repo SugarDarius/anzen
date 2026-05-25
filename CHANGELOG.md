@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Added `InferSafeServerActionResult` helper type to infer the result type of a safe server action.
+
 ## [2.3.1] - 2026-04-15
 
 - Misc, updating `package.json` metadata.
