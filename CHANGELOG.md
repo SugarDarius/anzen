@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [2.3.2] - 2026-05-25
+
 - Added `InferSafeServerActionResult` helper type to infer the result type of a safe server action.
 
 ## [2.3.1] - 2026-04-15

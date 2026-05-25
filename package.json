@@ -1,6 +1,6 @@
 {
   "name": "@sugardarius/anzen",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "Fast, flexible, framework validation agnostic, type‑safe factories for creating server actions, route handlers, page and layout Server Component files in Next.js.",
   "license": "MIT",
   "packageManager": "npm@11.8.0",
