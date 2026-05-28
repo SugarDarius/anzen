@@ -1,11 +1,18 @@
 import { loader } from 'fumadocs-core/source'
-import type { InferPageType } from 'fumadocs-core/source'
+import type { InferPageType, StaticSource } from 'fumadocs-core/source'
 import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons'
 import { docs } from 'collections/server'
 
 export const source = loader({
   baseUrl: '/docs',
-  source: docs.toFumadocsSource(),
+  /**
+   * `toFumadocsSource()` widens page data to `PageData` in npm workspaces
+   * but we need to preserve collection types explicitly.
+   */
+  source: docs.toFumadocsSource() as StaticSource<{
+    pageData: (typeof docs)['docs'][number]
+    metaData: (typeof docs)['meta'][number]
+  }>,
   plugins: [lucideIconsPlugin()],
 })
 
