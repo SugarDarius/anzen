@@ -120,7 +120,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
         </div>
       </div>
       <div className='flex flex-col w-full z-1'>
-        <div className='flex items-center justify-between gap-4 mb-8'>
+        <div className='flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4 mb-8'>
           <DocsTitle className='text-lg md:text-[1.75em] flex-1'>
             {page.data.title}
           </DocsTitle>

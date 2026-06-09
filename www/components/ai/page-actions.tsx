@@ -347,7 +347,11 @@ export function PageActions({
           <ChevronDown />
         </PopoverTrigger>
       </div>
-      <PopoverContent className='flex flex-col'>
+      <PopoverContent
+        className='flex flex-col rounded-md'
+        side='bottom'
+        align='end'
+      >
         <button
           disabled={isLoading}
           className='text-sm p-2 rounded-lg flex items-start gap-2 text-start hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4 [&_svg]:mt-0.5 [&_svg]:shrink-0 cursor-pointer'
