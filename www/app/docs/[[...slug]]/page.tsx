@@ -9,6 +9,7 @@ import {
   PageLastUpdate,
 } from 'fumadocs-ui/layouts/docs/page'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 import { siteConfig } from '~/config/site'
 import { getPageImage, source } from '~/lib/source'
@@ -18,6 +19,7 @@ import { PageActions } from '~/components/ai/page-actions'
 import { GithubIcon } from '~/components/icons/github'
 import { Button } from '~/components/ui/button'
 import { ExternalLinkIcon } from 'lucide-react'
+import { findNeighbour } from 'fumadocs-core/page-tree'
 
 export async function generateStaticParams() {
   return source.generateParams()
@@ -52,6 +54,8 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
 
   const MDX = page.data.body
   const githubUrl = `${siteConfig.github.url}/blob/main/www/content/docs/${page.path}`
+
+  const neighbours = findNeighbour(source.pageTree, page.url)
 
   return (
     <DocsPage
@@ -117,10 +121,43 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       </div>
       <div className='flex flex-col w-full z-1'>
         <div className='flex items-center justify-between gap-4 mb-8'>
-          <DocsTitle className=' text-lg md:text-[1.75em]'>
+          <DocsTitle className='text-lg md:text-[1.75em] flex-1'>
             {page.data.title}
           </DocsTitle>
-          <PageActions markdownUrl={`${page.url}.mdx`} githubUrl={githubUrl} />
+          <div className='flex items-center gap-2 flex-none'>
+            <PageActions
+              markdownUrl={`${page.url}.mdx`}
+              githubUrl={githubUrl}
+            />
+            <div className='flex items-center gap-1'>
+              {neighbours.previous ? (
+                <Button
+                  asChild
+                  variant='secondary'
+                  size='icon'
+                  className='bg-fd-popover shadow-xs border border-md border-fd-border transition-colors duration-150 ease-in-out hover:bg-fd-accent hover:text-fd-accent-foreground'
+                >
+                  <Link href={neighbours.previous.url}>
+                    <ArrowLeft className='size-4' />
+                    <span className='sr-only'>Previous</span>
+                  </Link>
+                </Button>
+              ) : null}
+              {neighbours.next ? (
+                <Button
+                  asChild
+                  variant='secondary'
+                  size='icon'
+                  className='bg-fd-popover shadow-xs border border-md border-fd-border transition-colors duration-150 ease-in-out hover:bg-fd-accent hover:text-fd-accent-foreground'
+                >
+                  <Link href={neighbours.next.url}>
+                    <ArrowRight className='size-4' />
+                    <span className='sr-only'>Next</span>
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
+          </div>
         </div>
         <DocsDescription>{page.data.description}</DocsDescription>
         <DocsBody>

@@ -343,7 +343,7 @@ export function PageActions({
           {checked ? 'Copied!' : 'Copy page'}
         </button>
         <span className='w-px self-stretch bg-fd-border' />
-        <PopoverTrigger className='inline-flex items-center self-stretch px-1.5 cursor-pointer rounded-r-[5px] hover:bg-fd-accent hover:text-fd-accent-foreground'>
+        <PopoverTrigger className='inline-flex items-center self-stretch px-1.5 cursor-pointer rounded-r-[5px] hover:bg-fd-accent hover:text-fd-accent-foreground transition-colors duration-150 ease-in-out'>
           <ChevronDown />
         </PopoverTrigger>
       </div>
