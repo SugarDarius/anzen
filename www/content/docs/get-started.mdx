@@ -35,7 +35,6 @@ npm i @sugardarius/anzen decoders
 ```ts title="actions/create-thread.ts""
 'use server'
 
-import { object, string } from 'decoders'
 import { createSafeServerAction } from '@sugardarius/anzen'
 
 // [!code highlight]
@@ -57,6 +56,7 @@ export const createThread = createSafeServerAction(
 Validate your input.
 
 ```ts title="actions/create-thread.ts"
+// [!code highlight]
 import { object, string, datelike } from 'decoders'
 import { createSafeServerAction } from '@sugardarius/anzen'
 
@@ -97,11 +97,17 @@ export const createThread = createSafeServerAction(
     }),
     // [!code highlight]
     authorize: async () => {
+      // [!code highlight]
       const session = await auth()
+      // [!code highlight]
       if (!session.user) {
+        // [!code highlight]
         throw new Error('user is not authenticated')
+        // [!code highlight]
       }
+      // [!code highlight]
       return { user: session.user }
+      // [!code highlight]
     },
   },
   async ({ id, input, auth }) => {
@@ -126,6 +132,16 @@ export default function Form() {
       action={async (formData) => {
         // [!code highlight]
         const result = await createThread(formData)
+        /*
+         * result: {
+         *   success: true,
+         *   output: {
+         *     id: 'create-thread-action',
+         *     title: 'What's new in Anzen?',
+         *     username: 'John Doe',
+         *   },
+         * }
+         */
         console.log(result)
       }}
     >
@@ -182,6 +198,7 @@ export const POST = createSafeRouteHandler(
 Validate your different inputs like the request `body`. For `POST`, `PUT`, or `PATCH`, use `body` with a Standard Schema (JSON). You can also validate dynamic `segments`, `searchParams`, or `formData` depending on the request.
 
 ```ts title="app/api/thread/route.ts"
+// [!code highlight]
 import { object, string } from 'decoders'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
 
@@ -221,11 +238,17 @@ export const POST = createSafeRouteHandler(
     }),
     // [!code highlight]
     authorize: async () => {
+      // [!code highlight]
       const session = await auth()
+      // [!code highlight]
       if (!session.user) {
+        // [!code highlight]
         return new Response(null, { status: 401 })
+        // [!code highlight]
       }
+      // [!code highlight]
       return { user: session.user }
+      // [!code highlight]
     },
   },
   async ({ id, body, auth }) => {
@@ -279,6 +302,7 @@ export default createSafePageServerComponent(
   Validate URL data with `segments` and/or `searchParams` (Standard Schema).
 
 ```tsx title="app/thread/[threadId]/page.tsx"
+// [!code highlight]
 import { string, optional } from 'decoders'
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
 
@@ -333,11 +357,17 @@ export default createSafePageServerComponent(
     },
     // [!code highlight]
     authorize: async () => {
+      // [!code highlight]
       const session = await auth()
+      // [!code highlight]
       if (!session.user) {
+        // [!code highlight]
         unauthorized()
+        // [!code highlight]
       }
+      // [!code highlight]
       return { user: session.user }
+      // [!code highlight]
     },
   },
   async ({ id, segments, searchParams, auth }) => {
@@ -393,6 +423,7 @@ export default createSafeLayoutServerComponent(
   Validate dynamic `segments` for that route.
 
 ```tsx title="app/thread/[threadId]/layout.tsx"
+// [!code highlight]
 import { string } from 'decoders'
 import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
 
@@ -439,11 +470,17 @@ export default createSafeLayoutServerComponent(
     },
     // [!code highlight]
     authorize: async () => {
+      // [!code highlight]
       const session = await auth()
+      // [!code highlight]
       if (!session.user) {
+        // [!code highlight]
         unauthorized()
+        // [!code highlight]
       }
+      // [!code highlight]
       return { user: session.user }
+      // [!code highlight]
     },
   },
   async ({ id, segments, auth, children }) => {
