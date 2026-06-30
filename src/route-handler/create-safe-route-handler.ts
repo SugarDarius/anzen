@@ -273,7 +273,7 @@ export function createSafeRouteHandler<
       formData = parsedFormData.value
     }
 
-    let auth = undefined
+    let auth: AC | undefined
     try {
       // NOTE: Do not mutate / consume the original request
       // Due to `NextRequest` limitations as the req is cloned it's always a Request

@@ -120,12 +120,10 @@ export function createSafeServerAction<
 
     let input = undefined
     if (options.input) {
-      let input_unsafe: unknown = undefined
-      if (providedInput instanceof FormData) {
-        input_unsafe = Object.fromEntries(providedInput.entries())
-      } else {
-        input_unsafe = providedInput
-      }
+      const input_unsafe: unknown =
+        providedInput instanceof FormData
+          ? Object.fromEntries(providedInput.entries())
+          : providedInput
 
       const parsedInput = validateWithSchema(options.input, input_unsafe)
       if (parsedInput.issues) {
@@ -152,7 +150,7 @@ export function createSafeServerAction<
       input = parsedInput.value
     }
 
-    let auth = undefined
+    let auth: AC | undefined
     try {
       const authParams = {
         id,
