@@ -116,7 +116,7 @@ export function createSafePageServerComponent<
     }
 
     // Authorize the server component
-    let auth: AC | undefined
+    let auth = undefined
     try {
       // Build page auth function params
       const authParams = {
@@ -266,7 +266,7 @@ export function createSafeLayoutServerComponent<
     }
 
     // Authorize the server component
-    let auth: AC | undefined
+    let auth = undefined
     try {
       // Build layout auth function params
       const authParams = {
