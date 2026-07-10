@@ -65,11 +65,11 @@ Do **not** assume every handler must use a factory: empty options still add **de
 
 ## Authorization
 
-| Surface               | `authorize` behavior                                                                                                                                   |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Route handler**     | Returns **auth context** or a **`Response`** (e.g. 401). If it returns `Response`, that becomes the route response.                                    |
-| **Server action**     | Returns auth context or **never** (throw, or Next.js navigation helpers). Failures become structured **unauthorized** results when `authorize` throws. |
-| **Page / layout RSC** | Returns auth context or **never** (`unauthorized()`, `notFound()`, `redirect`, etc.).                                                                  |
+| Surface | `authorize` behavior |
+| --- | --- |
+| **Route handler** | Returns **auth context** or a **`Response`** (e.g. 401). If it returns `Response`, that becomes the route response. |
+| **Server action** | Returns auth context or **never** (throw, or Next.js navigation helpers). Failures become structured **unauthorized** results when `authorize` throws. |
+| **Page / layout RSC** | Returns auth context or **never** (`unauthorized()`, `notFound()`, `redirect`, etc.). |
 
 `AuthContext` is a `Record<string, unknown>`; use a consistent shape (e.g. `{ user }`) across the app.
 

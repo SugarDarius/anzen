@@ -20,6 +20,6 @@
   },
   "hooks": {
     "before:init": ["pnpm run build", "pnpm run lint"],
-    "after:bump": "pnpm run format -- package.json"
+    "after:bump": "pnpm run lint:fix ./package.json"
   }
 }

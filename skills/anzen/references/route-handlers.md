@@ -9,7 +9,7 @@ Validation rules for `body` / `formData` and Standard Schema: [validation.md](va
 ## Options
 
 | Option | Purpose |
-|--------|---------|
+| --- | --- |
 | `id?` | Identifier for logs / debugging |
 | `debug?` | Verbose logging |
 | `segments?` | **Dictionary** of Standard Schema for dynamic segments |

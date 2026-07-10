@@ -10,14 +10,14 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "out/**"]
     },
-    "lint:eslint": {
+    "lint:check": {
       "cache": false,
       "outputs": []
     },
     "lint:tsc": {
       "outputs": []
     },
-    "format": {
+    "lint:fix": {
       "cache": false,
       "outputs": []
     }

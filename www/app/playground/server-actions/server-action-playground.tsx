@@ -1,7 +1,7 @@
 'use client'
 
-import { useActionState, useState, useTransition } from 'react'
 import Link from 'next/link'
+import { useActionState, useState, useTransition } from 'react'
 
 import { Button } from '~/components/ui/button'
 import { Separator } from '~/components/ui/separator'
@@ -21,16 +21,6 @@ type ReactionActionResult = Awaited<ReturnType<typeof reactionAction>>
 
 /** Concise snippets: full definitions live in ./actions.ts */
 const SNIPPETS = {
-  ping: {
-    declaration: `export const pingAction = createSafeServerAction(
-  { id: 'playground/ping' },
-  async ({ id }) => ({
-    id,
-    at: new Date().toISOString(),
-  })
-)`,
-    usage: `await pingAction()`,
-  },
   greet: {
     declaration: `export const greetAction = createSafeServerAction(
   {
@@ -44,84 +34,6 @@ const SNIPPETS = {
   })
 )`,
     usage: `await greetAction({ name })`,
-  },
-  quantity: {
-    declaration: `export const quantityAction = createSafeServerAction(
-  {
-    id: 'playground/quantity',
-    input: z.object({
-      quantity: z.coerce.number().int().min(1).max(99),
-    }),
-  },
-  async ({ input }) => ({
-    units: input.quantity,
-    note: 'Validated with Zod on the server.',
-  })
-)`,
-    usage: `await quantityAction({ quantity })`,
-  },
-  tagErr: {
-    declaration: `export const tagErrDemoAction = createSafeServerAction(
-  {
-    id: 'playground/tag-err',
-    input: z.object({ outcome: z.enum(['success', 'conflict']) }),
-  },
-  async ({ input, tagErr }) => {
-    if (input.outcome === 'conflict') {
-      tagErr('RESOURCE_CONFLICT', {
-        message: 'That resource is already taken.',
-        resourceId: 'demo-slot-42',
-      })
-    }
-    return { reserved: true, resourceId: 'demo-slot-42' }
-  }
-)`,
-    usage: `await tagErrDemoAction({ outcome: tagErrOutcome })`,
-  },
-  secret: {
-    declaration: `export const secretAction = createSafeServerAction(
-  {
-    id: 'playground/secret',
-    input: z.object({ token: z.string() }),
-    authorize: async ({ input }) => {
-      if (input.token !== 'anzen') throw new Error('Invalid token')
-      return { clearance: 'ok' as const }
-    },
-  },
-  async ({ auth }) => ({
-    authorized: true,
-    clearance: auth.clearance,
-  })
-)`,
-    usage: `await secretAction({ token })`,
-  },
-  redirect: {
-    declaration: `export const redirectDemoAction = createSafeServerAction(
-  { id: 'playground/redirect' },
-  async () => {
-    redirect('/playground')
-  }
-)`,
-    usage: `await redirectDemoAction() // e.g. inside startTransition`,
-  },
-  reaction: {
-    declaration: `export const reactionAction = createSafeServerAction(
-  {
-    id: 'playground/reaction',
-    input: z.object({
-      emoji: z.string().min(1).max(8),
-      comment: z.string().max(120),
-    }),
-  },
-  async ({ input }) => ({
-    echo: \`\${input.emoji} \${input.comment}\`.trim(),
-  })
-)`,
-    usage: `const [state, formAction, pending] = useActionState(
-  async (_prev, formData) => reactionAction(formData),
-  null,
-)
-<form action={formAction}>…</form>`,
   },
   noteForm: {
     declaration: `export const noteFromFormAction = createSafeServerAction(
@@ -144,6 +56,94 @@ const SNIPPETS = {
     setFormResult(r)
   }}
 >…</form>`,
+  },
+  ping: {
+    declaration: `export const pingAction = createSafeServerAction(
+  { id: 'playground/ping' },
+  async ({ id }) => ({
+    id,
+    at: new Date().toISOString(),
+  })
+)`,
+    usage: `await pingAction()`,
+  },
+  quantity: {
+    declaration: `export const quantityAction = createSafeServerAction(
+  {
+    id: 'playground/quantity',
+    input: z.object({
+      quantity: z.coerce.number().int().min(1).max(99),
+    }),
+  },
+  async ({ input }) => ({
+    units: input.quantity,
+    note: 'Validated with Zod on the server.',
+  })
+)`,
+    usage: `await quantityAction({ quantity })`,
+  },
+  reaction: {
+    declaration: `export const reactionAction = createSafeServerAction(
+  {
+    id: 'playground/reaction',
+    input: z.object({
+      emoji: z.string().min(1).max(8),
+      comment: z.string().max(120),
+    }),
+  },
+  async ({ input }) => ({
+    echo: \`\${input.emoji} \${input.comment}\`.trim(),
+  })
+)`,
+    usage: `const [state, formAction, pending] = useActionState(
+  async (_prev, formData) => reactionAction(formData),
+  null,
+)
+<form action={formAction}>…</form>`,
+  },
+  redirect: {
+    declaration: `export const redirectDemoAction = createSafeServerAction(
+  { id: 'playground/redirect' },
+  async () => {
+    redirect('/playground')
+  }
+)`,
+    usage: `await redirectDemoAction() // e.g. inside startTransition`,
+  },
+  secret: {
+    declaration: `export const secretAction = createSafeServerAction(
+  {
+    id: 'playground/secret',
+    input: z.object({ token: z.string() }),
+    authorize: async ({ input }) => {
+      if (input.token !== 'anzen') throw new Error('Invalid token')
+      return { clearance: 'ok' as const }
+    },
+  },
+  async ({ auth }) => ({
+    authorized: true,
+    clearance: auth.clearance,
+  })
+)`,
+    usage: `await secretAction({ token })`,
+  },
+  tagErr: {
+    declaration: `export const tagErrDemoAction = createSafeServerAction(
+  {
+    id: 'playground/tag-err',
+    input: z.object({ outcome: z.enum(['success', 'conflict']) }),
+  },
+  async ({ input, tagErr }) => {
+    if (input.outcome === 'conflict') {
+      tagErr('RESOURCE_CONFLICT', {
+        message: 'That resource is already taken.',
+        resourceId: 'demo-slot-42',
+      })
+    }
+    return { reserved: true, resourceId: 'demo-slot-42' }
+  }
+)`,
+    usage: `await tagErrDemoAction({ outcome: tagErrOutcome })`,
   },
 } as const
 
@@ -230,14 +230,14 @@ export function ServerActionPlayground() {
   const [name, setName] = useState('Playground')
   const [quantity, setQuantity] = useState(3)
   const [tagErrOutcome, setTagErrOutcome] = useState<'success' | 'conflict'>(
-    'conflict'
+    'conflict',
   )
   const [token, setToken] = useState('')
 
   const [reactionState, reactionFormAction, reactionPending] = useActionState(
     async (_prev: ReactionActionResult | null, formData: FormData) =>
       reactionAction(formData),
-    null as ReactionActionResult | null
+    null as ReactionActionResult | null,
   )
 
   return (
@@ -502,7 +502,7 @@ export function ServerActionPlayground() {
                 id='reaction-emoji'
                 name='emoji'
                 required
-                defaultValue={'👍'}
+                defaultValue='👍'
                 maxLength={8}
                 className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
               />

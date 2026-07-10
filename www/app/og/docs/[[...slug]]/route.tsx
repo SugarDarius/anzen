@@ -1,8 +1,9 @@
-import { notFound } from 'next/navigation'
 import { ImageResponse } from '@takumi-rs/image-response'
+import { notFound } from 'next/navigation'
 
-import { getPageImage, pageSlugFromOgDocsPath, source } from '~/lib/source'
 import { baseUrl } from '~/config/site'
+import { getPageImage, pageSlugFromOgDocsPath, source } from '~/lib/source'
+
 import { OgImage } from '../../_components/og-image'
 
 export const revalidate = false
@@ -16,7 +17,7 @@ export function generateStaticParams() {
 
 export async function GET(
   _req: Request,
-  { params }: RouteContext<'/og/docs/[[...slug]]'>
+  { params }: RouteContext<'/og/docs/[[...slug]]'>,
 ) {
   const { slug: pathSlug } = await params
   const page = source.getPage(pageSlugFromOgDocsPath(pathSlug))
@@ -34,9 +35,9 @@ export async function GET(
       url={url}
     />,
     {
-      width: 1200,
-      height: 630,
       format: 'webp',
-    }
+      height: 630,
+      width: 1200,
+    },
   )
 }

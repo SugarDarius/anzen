@@ -1,6 +1,7 @@
 import { ImageResponse } from '@takumi-rs/image-response'
 
 import { baseUrl, siteConfig } from '~/config/site'
+
 import { OgImage } from './_components/og-image'
 
 export function generateRootOgImageResponse() {
@@ -13,9 +14,9 @@ export function generateRootOgImageResponse() {
       url={url}
     />,
     {
-      width: 1200,
-      height: 630,
       format: 'webp',
-    }
+      height: 630,
+      width: 1200,
+    },
   )
 }

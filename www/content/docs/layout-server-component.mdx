@@ -23,8 +23,8 @@ function createSafeLayoutServerComponent<
 >(
   options: CreateSafeLayoutServerComponentOptions<AC, TSegments, TSlots>,
   layout: (
-    ctx: SafeLayoutServerComponentContext<AC, TSegments, TSlots>
-  ) => Promise<React.ReactElement>
+    ctx: SafeLayoutServerComponentContext<AC, TSegments, TSlots>,
+  ) => Promise<React.ReactElement>,
 ): (props: LayoutProvidedProps<TSlots>) => Promise<React.ReactElement>
 ```
 
@@ -38,8 +38,7 @@ When creating a safe layout server component you can use a bunch of options for 
 
 `id?: string`
 
-Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
-By default the id is set to `[unknown:layout:server:component]`.
+Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring. By default the id is set to `[unknown:layout:server:component]`.
 
 ```tsx title="app/races/[id]/layout.tsx"
 export default createSafeLayoutServerComponent(
@@ -48,7 +47,7 @@ export default createSafeLayoutServerComponent(
   },
   async ({ id }) => {
     return <div>Layout {id}</div>
-  }
+  },
 )
 ```
 
@@ -56,9 +55,7 @@ export default createSafeLayoutServerComponent(
 
 `onError?: (err: unknown) => Awaitable<never>`
 
-Callback triggered when the layout server component throws an unhandled error.
-By default it rethrows the error as a service hatch to Next.js do its job and use error boundaries. The error is logged into the console.
-Use it if you want to manage unexpected errors properly to log, trace or define behaviors like using `notFound` or `redirect`.
+Callback triggered when the layout server component throws an unhandled error. By default it rethrows the error as a service hatch to Next.js do its job and use error boundaries. The error is logged into the console. Use it if you want to manage unexpected errors properly to log, trace or define behaviors like using `notFound` or `redirect`.
 
 ```tsx title="app/layout.tsx"
 import { notFound } from 'next/navigation'
@@ -75,7 +72,7 @@ export default createSafeLayoutServerComponent(
   },
   async () => {
     return <div>Hello</div>
-  }
+  },
 )
 ```
 
@@ -83,9 +80,7 @@ export default createSafeLayoutServerComponent(
 
 `debug?: boolean`
 
-Use this options to enable debug mode. It will add logs in the layout server component to help you debug the request.
-By default it's set to `false` for production builds.
-In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
+Use this options to enable debug mode. It will add logs in the layout server component to help you debug the request. By default it's set to `false` for production builds. In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
 
 ```tsx title="app/layout.tsx"
 import { createSafeLayoutServerComponent } from '@sugardarius/anzen/server-components'
@@ -131,7 +126,7 @@ export default createSafeLayoutServerComponent(
 
       const hasAccess = await checkAccountAccess(
         session.user.id,
-        segments.accountId
+        segments.accountId,
       )
       if (!hasAccess) {
         notFound()
@@ -147,7 +142,7 @@ export default createSafeLayoutServerComponent(
         {children}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -188,7 +183,7 @@ export default createSafeLayoutServerComponent(
   },
   async ({ auth }) => {
     return <div>Hello {auth.user.name}!</div>
-  }
+  },
 )
 ```
 
@@ -216,7 +211,7 @@ export default createSafeLayoutServerComponent(
       // Check if user has access to this account
       const hasAccess = await checkAccountAccess(
         session.user.id,
-        segments.accountId
+        segments.accountId,
       )
       if (!hasAccess) {
         notFound()
@@ -231,7 +226,7 @@ export default createSafeLayoutServerComponent(
         {auth.user.name} - {segments.accountId}/{segments.projectId}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -260,7 +255,7 @@ export default createSafeLayoutServerComponent(
         Account: {segments.accountId} - Project: {segments.projectId}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -292,7 +287,7 @@ export default createSafeLayoutServerComponent(
         Account: {segments.accountId} - Project: {segments.projectId}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -327,20 +322,18 @@ export default createSafeLayoutServerComponent(
         </footer>
       </div>
     )
-  }
+  },
 )
 ```
 
 <Callout>
 **Why `as const` is required?**
 
-The `as const` assertion is necessary for proper type inference because Next.js generates explicit types for parallel route slots at build time.
-Next.js typegen creates a `LayoutSlotMap` interface in `.next/types/routes.d.ts` that maps each route to its slot names as a union type (e.g., `"/playground/parallel": "analytics" | "team"`).
+The `as const` assertion is necessary for proper type inference because Next.js generates explicit types for parallel route slots at build time. Next.js typegen creates a `LayoutSlotMap` interface in `.next/types/routes.d.ts` that maps each route to its slot names as a union type (e.g., `"/playground/parallel": "analytics" | "team"`).
 
 The `LayoutProps` from `createSafeLayoutServerComponent` needs to stick to the Next.js typing requirements for build time.
 
-Without `as const`, TypeScript will infer the option `experimental_slots` as an index signature like `{[x: string]: React.ReactNode}` instead of an explicit signature as expected by Next.js
-This prevents the type system from matching the exact slot names that Next.js expects, breaking type safety, and build.
+Without `as const`, TypeScript will infer the option `experimental_slots` as an index signature like `{[x: string]: React.ReactNode}` instead of an explicit signature as expected by Next.js This prevents the type system from matching the exact slot names that Next.js expects, breaking type safety, and build.
 
 </Callout>
 
@@ -366,12 +359,12 @@ export default createSafeLayoutServerComponent({}, async ({ children }) => {
 
 `SafeLayoutServerComponentContext` is the context object that is passed to the handler.
 
-| Field                | When                                                                                     |
-| -------------------- | ---------------------------------------------------------------------------------------- |
-| `id`                 | Always.                                                                                  |
-| `children`           | Always — page content; may be a fragment when no child page exists.                      |
-| `auth`               | When `authorize` returned a value.                                                       |
-| `segments`           | When `segments` was configured.                                                          |
+| Field | When |
+| --- | --- |
+| `id` | Always. |
+| `children` | Always — page content; may be a fragment when no child page exists. |
+| `auth` | When `authorize` returned a value. |
+| `segments` | When `segments` was configured. |
 | `experimental_slots` | When `experimental_slots` was configured. Empty object when no matching parallel routes. |
 
 ## Error handling
@@ -424,7 +417,7 @@ export default createSafeLayoutServerComponent(
         {children}
       </main>
     )
-  }
+  },
 )
 ```
 

@@ -1,10 +1,11 @@
+import { docs } from 'collections/server'
 import { loader } from 'fumadocs-core/source'
 import type { InferPageType, StaticSource } from 'fumadocs-core/source'
 import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons'
-import { docs } from 'collections/server'
 
 export const source = loader({
   baseUrl: '/docs',
+  plugins: [lucideIconsPlugin()],
   /**
    * `toFumadocsSource()` widens page data to `PageData` in npm workspaces
    * but we need to preserve collection types explicitly.
@@ -13,7 +14,6 @@ export const source = loader({
     pageData: (typeof docs)['docs'][number]
     metaData: (typeof docs)['meta'][number]
   }>,
-  plugins: [lucideIconsPlugin()],
 })
 
 export function getPageImage(page: InferPageType<typeof source>) {
@@ -30,7 +30,7 @@ export function getPageImage(page: InferPageType<typeof source>) {
  *  strip that for `source.getPage` to work
  */
 export function pageSlugFromOgDocsPath(
-  slug: string[] | undefined
+  slug: string[] | undefined,
 ): string[] | undefined {
   if (!slug?.length) {
     return slug

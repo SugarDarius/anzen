@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/server-components/index.ts'],
+  clean: true,
   dts: {
     /**
      * Ignore deprecations for TypeScript 6+
@@ -13,8 +13,8 @@ export default defineConfig({
       ignoreDeprecations: '6.0',
     },
   },
-  splitting: true,
-  clean: true,
+  entry: ['src/index.ts', 'src/server-components/index.ts'],
   format: ['esm', 'cjs'],
   sourcemap: true,
+  splitting: true,
 })

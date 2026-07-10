@@ -11,7 +11,7 @@ Docs: [index.mdx](https://github.com/SugarDarius/anzen/blob/main/www/content/doc
 ## Dictionary vs single schema
 
 | API shape | Use for |
-|-----------|---------|
+| --- | --- |
 | **Dictionary** (`StandardSchemaDictionary`) | Route/page **`segments`**, **`searchParams`**, route **`formData`** — one schema per key. |
 | **Single object schema** (`StandardSchemaV1`) | Server action **`input`**; route **`body`** — one schema for the whole JSON object. |
 

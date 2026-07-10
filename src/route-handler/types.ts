@@ -88,11 +88,11 @@ export type RouteHandlerAuthFunction<
     TSearchParams,
     TBody,
     TFormData
-  >
+  >,
 ) => Awaitable<AC | Response | never>
 
 export type OnValidationErrorResponse = (
-  issues: readonly StandardSchemaV1.Issue[]
+  issues: readonly StandardSchemaV1.Issue[],
 ) => Awaitable<Response>
 
 export type CreateSafeRouteHandlerOptions<
@@ -210,7 +210,7 @@ export type ProvidedRouteContext = {
   /**
    * Route dynamic segments as params
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   params: Awaitable<any> | undefined
 }
 
@@ -222,7 +222,7 @@ export type CreateSafeRouteHandlerReturnType<TReq extends Request = Request> = (
   /**
    * Provided context added by Next.js itself
    */
-  providedContext: ProvidedRouteContext
+  providedContext: ProvidedRouteContext,
 ) => Promise<Response | never>
 
 // TODO: find better way to type it 👇🏻
@@ -303,5 +303,5 @@ export type SafeRouteHandler<
   /**
    * Original request
    */
-  req: TReq
+  req: TReq,
 ) => Promise<Response | never>

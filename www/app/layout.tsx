@@ -1,68 +1,66 @@
+import { Analytics } from '@vercel/analytics/next'
+import { RootProvider } from 'fumadocs-ui/provider/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
-import { Analytics } from '@vercel/analytics/next'
-
-import { RootProvider } from 'fumadocs-ui/provider/next'
-
 import './globals.css'
 
-import { cn } from '~/lib/utils'
 import { baseUrl, siteConfig } from '~/config/site'
+import { cn } from '~/lib/utils'
 
 const GeistSans = Geist({
-  variable: '--font-geist-sans',
   subsets: ['latin'],
+  variable: '--font-geist-sans',
 })
 
 const GeistMono = Geist_Mono({
-  variable: '--font-geist-mono',
   subsets: ['latin'],
+  variable: '--font-geist-mono',
 })
 
 export const metadata: Metadata = {
+  authors: siteConfig.authors,
+  creator: siteConfig.creator,
+  description: siteConfig.description,
+  icons: {
+    icon: '/favicon.ico',
+  },
   metadataBase: new URL(baseUrl),
+  openGraph: {
+    description: siteConfig.description,
+    locale: 'en_US',
+    siteName: siteConfig.title,
+    title: siteConfig.title,
+    type: 'website',
+    url: baseUrl,
+  },
+  robots: {
+    follow: true,
+    googleBot: {
+      follow: true,
+      index: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+    index: true,
+  },
   title: {
     default: siteConfig.title,
     template: `%s | ${siteConfig.title}`,
   },
-  description: siteConfig.description,
-  authors: siteConfig.authors,
-  creator: siteConfig.creator,
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    title: siteConfig.title,
-    description: siteConfig.description,
-    siteName: siteConfig.title,
-    url: baseUrl,
-  },
   twitter: {
     card: 'summary_large_image',
-    title: siteConfig.title,
-    description: siteConfig.description,
     creator: siteConfig.socialLinks.twitter.name,
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  icons: {
-    icon: '/favicon.ico',
+    description: siteConfig.description,
+    title: siteConfig.title,
   },
 }
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
+    { color: 'white', media: '(prefers-color-scheme: light)' },
+    { color: 'black', media: '(prefers-color-scheme: dark)' },
   ],
 }
 
@@ -75,7 +73,7 @@ export default function RootLayout({
         className={cn(
           GeistSans.variable,
           GeistMono.variable,
-          'font-sans antialiased flex flex-col min-h-screen'
+          'font-sans antialiased flex flex-col min-h-screen',
         )}
       >
         <RootProvider>{children}</RootProvider>

@@ -1,6 +1,11 @@
 'use client'
 
-import { useState, Fragment } from 'react'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from 'fumadocs-ui/components/ui/popover'
+import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button'
 import {
   Check,
   ChevronDown,
@@ -9,14 +14,10 @@ import {
   TextIcon,
   MessageCircle,
 } from 'lucide-react'
-import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from 'fumadocs-ui/components/ui/popover'
-import { baseUrl } from '~/config/site'
+import { useState, Fragment } from 'react'
+
 import { GithubIcon } from '~/components/icons/github'
+import { baseUrl } from '~/config/site'
 
 const cache = new Map<string, string>()
 
@@ -34,31 +35,37 @@ Help me understand how to use it. Be ready to explain concepts, give examples, o
   `
 
   switch (platform) {
-    case 'chatgpt':
+    case 'chatgpt': {
       return `https://chatgpt.com/?${new URLSearchParams({
         hints: 'search',
         q: prompt,
       })}`
-    case 'claude':
+    }
+    case 'claude': {
       return `https://claude.ai/new?${new URLSearchParams({
         q: prompt,
       })}`
-    case 'cursor':
+    }
+    case 'cursor': {
       return `https://cursor.com/link/prompt?${new URLSearchParams({
         text: prompt,
       })}`
-    case 'v0':
+    }
+    case 'v0': {
       return `https://v0.dev/?${new URLSearchParams({
         q: prompt,
       })}`
-    case 't3Chat':
+    }
+    case 't3Chat': {
       return `https://t3.chat/new?${new URLSearchParams({
         q: prompt,
       })}`
-    case 'scira':
+    }
+    case 'scira': {
       return `https://scira.ai/?${new URLSearchParams({
         q: prompt,
       })}`
+    }
   }
 }
 
@@ -105,8 +112,6 @@ type PopoverItem =
 
 const items: PopoverItem[] = [
   {
-    type: 'action',
-    platform: 'markdown',
     component: (url: string) => (
       <AiPlatformItem
         key='view-as-markdown'
@@ -115,10 +120,10 @@ const items: PopoverItem[] = [
         icon={<TextIcon />}
       />
     ),
+    platform: 'markdown',
+    type: 'action',
   },
   {
-    type: 'action',
-    platform: 'github',
     component: (url: string) => (
       <AiPlatformItem
         key='open-in-github'
@@ -127,11 +132,11 @@ const items: PopoverItem[] = [
         icon={<GithubIcon />}
       />
     ),
+    platform: 'github',
+    type: 'action',
   },
   { type: 'divider' },
   {
-    type: 'action',
-    platform: 'chatgpt',
     component: (url: string) => (
       <AiPlatformItem
         key='open-in-chatgpt'
@@ -139,7 +144,6 @@ const items: PopoverItem[] = [
         title='Open in ChatGPT'
         icon={
           <svg
-            role='img'
             viewBox='0 0 24 24'
             fill='currentColor'
             xmlns='http://www.w3.org/2000/svg'
@@ -150,10 +154,10 @@ const items: PopoverItem[] = [
         }
       />
     ),
+    platform: 'chatgpt',
+    type: 'action',
   },
   {
-    type: 'action',
-    platform: 'claude',
     component: (url: string) => (
       <AiPlatformItem
         key='open-in-claude'
@@ -162,7 +166,6 @@ const items: PopoverItem[] = [
         icon={
           <svg
             fill='currentColor'
-            role='img'
             viewBox='0 0 24 24'
             xmlns='http://www.w3.org/2000/svg'
           >
@@ -172,10 +175,10 @@ const items: PopoverItem[] = [
         }
       />
     ),
+    platform: 'claude',
+    type: 'action',
   },
   {
-    type: 'action',
-    platform: 'cursor',
     component: (url: string) => (
       <AiPlatformItem
         key='open-in-cursor'
@@ -184,7 +187,6 @@ const items: PopoverItem[] = [
         icon={
           <svg
             fill='currentColor'
-            role='img'
             viewBox='0 0 24 24'
             xmlns='http://www.w3.org/2000/svg'
           >
@@ -194,10 +196,10 @@ const items: PopoverItem[] = [
         }
       />
     ),
+    platform: 'cursor',
+    type: 'action',
   },
   {
-    type: 'action',
-    platform: 'v0',
     component: (url: string) => (
       <AiPlatformItem
         key='open-in-v0'
@@ -216,10 +218,10 @@ const items: PopoverItem[] = [
         }
       />
     ),
+    platform: 'v0',
+    type: 'action',
   },
   {
-    type: 'action',
-    platform: 't3Chat',
     component: (url: string) => (
       <AiPlatformItem
         key='open-in-t3Chat'
@@ -228,10 +230,10 @@ const items: PopoverItem[] = [
         icon={<MessageCircle />}
       />
     ),
+    platform: 't3Chat',
+    type: 'action',
   },
   {
-    type: 'action',
-    platform: 'scira',
     component: (url: string) => (
       <AiPlatformItem
         key='open-in-scira'
@@ -297,6 +299,8 @@ const items: PopoverItem[] = [
         }
       />
     ),
+    platform: 'scira',
+    type: 'action',
   },
 ]
 
@@ -307,11 +311,13 @@ export function PageActions({
   markdownUrl: string
   githubUrl: string
 }) {
-  const [isLoading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const [checked, onCopy] = useCopyButton(async () => {
     const cached = cache.get(markdownUrl)
-    if (cached) return navigator.clipboard.writeText(cached)
+    if (cached) {
+      return navigator.clipboard.writeText(cached)
+    }
 
     setLoading(true)
 
@@ -335,7 +341,7 @@ export function PageActions({
     <Popover>
       <div className='inline-flex items-center rounded-md border border-fd-border text-sm [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground bg-fd-popover shadow-xs flex-none'>
         <button
-          disabled={isLoading}
+          disabled={loading}
           onClick={onCopy}
           className='inline-flex items-center gap-1.5 px-2.5 py-1.5 cursor-pointer rounded-l-[5px] hover:bg-fd-accent hover:text-fd-accent-foreground'
         >
@@ -353,7 +359,7 @@ export function PageActions({
         align='end'
       >
         <button
-          disabled={isLoading}
+          disabled={loading}
           className='text-sm p-2 rounded-lg flex items-start gap-2 text-start hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4 [&_svg]:mt-0.5 [&_svg]:shrink-0 cursor-pointer'
           onClick={onCopy}
         >
@@ -375,14 +381,14 @@ export function PageActions({
                   : item.platform === 'github'
                     ? githubUrl
                     : getPromptUrl({
-                        platform: item.platform,
                         docUrl: new URL(markdownUrl, baseUrl).toString(),
-                      })
+                        platform: item.platform,
+                      }),
               )}
             </Fragment>
           ) : (
             <hr key={index} className='my-1 border-fd-border' />
-          )
+          ),
         )}
       </PopoverContent>
     </Popover>

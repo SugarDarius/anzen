@@ -3,9 +3,9 @@ import { mcpServerCardJson } from '~/lib/mcp-server-metadata'
 export const revalidate = false
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Origin': '*',
 } as const
 
 const cacheHeaders = {
@@ -14,13 +14,13 @@ const cacheHeaders = {
 
 export function OPTIONS() {
   return new Response(null, {
-    status: 204,
     headers: { ...corsHeaders },
+    status: 204,
   })
 }
 
 export function GET() {
-  return new Response(JSON.stringify(mcpServerCardJson()), {
+  return Response.json(mcpServerCardJson(), {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
       ...corsHeaders,

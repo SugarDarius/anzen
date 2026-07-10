@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+
 import { baseUrl } from '~/config/site'
 import { source } from '~/lib/source'
 
@@ -11,27 +12,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     {
-      url: `${baseUrl}/`,
       changeFrequency: 'monthly',
-      priority: 1,
       lastModified: new Date().toISOString().split('T')[0],
+      priority: 1,
+      url: `${baseUrl}/`,
     },
     {
-      url: url('/docs'),
       changeFrequency: 'monthly',
-      priority: 0.8,
       lastModified: new Date().toISOString().split('T')[0],
+      priority: 0.8,
+      url: url('/docs'),
     },
     ...pages.map(
       (page) =>
         ({
-          url: url(page.url),
           changeFrequency: 'weekly',
-          priority: 0.5,
           lastModified: page.data.lastModified
             ? new Date(page.data.lastModified).toISOString().split('T')[0]
             : undefined,
-        }) as MetadataRoute.Sitemap[number]
+          priority: 0.5,
+          url: url(page.url),
+        }) as MetadataRoute.Sitemap[number],
     ),
   ]
 }

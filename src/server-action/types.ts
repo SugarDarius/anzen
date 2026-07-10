@@ -61,17 +61,20 @@ export type TaggedError = {
 }
 
 export type SafeServerActionError =
-  ValidationError | UnauthorizedError | ServerError | TaggedError
+  | ValidationError
+  | UnauthorizedError
+  | ServerError
+  | TaggedError
 
 export type SafeServerActionResultSuccess<TOutput> = {
   readonly success: true
   readonly output: TOutput
-  readonly error?: never
+  readonly error?: undefined
 }
 
 export type SafeServerActionResultError<TError> = {
   readonly success: false
-  readonly output?: never
+  readonly output?: undefined
   readonly error: TError
 }
 
@@ -123,12 +126,12 @@ export type ServerActionAuthFunction<
    * }
    * ```
    */
-  params: ServerActionAuthFunctionParams<TInput>
+  params: ServerActionAuthFunctionParams<TInput>,
 ) => Awaitable<AC | never>
 
 export type OnError = (err: unknown) => Awaitable<ServerActionErrorContext>
 export type OnInputValidationError = (
-  issues: readonly StandardSchemaV1.Issue[]
+  issues: readonly StandardSchemaV1.Issue[],
 ) => Awaitable<ServerActionErrorContext>
 
 export type CreateSafeServerActionOptions<
@@ -251,10 +254,10 @@ export type CreateSafeServerActionReturnType<
   TError,
 > = [TInput] extends [TInputSchema]
   ? (
-      providedInput: InferServerActionProvidedInput<TInput>
+      providedInput: InferServerActionProvidedInput<TInput>,
     ) => Promise<SafeServerActionResult<TOutput, TError>>
   : (
-      providedInput?: InferServerActionProvidedInput<TInput>
+      providedInput?: InferServerActionProvidedInput<TInput>,
     ) => Promise<SafeServerActionResult<TOutput, TError>>
 
 // TODO: find better way to type it 👇🏻
@@ -317,7 +320,7 @@ export type SafeServerActionHandler<
   /**
    * Safe server action context
    */
-  ctx: SafeServerActionContext<TInput, AC>
+  ctx: SafeServerActionContext<TInput, AC>,
 ) => Promise<TOutput | never>
 
 /**

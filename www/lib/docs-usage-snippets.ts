@@ -126,8 +126,8 @@ export default createSafeLayoutServerComponent(
 
 /** File titles shown next to each block in docs (`title="…"` in fenced code). */
 export const docsUsageTitles = {
-  serverAction: 'actions/create-thread.ts',
-  routeHandler: 'api/authorize/route.ts',
-  pageServerComponent: 'app/[accountId]/page.tsx',
   layoutServerComponent: 'app/[accountId]/layout.tsx',
+  pageServerComponent: 'app/[accountId]/page.tsx',
+  routeHandler: 'api/authorize/route.ts',
+  serverAction: 'actions/create-thread.ts',
 } as const

@@ -3,19 +3,19 @@ import type { Awaitable } from './types'
 /** @internal */
 export function hasDictKey<T extends object, K extends PropertyKey>(
   obj: T,
-  key: K
+  key: K,
 ): obj is T & Record<typeof key, unknown> {
   return key in obj
 }
 
 /** @internal */
 export function isPromise<T>(
-  value: unknown
+  value: unknown,
 ): value is Promise<T> | PromiseLike<T> {
   return (
     value !== null &&
     (typeof value === 'object' || typeof value === 'function') &&
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     typeof (value as any).then === 'function'
   )
 }
@@ -23,7 +23,7 @@ export function isPromise<T>(
 /** @internal */
 export function assertsSyncOperation<T>(
   value: T | Promise<T> | PromiseLike<T>,
-  message: string
+  message: string,
 ): asserts value is T {
   if (isPromise<T>(value)) {
     throw new Error(message)
@@ -31,17 +31,17 @@ export function assertsSyncOperation<T>(
 }
 
 /** @internal */
-export function createLogger(debug: boolean = false) {
+export function createLogger(debug = false) {
   const shouldLog = debug || process.env.NODE_ENV !== 'production'
   return {
-    info: (message: string, ...rest: unknown[]): void => {
-      if (shouldLog) {
-        console.log(message, ...rest)
-      }
-    },
     error: (message: string, ...rest: unknown[]): void => {
       if (shouldLog) {
         console.error(message, ...rest)
+      }
+    },
+    info: (message: string, ...rest: unknown[]): void => {
+      if (shouldLog) {
+        console.log(message, ...rest)
       }
     },
     warn: (message: string, ...rest: unknown[]): void => {
@@ -58,6 +58,14 @@ export function createExecutionClock() {
   let endTime: number | null = null
 
   return {
+    get: (): string => {
+      if (!startTime || !endTime) {
+        throw new Error('Execution clock has not been started or stopped.')
+      }
+
+      const duration = endTime - startTime
+      return `${duration.toFixed(2)}ms`
+    },
     start: (): void => {
       startTime = performance.now()
     },
@@ -67,20 +75,12 @@ export function createExecutionClock() {
       }
       endTime = performance.now()
     },
-    get: (): string => {
-      if (!startTime || !endTime) {
-        throw new Error('Execution clock has not been started or stopped.')
-      }
-
-      const duration = endTime - startTime
-      return `${duration.toFixed(2)}ms`
-    },
   }
 }
 
 /**
- * @internal
  * Checks if an error is a Next.js redirect error.
+ * @internal
  */
 const isNextRedirectError = (error: unknown): boolean => {
   if (
@@ -95,8 +95,8 @@ const isNextRedirectError = (error: unknown): boolean => {
 }
 
 /**
- * @internal
  * Checks if an error is a Next.js HTTP error (notFound, forbidden, unauthorized).
+ * @internal
  */
 const isNextHttpError = (error: unknown): boolean => {
   if (
@@ -107,7 +107,7 @@ const isNextHttpError = (error: unknown): boolean => {
   ) {
     return false
   }
-  const digest = error.digest
+  const { digest } = error
   // Check for notFound (;404), forbidden (;403), or unauthorized (;401)
   return (
     digest.endsWith(';404') ||
@@ -117,28 +117,28 @@ const isNextHttpError = (error: unknown): boolean => {
 }
 
 /**
- * @internal
  * Checks if an error is a Next.js native error that should not be logged.
+ * @internal
  */
 export function isNextNativeError(error: unknown): boolean {
   return isNextRedirectError(error) || isNextHttpError(error)
 }
 
 /**
- * @internal
  * Type guard to check if the error is an instance of Error.
+ * @internal
  */
 export function isNativeError(err: unknown): err is Error {
   return err instanceof Error
 }
 
 /**
- * @internal
  * Asserts that a function do not throw
+ * @internal
  */
 export async function assertsNoThrow<T>(
   fn: () => Awaitable<T>,
-  fallback: () => Awaitable<T>
+  fallback: () => Awaitable<T>,
 ): Promise<T> {
   try {
     return await fn()

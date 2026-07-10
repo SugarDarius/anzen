@@ -18,43 +18,43 @@ import {
 import { getFumadocsCodeBlockIconHtml } from '~/lib/fumadocs-code-block-icon'
 import { cn } from '~/lib/utils'
 
-const shikiOptions = { themes: { light: 'github-light', dark: 'vesper' } }
+const shikiOptions = { themes: { dark: 'vesper', light: 'github-light' } }
 
 const iconTs = getFumadocsCodeBlockIconHtml('ts')
 const iconTsx = getFumadocsCodeBlockIconHtml('tsx')
 
 const examples = [
   {
-    value: 'server-action',
+    code: docsUsageServerAction,
+    icon: iconTs,
     label: 'Server Action',
     lang: 'ts' as const,
-    code: docsUsageServerAction,
     title: docsUsageTitles.serverAction,
-    icon: iconTs,
+    value: 'server-action',
   },
   {
-    value: 'route-handler',
+    code: docsUsageRouteHandler,
+    icon: iconTs,
     label: 'Route Handler',
     lang: 'ts' as const,
-    code: docsUsageRouteHandler,
     title: docsUsageTitles.routeHandler,
-    icon: iconTs,
+    value: 'route-handler',
   },
   {
-    value: 'page-server-component',
+    code: docsUsagePageServerComponent,
+    icon: iconTsx,
     label: 'Page Server Component',
     lang: 'tsx' as const,
-    code: docsUsagePageServerComponent,
     title: docsUsageTitles.pageServerComponent,
-    icon: iconTsx,
+    value: 'page-server-component',
   },
   {
-    value: 'layout-server-component',
+    code: docsUsageLayoutServerComponent,
+    icon: iconTsx,
     label: 'Layout Server Component',
     lang: 'tsx' as const,
-    code: docsUsageLayoutServerComponent,
     title: docsUsageTitles.layoutServerComponent,
-    icon: iconTsx,
+    value: 'layout-server-component',
   },
 ] as const
 
@@ -63,7 +63,7 @@ export function CodeExamples({ className }: { className?: string }) {
     <div
       className={cn(
         'not-prose flex flex-col w-full max-w-4xl mx-auto mt-2',
-        className
+        className,
       )}
     >
       <Tabs defaultValue='server-action' className='rounded-sm shadow-xs'>
@@ -84,8 +84,8 @@ export function CodeExamples({ className }: { className?: string }) {
               lang={lang}
               code={code}
               codeblock={{
-                title,
                 icon,
+                title,
                 viewportProps: {
                   className: 'no-max-h',
                 },

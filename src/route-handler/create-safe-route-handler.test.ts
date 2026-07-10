@@ -1,3 +1,4 @@
+import { string, numeric, object, array } from 'decoders'
 import {
   describe,
   test,
@@ -7,8 +8,8 @@ import {
   beforeEach,
   vi,
 } from 'vitest'
-import { string, numeric, object, array } from 'decoders'
 import { z } from 'zod'
+
 import { DEFAULT_ID, createSafeRouteHandler } from './create-safe-route-handler'
 
 describe('default context', () => {
@@ -30,25 +31,23 @@ describe('default context', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data).toEqual({ message: 'Hello, world!' })
+    expect(data).toStrictEqual({ message: 'Hello, world!' })
   })
 })
 
 describe('Extends Request type gracefully - convenience purpose for extending NextRequest', () => {
   test('should extends Request type', async () => {
     class NRequest extends Request {
-      cookies = () => {
-        return 'cookies'
-      }
+      cookies = () => 'cookies'
     }
 
     const GET = createSafeRouteHandler(
       {
-        id: 'extends-request-type',
         authorize: async ({ req }) => {
           expectTypeOf(req).toEqualTypeOf<Request>()
           return { user: 'John Doe' }
         },
+        id: 'extends-request-type',
       },
       async (ctx, req: NRequest) => {
         expectTypeOf(req).toEqualTypeOf<NRequest>()
@@ -59,7 +58,7 @@ describe('Extends Request type gracefully - convenience purpose for extending Ne
         }>()
         expect(ctx.auth.user).toBe('John Doe')
         return Response.json({ message: 'Hello, world!' }, { status: 200 })
-      }
+      },
     )
     const request = new NRequest('http://localhost:3000/')
     const response = await GET(request, { params: undefined })
@@ -88,13 +87,13 @@ describe('id customization', () => {
     await GET(request, { params: undefined })
 
     expect(logSpy).toHaveBeenCalledWith(
-      `🔄 Running route handler '${DEFAULT_ID}'`
+      `🔄 Running route handler '${DEFAULT_ID}'`,
     )
   })
 
   test('should use custom id if provided', async () => {
-    const id = 'custom-id'
-    const GET = createSafeRouteHandler({ id }, async ({ id }) => {
+    const handlerId = 'custom-id'
+    const GET = createSafeRouteHandler({ id: handlerId }, async ({ id }) => {
       expectTypeOf(id).toEqualTypeOf<string>()
       expect(id).toBe('custom-id')
       return Response.json({ message: 'Hello, world!' }, { status: 200 })
@@ -103,7 +102,9 @@ describe('id customization', () => {
     const request = new Request('http://localhost:3000/')
     await GET(request, { params: undefined })
 
-    expect(logSpy).toHaveBeenCalledWith(`🔄 Running route handler '${id}'`)
+    expect(logSpy).toHaveBeenCalledWith(
+      `🔄 Running route handler '${handlerId}'`,
+    )
   })
 })
 
@@ -129,7 +130,7 @@ describe('authorize', () => {
         expect(auth.user.name).toBe(user.name)
 
         return Response.json({ user: auth.user }, { status: 200 })
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/')
@@ -137,7 +138,7 @@ describe('authorize', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data).toEqual({ user })
+    expect(data).toStrictEqual({ user })
   })
 
   test('should return a 401 response for unauthorized requests', async () => {
@@ -145,9 +146,7 @@ describe('authorize', () => {
       {
         authorize: () => new Response('Unauthorized', { status: 401 }),
       },
-      async () => {
-        return Response.json({ message: 'Hello, world!' }, { status: 200 })
-      }
+      async () => Response.json({ message: 'Hello, world!' }, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/')
@@ -161,24 +160,22 @@ describe('authorize', () => {
   test('keeps the original request', async () => {
     const POST = createSafeRouteHandler(
       {
-        body: object({
-          name: string,
-        }),
         authorize: async ({ req }) => {
           await expect(req.json()).resolves.toBeDefined()
           return { authorized: true }
         },
+        body: object({
+          name: string,
+        }),
       },
-      async () => {
-        return Response.json({}, { status: 200 })
-      }
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
       body: JSON.stringify({
         name: 'Anakin Skywalker',
       }),
+      method: 'POST',
     })
 
     const response = await POST(request, { params: undefined })
@@ -189,7 +186,6 @@ describe('authorize', () => {
   test('receives validated segments in authorize', async () => {
     const GET = createSafeRouteHandler(
       {
-        segments: { id: string, page: numeric },
         authorize: async ({ segments }) => {
           expectTypeOf(segments).toEqualTypeOf<{
             id: string
@@ -199,10 +195,9 @@ describe('authorize', () => {
           expect(segments.page).toBe(256)
           return { authorized: true }
         },
+        segments: { id: string, page: numeric },
       },
-      async () => {
-        return Response.json({}, { status: 200 })
-      }
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/')
@@ -216,7 +211,6 @@ describe('authorize', () => {
   test('receives validated searchParams in authorize', async () => {
     const GET = createSafeRouteHandler(
       {
-        searchParams: { query: string, page: numeric },
         authorize: async ({ searchParams }) => {
           expectTypeOf(searchParams).toEqualTypeOf<{
             query: string
@@ -226,10 +220,9 @@ describe('authorize', () => {
           expect(searchParams.page).toBe(2)
           return { authorized: true }
         },
+        searchParams: { page: numeric, query: string },
       },
-      async () => {
-        return Response.json({}, { status: 200 })
-      }
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/?query=luke&page=2')
@@ -240,13 +233,12 @@ describe('authorize', () => {
 
   test('receives validated body in authorize', async () => {
     const bodySchema = z.object({
-      name: z.string(),
       model: z.string(),
+      name: z.string(),
     })
 
     const POST = createSafeRouteHandler(
       {
-        body: bodySchema,
         authorize: async ({ body }) => {
           expectTypeOf(body).toEqualTypeOf<{
             name: string
@@ -256,18 +248,17 @@ describe('authorize', () => {
           expect(body.model).toBe('X-Wing')
           return { authorized: true }
         },
+        body: bodySchema,
       },
-      async () => {
-        return Response.json({}, { status: 200 })
-      }
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
       body: JSON.stringify({
-        name: 'Luke Skywalker',
         model: 'X-Wing',
+        name: 'Luke Skywalker',
       }),
+      method: 'POST',
     })
     const response = await POST(request, { params: undefined })
 
@@ -277,10 +268,6 @@ describe('authorize', () => {
   test('receives validated formData in authorize', async () => {
     const POST = createSafeRouteHandler(
       {
-        formData: {
-          id: z.string(),
-          message: z.string(),
-        },
         authorize: async ({ formData }) => {
           expectTypeOf(formData).toEqualTypeOf<{
             id: string
@@ -290,14 +277,15 @@ describe('authorize', () => {
           expect(formData.message).toBe('This is a tweet!')
           return { authorized: true }
         },
+        formData: {
+          id: z.string(),
+          message: z.string(),
+        },
       },
-      async () => {
-        return Response.json({}, { status: 200 })
-      }
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
       body: new URLSearchParams({
         id: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
         message: 'This is a tweet!',
@@ -305,6 +293,7 @@ describe('authorize', () => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
+      method: 'POST',
     })
 
     const response = await POST(request, { params: undefined })
@@ -314,15 +303,12 @@ describe('authorize', () => {
 
   test('receives all validated attributes in authorize', async () => {
     const bodySchema = z.object({
-      name: z.string(),
       apiKey: z.string(),
+      name: z.string(),
     })
 
     const POST = createSafeRouteHandler(
       {
-        segments: { accountId: string, projectId: string },
-        searchParams: { query: string, page: numeric },
-        body: bodySchema,
         authorize: async ({ segments, searchParams, body }) => {
           expectTypeOf(segments).toEqualTypeOf<{
             accountId: string
@@ -338,10 +324,10 @@ describe('authorize', () => {
           }>()
 
           expect(segments.accountId).toBe(
-            '0e0378fd-808d-4e1c-8707-bb5c918c1ed2'
+            '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
           )
           expect(segments.projectId).toBe(
-            '141399a5-14c5-47aa-bc04-2a281380b6e3'
+            '141399a5-14c5-47aa-bc04-2a281380b6e3',
           )
           expect(searchParams.query).toBe('liveblocks')
           expect(searchParams.page).toBe(2)
@@ -350,21 +336,22 @@ describe('authorize', () => {
 
           return { authorized: true }
         },
+        body: bodySchema,
+        searchParams: { page: numeric, query: string },
+        segments: { accountId: string, projectId: string },
       },
-      async () => {
-        return Response.json({}, { status: 200 })
-      }
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request(
       'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/copilots?query=liveblocks&page=2',
       {
-        method: 'POST',
         body: JSON.stringify({
-          name: 'Super Butler',
           apiKey: 'sk_ai_copilot_key',
+          name: 'Super Butler',
         }),
-      }
+        method: 'POST',
+      },
     )
     const response = await POST(request, {
       params: Promise.resolve({
@@ -380,7 +367,6 @@ describe('authorize', () => {
     const customId = 'custom-authorize-id'
     const GET = createSafeRouteHandler(
       {
-        id: customId,
         authorize: async ({ id, url }) => {
           expectTypeOf(id).toEqualTypeOf<string>()
           expectTypeOf(url).toEqualTypeOf<URL>()
@@ -388,10 +374,9 @@ describe('authorize', () => {
           expect(url.href).toBe('http://localhost:3000/')
           return { authorized: true }
         },
+        id: customId,
       },
-      async () => {
-        return Response.json({}, { status: 200 })
-      }
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/')
@@ -414,7 +399,7 @@ describe('authorize', () => {
       async (_ctx, req) => {
         handlerReq = req
         return Response.json({}, { status: 200 })
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/')
@@ -430,12 +415,12 @@ describe('authorize', () => {
     const thrown = new Error('authorize failed')
     const GET = createSafeRouteHandler(
       {
-        id: 'auth-throw-route',
         authorize: () => {
           throw thrown
         },
+        id: 'auth-throw-route',
       },
-      async () => Response.json({}, { status: 200 })
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/')
@@ -454,7 +439,7 @@ describe('authorize', () => {
         },
         onErrorResponse: () => new Response('authorize error', { status: 503 }),
       },
-      async () => Response.json({}, { status: 200 })
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/')
@@ -477,12 +462,12 @@ describe('authorize', () => {
           throw redirectError
         },
       },
-      async () => Response.json({}, { status: 200 })
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/')
     await expect(GET(request, { params: undefined })).rejects.toBe(
-      redirectError
+      redirectError,
     )
   })
 
@@ -498,12 +483,12 @@ describe('authorize', () => {
           throw notFoundError
         },
       },
-      async () => Response.json({}, { status: 200 })
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/')
     await expect(GET(request, { params: undefined })).rejects.toBe(
-      notFoundError
+      notFoundError,
     )
   })
 
@@ -519,12 +504,12 @@ describe('authorize', () => {
           throw unauthorizedError
         },
       },
-      async () => Response.json({}, { status: 200 })
+      async () => Response.json({}, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/')
     await expect(GET(request, { params: undefined })).rejects.toBe(
-      unauthorizedError
+      unauthorizedError,
     )
   })
 })
@@ -535,7 +520,7 @@ describe('on error response', () => {
       { id: 'internal-server-error' },
       async () => {
         throw new Error('Unexpected error')
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/')
@@ -554,7 +539,7 @@ describe('on error response', () => {
       },
       async () => {
         throw new Error('Unexpected error')
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/')
@@ -582,18 +567,20 @@ describe('Next.js native errors logging', () => {
     redirectError.digest = 'NEXT_REDIRECT;replace;/redirect-path;307;'
 
     const GET = createSafeRouteHandler(
-      { id: 'redirect-route', debug: true },
+      { debug: true, id: 'redirect-route' },
       async () => {
         throw redirectError
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/')
-    await expect(GET(request, { params: undefined })).rejects.toThrow()
+    await expect(GET(request, { params: undefined })).rejects.toThrow(
+      'NEXT_REDIRECT',
+    )
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -604,18 +591,20 @@ describe('Next.js native errors logging', () => {
     notFoundError.digest = 'NEXT_HTTP_ERROR_FALLBACK;404'
 
     const GET = createSafeRouteHandler(
-      { id: 'notfound-route', debug: true },
+      { debug: true, id: 'notfound-route' },
       async () => {
         throw notFoundError
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/')
-    await expect(GET(request, { params: undefined })).rejects.toThrow()
+    await expect(GET(request, { params: undefined })).rejects.toThrow(
+      'NEXT_NOT_FOUND',
+    )
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -626,18 +615,20 @@ describe('Next.js native errors logging', () => {
     forbiddenError.digest = 'NEXT_HTTP_ERROR_FALLBACK;403'
 
     const GET = createSafeRouteHandler(
-      { id: 'forbidden-route', debug: true },
+      { debug: true, id: 'forbidden-route' },
       async () => {
         throw forbiddenError
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/')
-    await expect(GET(request, { params: undefined })).rejects.toThrow()
+    await expect(GET(request, { params: undefined })).rejects.toThrow(
+      'NEXT_FORBIDDEN',
+    )
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -648,18 +639,20 @@ describe('Next.js native errors logging', () => {
     unauthorizedError.digest = 'NEXT_HTTP_ERROR_FALLBACK;401'
 
     const GET = createSafeRouteHandler(
-      { id: 'unauthorized-route', debug: true },
+      { debug: true, id: 'unauthorized-route' },
       async () => {
         throw unauthorizedError
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/')
-    await expect(GET(request, { params: undefined })).rejects.toThrow()
+    await expect(GET(request, { params: undefined })).rejects.toThrow(
+      'NEXT_UNAUTHORIZED',
+    )
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -667,10 +660,10 @@ describe('Next.js native errors logging', () => {
     const regularError = new Error('Regular error')
 
     const GET = createSafeRouteHandler(
-      { id: 'regular-error-route', debug: true },
+      { debug: true, id: 'regular-error-route' },
       async () => {
         throw regularError
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/')
@@ -678,7 +671,7 @@ describe('Next.js native errors logging', () => {
 
     expect(response.status).toBe(500)
     expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('failed to execute')
+      expect.stringContaining('failed to execute'),
     )
   })
 })
@@ -697,9 +690,9 @@ describe('route dynamic segments validation', () => {
 
         return Response.json(
           { id: ctx.segments.id, page: ctx.segments.page },
-          { status: 200 }
+          { status: 200 },
         )
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/')
@@ -709,7 +702,7 @@ describe('route dynamic segments validation', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data).toEqual({ id: 'suzuka', page: 256 })
+    expect(data).toStrictEqual({ id: 'suzuka', page: 256 })
   })
 
   test('returns a 400 response for invalid segments', async () => {
@@ -717,17 +710,16 @@ describe('route dynamic segments validation', () => {
       {
         segments: { id: string, page: numeric },
       },
-      async (ctx) => {
-        return Response.json(
+      async (ctx) =>
+        Response.json(
           { id: ctx.segments.id, page: ctx.segments.page },
-          { status: 200 }
-        )
-      }
+          { status: 200 },
+        ),
     )
 
     const request = new Request('http://localhost:3000/')
     const response = await GET(request, {
-      params: Promise.resolve({ ppid: 'suzuka', page: 'unknown' }),
+      params: Promise.resolve({ page: 'unknown', ppid: 'suzuka' }),
     })
     const data = await response.text()
 
@@ -738,23 +730,22 @@ describe('route dynamic segments validation', () => {
   test('returns a custom response for invalid segments', async () => {
     const GET = createSafeRouteHandler(
       {
-        segments: { id: string, page: numeric },
         onSegmentsValidationErrorResponse: (issues) => {
-          expect(issues.length).toBe(2)
+          expect(issues).toHaveLength(2)
           return new Response('Custom error', { status: 400 })
         },
+        segments: { id: string, page: numeric },
       },
-      async (ctx) => {
-        return Response.json(
+      async (ctx) =>
+        Response.json(
           { id: ctx.segments.id, page: ctx.segments.page },
-          { status: 200 }
-        )
-      }
+          { status: 200 },
+        ),
     )
 
     const request = new Request('http://localhost:3000/')
     const response = await GET(request, {
-      params: Promise.resolve({ ppid: 'suzuka', page: 'unknown' }),
+      params: Promise.resolve({ page: 'unknown', ppid: 'suzuka' }),
     })
     const data = await response.text()
 
@@ -767,12 +758,11 @@ describe('route dynamic segments validation', () => {
       {
         segments: { id: string, page: numeric },
       },
-      async (ctx) => {
-        return Response.json(
+      async (ctx) =>
+        Response.json(
           { id: ctx.segments.id, page: ctx.segments.page },
-          { status: 200 }
-        )
-      }
+          { status: 200 },
+        ),
     )
 
     const request = new Request('http://localhost:3000/')
@@ -790,7 +780,7 @@ describe('URL search params validation', () => {
   test('validates search params correctly', async () => {
     const GET = createSafeRouteHandler(
       {
-        searchParams: { query: string, page: numeric },
+        searchParams: { page: numeric, query: string },
       },
       async ({ searchParams }) => {
         expectTypeOf(searchParams).toEqualTypeOf<{
@@ -799,7 +789,7 @@ describe('URL search params validation', () => {
         }>()
 
         return Response.json(searchParams, { status: 200 })
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/?query=luke&page=2')
@@ -807,7 +797,7 @@ describe('URL search params validation', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data).toEqual({ query: 'luke', page: 2 })
+    expect(data).toStrictEqual({ page: 2, query: 'luke' })
   })
 
   test('validates search params correctly with arrays', async () => {
@@ -823,26 +813,24 @@ describe('URL search params validation', () => {
         }>()
 
         return Response.json(searchParams, { status: 200 })
-      }
+      },
     )
 
     const request = new Request(
-      'http://localhost:3000/?query=luke&query=anakin'
+      'http://localhost:3000/?query=luke&query=anakin',
     )
     const response = await GET(request, { params: undefined })
     const data = await response.json()
     expect(response.status).toBe(200)
-    expect(data).toEqual({ query: ['luke', 'anakin'] })
+    expect(data).toStrictEqual({ query: ['luke', 'anakin'] })
   })
 
   test('returns a 400 response for invalid search params', async () => {
     const GET = createSafeRouteHandler(
       {
-        searchParams: { query: string, page: numeric },
+        searchParams: { page: numeric, query: string },
       },
-      async ({ searchParams }) => {
-        return Response.json(searchParams, { status: 200 })
-      }
+      async ({ searchParams }) => Response.json(searchParams, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/?q=luke&page=unknown')
@@ -856,15 +844,13 @@ describe('URL search params validation', () => {
   test('returns a custom response for invalid search params', async () => {
     const GET = createSafeRouteHandler(
       {
-        searchParams: { query: string, page: numeric },
         onSearchParamsValidationErrorResponse: (issues) => {
-          expect(issues.length).toBe(2)
+          expect(issues).toHaveLength(2)
           return new Response('Custom error', { status: 400 })
         },
+        searchParams: { page: numeric, query: string },
       },
-      async ({ searchParams }) => {
-        return Response.json(searchParams, { status: 200 })
-      }
+      async ({ searchParams }) => Response.json(searchParams, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/?q=luke&page=unknown')
@@ -884,21 +870,20 @@ describe('exclusive `body` and `formData` validation', () => {
           body: z.object({ name: z.string() }),
           formData: { id: z.string() },
         },
-        async () => {
-          return Response.json({ message: 'Hello, world!' }, { status: 200 })
-        }
+        async () =>
+          Response.json({ message: 'Hello, world!' }, { status: 200 }),
       )
     }).toThrowErrorMatchingInlineSnapshot(
-      '[Error: You cannot use both `body` and `formData` in the same route handler. They are both mutually exclusive.]'
+      '[Error: You cannot use both `body` and `formData` in the same route handler. They are both mutually exclusive.]',
     )
   })
 })
 
 describe('request body validation', () => {
   const bodySchema = z.object({
-    name: z.string(),
-    model: z.string(),
     apiKey: z.string(),
+    model: z.string(),
+    name: z.string(),
   })
 
   test('validates body correctly', async () => {
@@ -914,25 +899,25 @@ describe('request body validation', () => {
         }>()
 
         return Response.json(body, { status: 200 })
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
       body: JSON.stringify({
-        name: 'Luke Skywalker',
-        model: 'X-Wing',
         apiKey: '1234567890',
+        model: 'X-Wing',
+        name: 'Luke Skywalker',
       }),
+      method: 'POST',
     })
     const response = await POST(request, { params: undefined })
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data).toEqual({
-      name: 'Luke Skywalker',
-      model: 'X-Wing',
+    expect(data).toStrictEqual({
       apiKey: '1234567890',
+      model: 'X-Wing',
+      name: 'Luke Skywalker',
     })
   })
 
@@ -941,16 +926,14 @@ describe('request body validation', () => {
       {
         body: bodySchema,
       },
-      async ({ body }) => {
-        return Response.json(body, { status: 200 })
-      }
+      async ({ body }) => Response.json(body, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
       body: JSON.stringify({
         unknown: 'Betty Boop',
       }),
+      method: 'POST',
     })
     const response = await POST(request, { params: undefined })
     const data = await response.text()
@@ -964,20 +947,18 @@ describe('request body validation', () => {
       {
         body: bodySchema,
         onBodyValidationErrorResponse: (issues) => {
-          expect(issues.length).toBe(3)
+          expect(issues).toHaveLength(3)
           return new Response('Custom error', { status: 400 })
         },
       },
-      async ({ body }) => {
-        return Response.json(body, { status: 200 })
-      }
+      async ({ body }) => Response.json(body, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
       body: JSON.stringify({
         unknown: 'Betty Boop',
       }),
+      method: 'POST',
     })
     const response = await POST(request, { params: undefined })
     const data = await response.text()
@@ -991,9 +972,7 @@ describe('request body validation', () => {
       {
         body: bodySchema,
       },
-      async ({ body }) => {
-        return Response.json(body, { status: 200 })
-      }
+      async ({ body }) => Response.json(body, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/', {
@@ -1012,9 +991,7 @@ describe('request body validation', () => {
       {
         body: bodySchema,
       },
-      async ({ body }) => {
-        return Response.json(body, { status: 200 })
-      }
+      async ({ body }) => Response.json(body, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/')
@@ -1033,16 +1010,16 @@ describe('request body validation', () => {
       async ({ body }, req) => {
         await expect(req.json()).resolves.toBeDefined()
         return Response.json(body, { status: 200 })
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
       body: JSON.stringify({
-        name: 'Luke Skywalker',
-        model: 'X-Wing',
         apiKey: '1234567890',
+        model: 'X-Wing',
+        name: 'Luke Skywalker',
       }),
+      method: 'POST',
     })
     const response = await POST(request, { params: undefined })
 
@@ -1067,11 +1044,10 @@ describe('request form data validation', () => {
         }>()
 
         return Response.json(formData, { status: 200 })
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
       body: new URLSearchParams({
         id: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
         message: 'This is a tweet!',
@@ -1079,13 +1055,14 @@ describe('request form data validation', () => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
+      method: 'POST',
     })
 
     const response = await POST(request, { params: undefined })
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data).toEqual({
+    expect(data).toStrictEqual({
       id: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
       message: 'This is a tweet!',
     })
@@ -1107,11 +1084,10 @@ describe('request form data validation', () => {
         }>()
 
         return Response.json(formData, { status: 200 })
-      }
+      },
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
       body: new URLSearchParams({
         pid: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
         unknown: 'This is a tweet!',
@@ -1119,6 +1095,7 @@ describe('request form data validation', () => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
+      method: 'POST',
     })
 
     const response = await POST(request, { params: undefined })
@@ -1136,17 +1113,14 @@ describe('request form data validation', () => {
           message: z.string(),
         },
         onFormDataValidationErrorResponse: (issues) => {
-          expect(issues.length).toBe(2)
+          expect(issues).toHaveLength(2)
           return new Response('Custom error', { status: 400 })
         },
       },
-      async ({ formData }) => {
-        return Response.json(formData, { status: 200 })
-      }
+      async ({ formData }) => Response.json(formData, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
       body: new URLSearchParams({
         pid: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
         unknown: 'This is a tweet!',
@@ -1154,6 +1128,7 @@ describe('request form data validation', () => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
+      method: 'POST',
     })
 
     const response = await POST(request, { params: undefined })
@@ -1171,17 +1146,15 @@ describe('request form data validation', () => {
           message: z.string(),
         },
       },
-      async ({ formData }) => {
-        return Response.json(formData, { status: 200 })
-      }
+      async ({ formData }) => Response.json(formData, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
+      body: '--foo\r\nContent-Disposition: form-data; name="x"\r\n\r\n1\r\n--foo--',
       headers: {
         'Content-Type': 'multipart/form-data', // MISSING boundary!
       },
-      body: '--foo\r\nContent-Disposition: form-data; name="x"\r\n\r\n1\r\n--foo--',
+      method: 'POST',
     })
 
     const response = await POST(request, { params: undefined })
@@ -1199,9 +1172,7 @@ describe('request form data validation', () => {
           message: z.string(),
         },
       },
-      async ({ formData }) => {
-        return Response.json(formData, { status: 200 })
-      }
+      async ({ formData }) => Response.json(formData, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/')
@@ -1220,13 +1191,10 @@ describe('request form data validation', () => {
           message: z.string(),
         },
       },
-      async ({ formData }) => {
-        return Response.json(formData, { status: 200 })
-      }
+      async ({ formData }) => Response.json(formData, { status: 200 }),
     )
 
     const request = new Request('http://localhost:3000/', {
-      method: 'POST',
       body: new URLSearchParams({
         id: '408f1c9d-25b7-4e0a-b491-1a0b14999fc8',
         message: 'This is a tweet!',
@@ -1234,6 +1202,7 @@ describe('request form data validation', () => {
       headers: {
         'Content-Type': 'application/json',
       },
+      method: 'POST',
     })
 
     const response = await POST(request, { params: undefined })
@@ -1248,16 +1217,15 @@ describe('combined validations - ordered', () => {
   test('validates segments and search params correctly', async () => {
     const GET = createSafeRouteHandler(
       {
+        searchParams: { page: numeric, query: string },
         segments: { accountId: string, projectId: string },
-        searchParams: { query: string, page: numeric },
       },
-      async ({ segments, searchParams }) => {
-        return Response.json({ segments, searchParams }, { status: 200 })
-      }
+      async ({ segments, searchParams }) =>
+        Response.json({ searchParams, segments }, { status: 200 }),
     )
 
     const request = new Request(
-      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/rooms?query=liveblocks&page=2'
+      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/rooms?query=liveblocks&page=2',
     )
     const response = await GET(request, {
       params: Promise.resolve({
@@ -1268,28 +1236,27 @@ describe('combined validations - ordered', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data).toEqual({
+    expect(data).toStrictEqual({
+      searchParams: { page: 2, query: 'liveblocks' },
       segments: {
         accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
         projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
       },
-      searchParams: { query: 'liveblocks', page: 2 },
     })
   })
 
   test('returns a 400 response for invalid segments and valid search params', async () => {
     const GET = createSafeRouteHandler(
       {
+        searchParams: { page: numeric, query: string },
         segments: { accountId: string, projectId: string },
-        searchParams: { query: string, page: numeric },
       },
-      async ({ segments, searchParams }) => {
-        return Response.json({ segments, searchParams }, { status: 200 })
-      }
+      async ({ segments, searchParams }) =>
+        Response.json({ searchParams, segments }, { status: 200 }),
     )
 
     const request = new Request(
-      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/rooms?query=liveblocks&page=2'
+      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/rooms?query=liveblocks&page=2',
     )
     const response = await GET(request, {
       params: Promise.resolve({
@@ -1306,16 +1273,15 @@ describe('combined validations - ordered', () => {
   test('returns a 400 response for valid segments and invalid search params', async () => {
     const GET = createSafeRouteHandler(
       {
+        searchParams: { page: numeric, query: string },
         segments: { accountId: string, projectId: string },
-        searchParams: { query: string, page: numeric },
       },
-      async ({ segments, searchParams }) => {
-        return Response.json({ segments, searchParams }, { status: 200 })
-      }
+      async ({ segments, searchParams }) =>
+        Response.json({ searchParams, segments }, { status: 200 }),
     )
 
     const request = new Request(
-      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/rooms?q=liveblocks&page=2'
+      'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/rooms?q=liveblocks&page=2',
     )
 
     const response = await GET(request, {
@@ -1333,28 +1299,26 @@ describe('combined validations - ordered', () => {
   test('validates segments and body correctly', async () => {
     const POST = createSafeRouteHandler(
       {
-        segments: { accountId: string, projectId: string },
         body: object({
+          apiKey: string,
           name: string,
           systemPrompt: string,
-          apiKey: string,
         }),
+        segments: { accountId: string, projectId: string },
       },
-      async ({ segments, body }) => {
-        return Response.json({ segments, body })
-      }
+      async ({ segments, body }) => Response.json({ body, segments }),
     )
 
     const request = new Request(
       'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/copilots',
       {
-        method: 'POST',
         body: JSON.stringify({
+          apiKey: 'sk_ai_copilot_key',
           name: 'Super Butler',
           systemPrompt: 'You are an expert at being a butler for customers.',
-          apiKey: 'sk_ai_copilot_key',
         }),
-      }
+        method: 'POST',
+      },
     )
     const response = await POST(request, {
       params: Promise.resolve({
@@ -1365,15 +1329,15 @@ describe('combined validations - ordered', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data).toEqual({
+    expect(data).toStrictEqual({
+      body: {
+        apiKey: 'sk_ai_copilot_key',
+        name: 'Super Butler',
+        systemPrompt: 'You are an expert at being a butler for customers.',
+      },
       segments: {
         accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
         projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
-      },
-      body: {
-        name: 'Super Butler',
-        systemPrompt: 'You are an expert at being a butler for customers.',
-        apiKey: 'sk_ai_copilot_key',
       },
     })
   })
@@ -1381,26 +1345,24 @@ describe('combined validations - ordered', () => {
   test('returns a 400 for invalid body', async () => {
     const POST = createSafeRouteHandler(
       {
-        segments: { accountId: string, projectId: string },
         body: object({
+          apiKey: string,
           name: string,
           systemPrompt: string,
-          apiKey: string,
         }),
+        segments: { accountId: string, projectId: string },
       },
-      async ({ segments, body }) => {
-        return Response.json({ segments, body })
-      }
+      async ({ segments, body }) => Response.json({ body, segments }),
     )
 
     const request = new Request(
       'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/copilots',
       {
-        method: 'POST',
         body: JSON.stringify({
           foo: 'bar',
         }),
-      }
+        method: 'POST',
+      },
     )
     const response = await POST(request, {
       params: Promise.resolve({
@@ -1419,28 +1381,26 @@ describe('framework validation agnostic', () => {
   test('validates correctly no matter what framework is used', async () => {
     const POST = createSafeRouteHandler(
       {
-        segments: { accountId: string, projectId: string },
         body: z.object({
+          apiKey: z.string(),
           name: z.string(),
           systemPrompt: z.string(),
-          apiKey: z.string(),
         }),
+        segments: { accountId: string, projectId: string },
       },
-      async ({ segments, body }) => {
-        return Response.json({ segments, body })
-      }
+      async ({ segments, body }) => Response.json({ body, segments }),
     )
 
     const request = new Request(
       'http://localhost/accounts/0e0378fd-808d-4e1c-8707-bb5c918c1ed2/projects/141399a5-14c5-47aa-bc04-2a281380b6e3/copilots',
       {
-        method: 'POST',
         body: JSON.stringify({
+          apiKey: 'sk_ai_copilot_key',
           name: 'Super Butler',
           systemPrompt: 'You are an expert at being a butler for customers.',
-          apiKey: 'sk_ai_copilot_key',
         }),
-      }
+        method: 'POST',
+      },
     )
     const response = await POST(request, {
       params: Promise.resolve({
@@ -1451,15 +1411,15 @@ describe('framework validation agnostic', () => {
     const data = await response.json()
 
     expect(response.status).toBe(200)
-    expect(data).toEqual({
+    expect(data).toStrictEqual({
+      body: {
+        apiKey: 'sk_ai_copilot_key',
+        name: 'Super Butler',
+        systemPrompt: 'You are an expert at being a butler for customers.',
+      },
       segments: {
         accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
         projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
-      },
-      body: {
-        name: 'Super Butler',
-        systemPrompt: 'You are an expert at being a butler for customers.',
-        apiKey: 'sk_ai_copilot_key',
       },
     })
   })

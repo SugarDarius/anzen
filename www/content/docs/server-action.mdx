@@ -19,9 +19,9 @@ The factory has two overloads: **with** an `input` schema (callers pass a plain 
 // No input schema — optional call with no argument
 function createSafeServerAction<TOutput, AC = undefined>(
   options: CreateSafeServerActionOptions<undefined, AC>,
-  handler: (ctx: SafeServerActionContext<undefined, AC>) => Promise<TOutput>
+  handler: (ctx: SafeServerActionContext<undefined, AC>) => Promise<TOutput>,
 ): (
-  providedInput?: undefined
+  providedInput?: undefined,
 ) => Promise<SafeServerActionResult<TOutput, SafeServerActionError>>
 
 // With input schema
@@ -31,9 +31,9 @@ function createSafeServerAction<
   AC = undefined,
 >(
   options: CreateSafeServerActionOptions<TInput, AC> & { input: TInput },
-  handler: (ctx: SafeServerActionContext<TInput, AC>) => Promise<TOutput>
+  handler: (ctx: SafeServerActionContext<TInput, AC>) => Promise<TOutput>,
 ): (
-  providedInput: FormData | InferOutput<TInput>
+  providedInput: FormData | InferOutput<TInput>,
 ) => Promise<SafeServerActionResult<TOutput, SafeServerActionError>>
 ```
 
@@ -47,8 +47,7 @@ When creating a safe server action you can use a bunch of options for helping yo
 
 `id?: string`
 
-Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
-By default the id is set to `[unknown:server:action]`.
+Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring. By default the id is set to `[unknown:server:action]`.
 
 ```ts title="actions/ping.ts"
 'use server'
@@ -61,7 +60,7 @@ export const ping = createSafeServerAction(
   },
   async ({ id }) => {
     return { pong: true, actionId: id }
-  }
+  },
 )
 ```
 
@@ -90,7 +89,7 @@ export const saveDraft = createSafeServerAction(
   async ({ input }) => {
     await persist(input)
     return { saved: true }
-  }
+  },
 )
 ```
 
@@ -154,7 +153,7 @@ export const listNotifications = createSafeServerAction(
   },
   async ({ auth }) => {
     return { items: await fetchNotifications(auth.user.id) }
-  }
+  },
 )
 ```
 
@@ -188,7 +187,7 @@ export const deleteComment = createSafeServerAction(
   async ({ input }) => {
     await db.comment.delete({ where: { id: input.commentId } })
     return { deleted: true }
-  }
+  },
 )
 ```
 
@@ -217,7 +216,7 @@ export const submitNote = createSafeServerAction(
   async ({ input }) => {
     await saveNote(input)
     return { id: crypto.randomUUID() }
-  }
+  },
 )
 ```
 
@@ -265,7 +264,7 @@ export const updateNickname = createSafeServerAction(
       issues,
     }),
   },
-  async ({ input }) => ({ nickname: input.nickname })
+  async ({ input }) => ({ nickname: input.nickname }),
 )
 ```
 
@@ -275,12 +274,12 @@ export const updateNickname = createSafeServerAction(
 
 The handler receives a single context object:
 
-| Field               | When                                                      |
-| ------------------- | --------------------------------------------------------- |
-| `id`                | Always — resolved action id.                              |
+| Field | When |
+| --- | --- |
+| `id` | Always — resolved action id. |
 | `tagErr(code, ctx)` | Always — ends the action with a tagged error (see below). |
-| `auth`              | When `authorize` returned a value.                        |
-| `input`             | When an `input` schema was configured.                    |
+| `auth` | When `authorize` returned a value. |
+| `input` | When an `input` schema was configured. |
 
 ## Return value
 
@@ -316,7 +315,7 @@ export const greet = createSafeServerAction(
     id: 'greet',
     input: z.object({ name: z.string() }),
   },
-  async ({ input }) => ({ message: `Hello, ${input.name}` })
+  async ({ input }) => ({ message: `Hello, ${input.name}` }),
 )
 ```
 
@@ -342,12 +341,12 @@ function handleResult(result: GreetResult) {
 
 By design, the factory wraps the pipeline so **most failures become a result object** instead of throwing to the client. That keeps Client Components simple: one `await`, then branch on `result.success`.
 
-| `error.code`            | Meaning                                                                                                                                                                                                |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `VALIDATION_ERROR`      | The payload did not satisfy `input`. No `authorize` or handler run. `error.ctx` is whatever `onInputValidationError` returns (default: `{ issues }`).                                                  |
-| `UNAUTHORIZED_ERROR`    | `authorize` threw a non–Next.js error. `error.ctx` comes from `onError`. Use this for authentication and authorization failures you model as throws inside `authorize`.                                |
-| `SERVER_ERROR`          | The handler threw an error that is neither a tagged error nor a Next.js special error. `error.ctx` comes from `onError`. Use `onError` to map internal errors to safe, serializable fields for the UI. |
-| Tagged error (`tagErr`) | Deliberate domain outcomes ("conflict", "already exists", etc.). `error.code` is the string you passed to `tagErr`; `error.ctx` is your object. They are not logged as unexpected server failures.     |
+| `error.code` | Meaning |
+| --- | --- |
+| `VALIDATION_ERROR` | The payload did not satisfy `input`. No `authorize` or handler run. `error.ctx` is whatever `onInputValidationError` returns (default: `{ issues }`). |
+| `UNAUTHORIZED_ERROR` | `authorize` threw a non–Next.js error. `error.ctx` comes from `onError`. Use this for authentication and authorization failures you model as throws inside `authorize`. |
+| `SERVER_ERROR` | The handler threw an error that is neither a tagged error nor a Next.js special error. `error.ctx` comes from `onError`. Use `onError` to map internal errors to safe, serializable fields for the UI. |
+| Tagged error (`tagErr`) | Deliberate domain outcomes ("conflict", "already exists", etc.). `error.code` is the string you passed to `tagErr`; `error.ctx` is your object. They are not logged as unexpected server failures. |
 
 ### Tagged errors
 
@@ -372,7 +371,7 @@ export const saveDocument = createSafeServerAction(
       tagErr('CONFLICT', { docId: input.docId, message: 'Version conflict' })
     }
     return { saved: true }
-  }
+  },
 )
 ```
 

@@ -1,5 +1,5 @@
-import { z } from 'zod'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { z } from 'zod'
 
 export const GET = createSafeRouteHandler(
   {
@@ -8,7 +8,5 @@ export const GET = createSafeRouteHandler(
       raceId: z.string(),
     },
   },
-  async (ctx) => {
-    return Response.json({ segments: ctx.segments })
-  }
+  async (ctx) => Response.json({ segments: ctx.segments }),
 )

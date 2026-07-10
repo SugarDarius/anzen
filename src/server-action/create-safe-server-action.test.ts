@@ -1,3 +1,4 @@
+import { string, numeric, object } from 'decoders'
 import {
   describe,
   test,
@@ -7,8 +8,8 @@ import {
   beforeEach,
   vi,
 } from 'vitest'
-import { string, numeric, object } from 'decoders'
 import { z } from 'zod'
+
 import {
   createSafeServerAction,
   DEFAULT_ACTION_ID,
@@ -33,9 +34,9 @@ describe('default context', () => {
 
     const result = await action()
 
-    expect(result).toEqual({
-      success: true,
+    expect(result).toStrictEqual({
       output: { ok: true },
+      success: true,
     })
   })
 
@@ -61,20 +62,20 @@ describe('id customization', () => {
     await action()
 
     expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining(`Running server action '${DEFAULT_ACTION_ID}'`)
+      expect.stringContaining(`Running server action '${DEFAULT_ACTION_ID}'`),
     )
   })
 
   test('uses custom id in logs when id option is set', async () => {
     const id = 'my-server-action'
-    const action = createSafeServerAction({ id, debug: true }, async () => ({
+    const action = createSafeServerAction({ debug: true, id }, async () => ({
       done: true,
     }))
 
     await action()
 
     expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining(`Running server action '${id}'`)
+      expect.stringContaining(`Running server action '${id}'`),
     )
   })
 })
@@ -97,62 +98,62 @@ describe('authorize', () => {
             name: string
           }
         }>()
-        expect(auth.user).toEqual(user)
+        expect(auth.user).toStrictEqual(user)
         return { greeting: auth.user.name }
-      }
+      },
     )
 
     const result = await action()
 
-    expect(result).toEqual({
-      success: true,
+    expect(result).toStrictEqual({
       output: { greeting: 'Nimesh' },
+      success: true,
     })
   })
 
   test('authorize receives id when there is no input schema', async () => {
     const action = createSafeServerAction(
       {
-        id: 'auth-id-test',
         authorize: async (params) => {
           expectTypeOf(params).toEqualTypeOf<{ readonly id: string }>()
           expect(params.id).toBe('auth-id-test')
           return { role: 'admin' }
         },
+        id: 'auth-id-test',
       },
-      async ({ auth }) => auth
+      async ({ auth }) => auth,
     )
 
     const result = await action()
-    expect(result).toEqual({
-      success: true,
+    expect(result).toStrictEqual({
       output: { role: 'admin' },
+      success: true,
     })
   })
 
   test('authorize receives id and validated input when input schema is set', async () => {
     const action = createSafeServerAction(
       {
-        id: 'auth-with-input',
-        input: z.object({
-          resourceId: z.string(),
-        }),
         authorize: async (params) => {
           expect(params.id).toBe('auth-with-input')
           expect(params.input.resourceId).toBe('res-1')
           return { ok: true as const }
         },
+        id: 'auth-with-input',
+        input: z.object({
+          resourceId: z.string(),
+        }),
       },
-      async ({ auth, input }) => ({ auth, input })
+      async ({ auth, input }) => ({ auth, input }),
     )
 
     const result = await action({ resourceId: 'res-1' })
-    expect(result).toEqual({
-      success: true,
+    expect(result).toStrictEqual({
       output: {
         auth: { ok: true },
         input: { resourceId: 'res-1' },
       },
+      success: true,
     })
   })
 
@@ -160,18 +161,17 @@ describe('authorize', () => {
     const err = new Error('Not allowed')
     const action = createSafeServerAction(
       {
-        id: 'unauth-action',
         authorize: () => {
           throw err
         },
+        id: 'unauth-action',
       },
-      async () => ({})
+      async () => ({}),
     )
 
     const result = await action()
 
-    expect(result).toEqual({
-      success: false,
+    expect(result).toStrictEqual({
       error: {
         code: 'UNAUTHORIZED_ERROR',
         ctx: {
@@ -179,6 +179,7 @@ describe('authorize', () => {
           name: 'Error',
         },
       },
+      success: false,
     })
   })
 
@@ -190,16 +191,16 @@ describe('authorize', () => {
         },
         onError: () => ({ custom: 'authorize-failed' }),
       },
-      async () => ({})
+      async () => ({}),
     )
 
     const result = await action()
-    expect(result).toEqual({
-      success: false,
+    expect(result).toStrictEqual({
       error: {
         code: 'UNAUTHORIZED_ERROR',
         ctx: { custom: 'authorize-failed' },
       },
+      success: false,
     })
   })
 
@@ -215,7 +216,7 @@ describe('authorize', () => {
           throw redirectError
         },
       },
-      async () => ({})
+      async () => ({}),
     )
 
     await expect(action()).rejects.toBe(redirectError)
@@ -233,7 +234,7 @@ describe('authorize', () => {
           throw notFoundError
         },
       },
-      async () => ({})
+      async () => ({}),
     )
 
     await expect(action()).rejects.toBe(notFoundError)
@@ -252,16 +253,15 @@ describe('handler execution', () => {
   test('returns SERVER_ERROR when the handler throws', async () => {
     const thrown = new Error('Handler failed')
     const action = createSafeServerAction(
-      { id: 'failing-handler', debug: true },
+      { debug: true, id: 'failing-handler' },
       async () => {
         throw thrown
-      }
+      },
     )
 
     const result = await action()
 
-    expect(result).toEqual({
-      success: false,
+    expect(result).toStrictEqual({
       error: {
         code: 'SERVER_ERROR',
         ctx: {
@@ -269,18 +269,19 @@ describe('handler execution', () => {
           name: 'Error',
         },
       },
+      success: false,
     })
     expect(
       errorSpy.mock.calls.some(
         (call: unknown[]) =>
           typeof call[0] === 'string' &&
           call[0].includes('failed to execute') &&
-          call[0].includes('failing-handler')
-      )
-    ).toBe(true)
+          call[0].includes('failing-handler'),
+      ),
+    ).toBeTruthy()
     expect(errorSpy).toHaveBeenCalledWith(
       expect.stringContaining('Unexpected error'),
-      thrown
+      thrown,
     )
   })
 
@@ -291,16 +292,16 @@ describe('handler execution', () => {
       },
       async () => {
         throw new Error('oops')
-      }
+      },
     )
 
     const result = await action()
-    expect(result).toEqual({
-      success: false,
+    expect(result).toStrictEqual({
       error: {
         code: 'SERVER_ERROR',
         ctx: { reason: 'handled' },
       },
+      success: false,
     })
   })
 
@@ -317,7 +318,7 @@ describe('handler execution', () => {
     await expect(action()).rejects.toBe(redirectError)
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -326,14 +327,14 @@ describe('handler execution', () => {
       { id: 'non-error-throw' },
       async () => {
         throw { code: 'CUSTOM' }
-      }
+      },
     )
 
     const result = await action()
-    expect(result.success).toBe(false)
+    expect(result.success).toBeFalsy()
     if (!result.success) {
       expect(result.error.code).toBe('SERVER_ERROR')
-      expect(result.error.ctx).toEqual({ message: '{"code":"CUSTOM"}' })
+      expect(result.error.ctx).toStrictEqual({ message: '{"code":"CUSTOM"}' })
     }
   })
 })
@@ -351,20 +352,20 @@ describe('input validation', () => {
     const action = createSafeServerAction(
       {
         input: z.object({
-          name: z.string(),
           count: z.number(),
+          name: z.string(),
         }),
       },
       async ({ input }) => {
         expectTypeOf(input).toEqualTypeOf<{ name: string; count: number }>()
         return { doubled: input.count * 2 }
-      }
+      },
     )
 
-    const result = await action({ name: 'test', count: 3 })
-    expect(result).toEqual({
-      success: true,
+    const result = await action({ count: 3, name: 'test' })
+    expect(result).toStrictEqual({
       output: { doubled: 6 },
+      success: true,
     })
   })
 
@@ -372,14 +373,14 @@ describe('input validation', () => {
     const action = createSafeServerAction(
       {
         input: object({
-          title: string,
           page: numeric,
+          title: string,
         }),
       },
       async ({ input }) => ({
-        title: input.title,
         page: input.page,
-      })
+        title: input.title,
+      }),
     )
 
     const fd = new FormData()
@@ -387,35 +388,35 @@ describe('input validation', () => {
     fd.set('page', '42')
 
     const result = await action(fd)
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
+      output: { page: 42, title: 'Hello' },
       success: true,
-      output: { title: 'Hello', page: 42 },
     })
   })
 
   test('returns VALIDATION_ERROR with default context when validation fails', async () => {
     const action = createSafeServerAction(
       {
+        debug: true,
         id: 'validate-me',
         input: z.object({ email: z.email() }),
-        debug: true,
       },
-      async () => ({})
+      async () => ({}),
     )
 
     const result = await action({ email: 'not-an-email' })
 
-    expect(result.success).toBe(false)
+    expect(result.success).toBeFalsy()
     if (!result.success) {
       expect(result.error.code).toBe('VALIDATION_ERROR')
-      expect(Array.isArray(result.error.ctx.issues)).toBe(true)
+      expect(Array.isArray(result.error.ctx.issues)).toBeTruthy()
       expect(
-        (result.error.ctx.issues as { message: string }[]).length
+        (result.error.ctx.issues as { message: string }[]).length,
       ).toBeGreaterThan(0)
     }
     expect(errorSpy).toHaveBeenCalledWith(
       expect.stringContaining('Invalid input'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -424,20 +425,20 @@ describe('input validation', () => {
       {
         input: z.object({ id: z.uuid() }),
         onInputValidationError: (issues) => ({
-          friendly: 'bad id',
           count: issues.length,
+          friendly: 'bad id',
         }),
       },
-      async () => ({})
+      async () => ({}),
     )
 
     const result = await action({ id: 'not-a-uuid' })
-    expect(result).toEqual({
-      success: false,
+    expect(result).toStrictEqual({
       error: {
         code: 'VALIDATION_ERROR',
-        ctx: { friendly: 'bad id', count: 1 },
+        ctx: { count: 1, friendly: 'bad id' },
       },
+      success: false,
     })
   })
 })
@@ -460,21 +461,21 @@ describe('assertsNoThrow fallbacks', () => {
           throw new Error('onInputValidationError exploded')
         },
       },
-      async () => ({})
+      async () => ({}),
     )
 
     const result = await action({ email: 'bad' })
 
-    expect(result.success).toBe(false)
+    expect(result.success).toBeFalsy()
     if (!result.success) {
       expect(result.error.code).toBe('VALIDATION_ERROR')
-      expect(Array.isArray(result.error.ctx.issues)).toBe(true)
+      expect(Array.isArray(result.error.ctx.issues)).toBeTruthy()
       expect(
-        (result.error.ctx.issues as { message: string }[]).length
+        (result.error.ctx.issues as { message: string }[]).length,
       ).toBeGreaterThan(0)
     }
     expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('onInputValidationError')
+      expect.stringContaining('onInputValidationError'),
     )
   })
 
@@ -482,21 +483,20 @@ describe('assertsNoThrow fallbacks', () => {
     const authErr = new Error('not allowed')
     const action = createSafeServerAction(
       {
-        id: 'on-error-after-authorize-throws',
         authorize: () => {
           throw authErr
         },
+        id: 'on-error-after-authorize-throws',
         onError: () => {
           throw new Error('onError callback failed')
         },
       },
-      async () => ({})
+      async () => ({}),
     )
 
     const result = await action()
 
-    expect(result).toEqual({
-      success: false,
+    expect(result).toStrictEqual({
       error: {
         code: 'UNAUTHORIZED_ERROR',
         ctx: {
@@ -504,15 +504,16 @@ describe('assertsNoThrow fallbacks', () => {
           name: 'Error',
         },
       },
+      success: false,
     })
     expect(
       errorSpy.mock.calls.some(
         (call: unknown[]) =>
           typeof call[0] === 'string' &&
           call[0].includes('onError') &&
-          call[0].includes('Falling back to build-in error context')
-      )
-    ).toBe(true)
+          call[0].includes('Falling back to build-in error context'),
+      ),
+    ).toBeTruthy()
   })
 
   test('falls back when onError throws after handler throws', async () => {
@@ -526,13 +527,12 @@ describe('assertsNoThrow fallbacks', () => {
       },
       async () => {
         throw handlerErr
-      }
+      },
     )
 
     const result = await action()
 
-    expect(result).toEqual({
-      success: false,
+    expect(result).toStrictEqual({
       error: {
         code: 'SERVER_ERROR',
         ctx: {
@@ -540,15 +540,16 @@ describe('assertsNoThrow fallbacks', () => {
           name: 'Error',
         },
       },
+      success: false,
     })
     expect(
       errorSpy.mock.calls.some(
         (call: unknown[]) =>
           typeof call[0] === 'string' &&
           call[0].includes('onError') &&
-          call[0].includes('Falling back to build-in error context')
-      )
-    ).toBe(true)
+          call[0].includes('Falling back to build-in error context'),
+      ),
+    ).toBeTruthy()
   })
 })
 
@@ -558,43 +559,42 @@ describe('tagged errors', () => {
       { id: 'tagged-error' },
       async ({ tagErr }) => {
         tagErr('CONFLICT', { message: 'resource already exists' })
-      }
+      },
     )
 
     const result = await action()
-    expect(result).toEqual({
-      success: false,
+    expect(result).toStrictEqual({
       error: {
         code: 'CONFLICT',
         ctx: { message: 'resource already exists' },
       },
+      success: false,
     })
   })
 })
 
 describe('infers result type', () => {
   test('infers the result type from an action with no input', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // oxlint-disable-next-line @typescript-eslint/no-unused-vars
     const signInWithEmail = createSafeServerAction(
       { id: 'sign-in-with-email' },
-      async () => undefined
+      async () => {},
     )
 
     type ActionResult = InferSafeServerActionResult<typeof signInWithEmail>
+    type ExpectedResult = SafeServerActionResult<void, SafeServerActionError>
 
-    expectTypeOf<ActionResult>().toEqualTypeOf<
-      SafeServerActionResult<undefined, SafeServerActionError>
-    >()
+    expectTypeOf<ActionResult>().toEqualTypeOf<ExpectedResult>()
   })
 
   test('infers the result type from an action with input', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // oxlint-disable-next-line @typescript-eslint/no-unused-vars
     const greet = createSafeServerAction(
       {
         id: 'greet',
         input: z.object({ name: z.string() }),
       },
-      async ({ input }) => ({ message: `Hello, ${input.name}` })
+      async ({ input }) => ({ message: `Hello, ${input.name}` }),
     )
 
     type ActionResult = InferSafeServerActionResult<typeof greet>

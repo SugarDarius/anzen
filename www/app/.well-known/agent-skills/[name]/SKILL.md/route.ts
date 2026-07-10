@@ -3,9 +3,9 @@ import { getSkillMarkdown } from '~/lib/agent-skills'
 export const revalidate = false
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Origin': '*',
 } as const
 
 const cacheHeaders = {
@@ -14,8 +14,8 @@ const cacheHeaders = {
 
 export function OPTIONS() {
   return new Response(null, {
-    status: 204,
     headers: { ...corsHeaders },
+    status: 204,
   })
 }
 
@@ -27,8 +27,8 @@ export async function GET(
   const body = getSkillMarkdown(name)
   if (!body) {
     return new Response('Not Found', {
-      status: 404,
       headers: { ...corsHeaders },
+      status: 404,
     })
   }
 

@@ -5,5 +5,5 @@ export const GET = createSafeRouteHandler(
   { id: 'redirect/nextjs' },
   async () => {
     redirect('/')
-  }
+  },
 )
