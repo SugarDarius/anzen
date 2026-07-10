@@ -67,10 +67,10 @@
     "build:www": "turbo run build --filter=www",
     "test": "vitest run --silent",
     "lint": "pnpm run lint:check && pnpm run lint:tsc && pnpm run lint:package",
-    "lint:check": "ultracite check",
+    "lint:check": "ultracite check --no-error-on-unmatched-pattern",
     "lint:tsc": "tsc --noEmit",
     "lint:package": "publint --strict && attw --pack . --profile node16",
-    "lint:fix": "ultracite fix",
+    "lint:fix": "ultracite fix --no-error-on-unmatched-pattern",
     "release": "release-it",
     "postinstall": "syncpack lint"
   },
