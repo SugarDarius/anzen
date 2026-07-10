@@ -1,0 +1,40 @@
+packages:
+  - '.' # root library
+  - 'www' # website
+
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+
+catalog:
+  '@eslint/eslintrc': ^3.3.5
+  '@eslint/js': ^9.39.4
+  '@types/node': ^26.1.1
+  '@types/react': ^19.2.17
+  'react': ^19.2.7
+  'decoders': ^2.9.3
+  'eslint': ^9.39.4
+  'prettier': ^3.9.5
+  'typescript': ^6.0.3
+  'typescript-eslint': ^8.63.0
+  'zod': ^4.4.3
+
+minimumReleaseAgeExclude:
+  - '@arethetypeswrong/cli@0.18.5'
+  - '@arethetypeswrong/core@0.18.5'
+  - '@takumi-rs/core-darwin-arm64@2.0.2'
+  - '@takumi-rs/core-darwin-x64@2.0.2'
+  - '@takumi-rs/core-linux-arm64-gnu@2.0.2'
+  - '@takumi-rs/core-linux-arm64-musl@2.0.2'
+  - '@takumi-rs/core-linux-x64-gnu@2.0.2'
+  - '@takumi-rs/core-linux-x64-musl@2.0.2'
+  - '@takumi-rs/core-win32-arm64-msvc@2.0.2'
+  - '@takumi-rs/core-win32-x64-msvc@2.0.2'
+  - '@takumi-rs/core@2.0.2'
+  - '@takumi-rs/helpers@2.0.2'
+  - '@takumi-rs/image-response@2.0.2'
+  - '@takumi-rs/wasm@2.0.2'
+  - lucide-react@1.24.0
+  - prettier@3.9.5
+  - takumi-js@2.0.2

@@ -56,20 +56,20 @@ Do **not** assume every handler must use a factory: empty options still add **de
 
 ## Imports
 
-| Factory | Package export |
-|--------|----------------|
-| `createSafeServerAction` | `@sugardarius/anzen` |
-| `createSafeRouteHandler` | `@sugardarius/anzen` |
-| `createSafePageServerComponent` | `@sugardarius/anzen/server-components` |
+| Factory                           | Package export                         |
+| --------------------------------- | -------------------------------------- |
+| `createSafeServerAction`          | `@sugardarius/anzen`                   |
+| `createSafeRouteHandler`          | `@sugardarius/anzen`                   |
+| `createSafePageServerComponent`   | `@sugardarius/anzen/server-components` |
 | `createSafeLayoutServerComponent` | `@sugardarius/anzen/server-components` |
 
 ## Authorization
 
-| Surface | `authorize` behavior |
-|--------|------------------------|
-| **Route handler** | Returns **auth context** or a **`Response`** (e.g. 401). If it returns `Response`, that becomes the route response. |
-| **Server action** | Returns auth context or **never** (throw, or Next.js navigation helpers). Failures become structured **unauthorized** results when `authorize` throws. |
-| **Page / layout RSC** | Returns auth context or **never** (`unauthorized()`, `notFound()`, `redirect`, etc.). |
+| Surface               | `authorize` behavior                                                                                                                                   |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Route handler**     | Returns **auth context** or a **`Response`** (e.g. 401). If it returns `Response`, that becomes the route response.                                    |
+| **Server action**     | Returns auth context or **never** (throw, or Next.js navigation helpers). Failures become structured **unauthorized** results when `authorize` throws. |
+| **Page / layout RSC** | Returns auth context or **never** (`unauthorized()`, `notFound()`, `redirect`, etc.).                                                                  |
 
 `AuthContext` is a `Record<string, unknown>`; use a consistent shape (e.g. `{ user }`) across the app.
 
@@ -91,7 +91,7 @@ If no validation or auth is needed, a plain `async function` or `export function
 ## Maintainers (this repository)
 
 - Library source: `src/` (`server-action/`, `route-handler/`, `server-components/`, `standard-schema.ts`).
-- **Test**: `npm test` · **Lint**: `npm run lint` · **Build**: `npm run build` (tsup).
+- **Test**: `pnpm run test` · **Lint**: `pnpm run lint` · **Build**: `pnpm run build` (tsup).
 
 ## Quick reference
 
