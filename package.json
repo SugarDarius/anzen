@@ -85,6 +85,7 @@
     "@release-it/keep-a-changelog": "^7.1.0",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
+    "react": "catalog:",
     "decoders": "catalog:",
     "eslint": "catalog:",
     "prettier": "catalog:",
