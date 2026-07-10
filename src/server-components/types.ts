@@ -18,9 +18,9 @@ export type OnValidationError = (
   issues: readonly StandardSchemaV1.Issue[],
 ) => Awaitable<never>
 
-export interface ServerComponentBaseOptions<
+export type ServerComponentBaseOptions<
   TSegments extends TSegmentsDict | undefined,
-> {
+> = {
   /**
    * ID for the server component.
    * Used when logging in development or when `debug` is enabled.
@@ -171,7 +171,7 @@ export type CreateSafeLayoutServerComponentOptions<
 }
 
 // Sticking to Next.js typing requirements for build time
-export interface PageProvidedProps {
+export type PageProvidedProps = {
   /**
    * Route dynamic segments as params
    */

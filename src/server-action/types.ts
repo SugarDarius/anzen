@@ -17,7 +17,7 @@ export type ServerActionErrorContext = Record<string, unknown>
  * Context `ctx` is used to store the error context.
  * It can be customized by using the `onError` option when creating the server action.
  */
-export interface ServerError {
+export type ServerError = {
   readonly code: 'SERVER_ERROR'
   readonly ctx: ServerActionErrorContext
 }
@@ -30,7 +30,7 @@ export interface ServerError {
  * Context `ctx` is used to store the error context.
  * It can be customized by using the `onError` option when creating the server action.
  */
-export interface UnauthorizedError {
+export type UnauthorizedError = {
   readonly code: 'UNAUTHORIZED_ERROR'
   readonly ctx: ServerActionErrorContext
 }
@@ -45,7 +45,7 @@ export interface UnauthorizedError {
  * By default this error will return the issues `StandardSchemaV1.Issue[]` in the context when
  * no context customization is provided.
  */
-export interface ValidationError {
+export type ValidationError = {
   readonly code: 'VALIDATION_ERROR'
   readonly ctx: ServerActionErrorContext
 }
@@ -55,7 +55,7 @@ export interface ValidationError {
  * It represents an error expected to be used in the server action
  * defined by developers themselves.
  */
-export interface TaggedError {
+export type TaggedError = {
   readonly code: string
   readonly ctx: ServerActionErrorContext
 }
@@ -66,15 +66,15 @@ export type SafeServerActionError =
   | ServerError
   | TaggedError
 
-export interface SafeServerActionResultSuccess<TOutput> {
+export type SafeServerActionResultSuccess<TOutput> = {
   readonly success: true
   readonly output: TOutput
-  readonly error?: never
+  readonly error?: undefined
 }
 
-export interface SafeServerActionResultError<TError> {
+export type SafeServerActionResultError<TError> = {
   readonly success: false
-  readonly output?: never
+  readonly output?: undefined
   readonly error: TError
 }
 
@@ -134,10 +134,10 @@ export type OnInputValidationError = (
   issues: readonly StandardSchemaV1.Issue[],
 ) => Awaitable<ServerActionErrorContext>
 
-export interface CreateSafeServerActionOptions<
+export type CreateSafeServerActionOptions<
   TInput extends TInputSchema | undefined,
   AC extends AuthContext | undefined,
-> {
+> = {
   /**
    * ID for the server action.
    * Used when logging in development or when `debug` is enabled.

@@ -95,13 +95,13 @@ export type OnValidationErrorResponse = (
   issues: readonly StandardSchemaV1.Issue[],
 ) => Awaitable<Response>
 
-export interface CreateSafeRouteHandlerOptions<
+export type CreateSafeRouteHandlerOptions<
   AC extends AuthContext | undefined,
   TSegments extends TSegmentsDict | undefined,
   TSearchParams extends TSearchParamsDict | undefined,
   TBody extends TBodySchema | undefined,
   TFormData extends TFormDataDict | undefined,
-> {
+> = {
   /**
    * ID for the route handler.
    * Used when logging in development or when `debug` is enabled.
@@ -206,7 +206,7 @@ export interface CreateSafeRouteHandlerOptions<
 }
 
 // Sticking to Next.js typing requirements for build time
-export interface ProvidedRouteContext {
+export type ProvidedRouteContext = {
   /**
    * Route dynamic segments as params
    */
