@@ -3,9 +3,9 @@ packages:
   - 'www' # website
 
 allowBuilds:
-  esbuild: set this to true or false
-  sharp: set this to true or false
-  unrs-resolver: set this to true or false
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
 
 catalog:
   '@eslint/eslintrc': ^3.3.5
