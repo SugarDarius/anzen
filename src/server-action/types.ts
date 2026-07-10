@@ -17,7 +17,7 @@ export type ServerActionErrorContext = Record<string, unknown>
  * Context `ctx` is used to store the error context.
  * It can be customized by using the `onError` option when creating the server action.
  */
-export type ServerError = {
+export interface ServerError {
   readonly code: 'SERVER_ERROR'
   readonly ctx: ServerActionErrorContext
 }
@@ -30,7 +30,7 @@ export type ServerError = {
  * Context `ctx` is used to store the error context.
  * It can be customized by using the `onError` option when creating the server action.
  */
-export type UnauthorizedError = {
+export interface UnauthorizedError {
   readonly code: 'UNAUTHORIZED_ERROR'
   readonly ctx: ServerActionErrorContext
 }
@@ -45,7 +45,7 @@ export type UnauthorizedError = {
  * By default this error will return the issues `StandardSchemaV1.Issue[]` in the context when
  * no context customization is provided.
  */
-export type ValidationError = {
+export interface ValidationError {
   readonly code: 'VALIDATION_ERROR'
   readonly ctx: ServerActionErrorContext
 }
@@ -55,21 +55,24 @@ export type ValidationError = {
  * It represents an error expected to be used in the server action
  * defined by developers themselves.
  */
-export type TaggedError = {
+export interface TaggedError {
   readonly code: string
   readonly ctx: ServerActionErrorContext
 }
 
 export type SafeServerActionError =
-  ValidationError | UnauthorizedError | ServerError | TaggedError
+  | ValidationError
+  | UnauthorizedError
+  | ServerError
+  | TaggedError
 
-export type SafeServerActionResultSuccess<TOutput> = {
+export interface SafeServerActionResultSuccess<TOutput> {
   readonly success: true
   readonly output: TOutput
   readonly error?: never
 }
 
-export type SafeServerActionResultError<TError> = {
+export interface SafeServerActionResultError<TError> {
   readonly success: false
   readonly output?: never
   readonly error: TError
@@ -123,18 +126,18 @@ export type ServerActionAuthFunction<
    * }
    * ```
    */
-  params: ServerActionAuthFunctionParams<TInput>
+  params: ServerActionAuthFunctionParams<TInput>,
 ) => Awaitable<AC | never>
 
 export type OnError = (err: unknown) => Awaitable<ServerActionErrorContext>
 export type OnInputValidationError = (
-  issues: readonly StandardSchemaV1.Issue[]
+  issues: readonly StandardSchemaV1.Issue[],
 ) => Awaitable<ServerActionErrorContext>
 
-export type CreateSafeServerActionOptions<
+export interface CreateSafeServerActionOptions<
   TInput extends TInputSchema | undefined,
   AC extends AuthContext | undefined,
-> = {
+> {
   /**
    * ID for the server action.
    * Used when logging in development or when `debug` is enabled.
@@ -251,10 +254,10 @@ export type CreateSafeServerActionReturnType<
   TError,
 > = [TInput] extends [TInputSchema]
   ? (
-      providedInput: InferServerActionProvidedInput<TInput>
+      providedInput: InferServerActionProvidedInput<TInput>,
     ) => Promise<SafeServerActionResult<TOutput, TError>>
   : (
-      providedInput?: InferServerActionProvidedInput<TInput>
+      providedInput?: InferServerActionProvidedInput<TInput>,
     ) => Promise<SafeServerActionResult<TOutput, TError>>
 
 // TODO: find better way to type it 👇🏻
@@ -317,7 +320,7 @@ export type SafeServerActionHandler<
   /**
    * Safe server action context
    */
-  ctx: SafeServerActionContext<TInput, AC>
+  ctx: SafeServerActionContext<TInput, AC>,
 ) => Promise<TOutput | never>
 
 /**

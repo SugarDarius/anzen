@@ -45,7 +45,7 @@ export const createThread = createSafeServerAction(
   },
   async ({ id }) => {
     return { id }
-  }
+  },
 )
 ```
 
@@ -73,7 +73,7 @@ export const createThread = createSafeServerAction(
   async ({ id, input }) => {
     //         ^^^^^ Input is inferred from the input validation
     return { id, title: input.title }
-  }
+  },
 )
 ```
 
@@ -113,7 +113,7 @@ export const createThread = createSafeServerAction(
   async ({ id, input, auth }) => {
     //                ^^^^ Auth context is inferred from the authorize function
     return { id, title: input.title, username: auth.user.name }
-  }
+  },
 )
 ```
 
@@ -187,7 +187,7 @@ export const POST = createSafeRouteHandler(
   },
   async ({ id }) => {
     return Response.json({ id })
-  }
+  },
 )
 ```
 
@@ -215,7 +215,7 @@ export const POST = createSafeRouteHandler(
   async ({ id, body }) => {
     //         ^^^^ Body is inferred from the body validation
     return Response.json({ id, title: body.title })
-  }
+  },
 )
 ```
 
@@ -254,7 +254,7 @@ export const POST = createSafeRouteHandler(
   async ({ id, body, auth }) => {
     //               ^^^^ Auth context is inferred from the authorize function
     return Response.json({ id, title: body.title, username: auth.user.name })
-  }
+  },
 )
 ```
 
@@ -291,7 +291,7 @@ export default createSafePageServerComponent(
   },
   async ({ id }) => {
     return <div>Page {id}</div>
-  }
+  },
 )
 ```
 
@@ -329,7 +329,7 @@ export default createSafePageServerComponent(
         {segments.threadId} — query: {searchParams.q ?? '—'}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -377,7 +377,7 @@ export default createSafePageServerComponent(
         {auth.user.name}: {segments.threadId} ({searchParams.q ?? '—'})
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -414,7 +414,7 @@ export default createSafeLayoutServerComponent(
   },
   async ({ children }) => {
     return <div className='mx-auto max-w-lg py-8'>{children}</div>
-  }
+  },
 )
 ```
 
@@ -445,7 +445,7 @@ export default createSafeLayoutServerComponent(
         {children}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -493,7 +493,7 @@ export default createSafeLayoutServerComponent(
         {children}
       </div>
     )
-  }
+  },
 )
 ```
 

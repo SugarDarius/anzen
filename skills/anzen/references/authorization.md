@@ -7,7 +7,7 @@ Docs: [get-started.mdx](https://github.com/SugarDarius/anzen/blob/main/www/conte
 ## By surface
 
 | Surface | `authorize` contract |
-|---------|----------------------|
+| --- | --- |
 | **Route handler** | Returns **auth context** or a **`Response`**. If you return `Response`, it is sent as the handler response (e.g. 401 with empty body). |
 | **Server action** | Returns **auth context** or **never** (throw on failure). Throwing produces a structured **unauthorized** error in the action result. Navigation helpers from Next may be used where appropriate in your stack. |
 | **Page / layout RSC** | Returns **auth context** or **never**. Typical patterns: `unauthorized()` from `next/navigation`, `notFound()`, `redirect()`, or thrown errors. |

@@ -7,9 +7,9 @@ import { z } from 'zod'
 export const pingAction = createSafeServerAction(
   { id: 'playground/ping' },
   async ({ id }) => ({
-    id,
     at: new Date().toISOString(),
-  })
+    id,
+  }),
 )
 
 export const greetAction = createSafeServerAction(
@@ -21,7 +21,7 @@ export const greetAction = createSafeServerAction(
   },
   async ({ input }) => ({
     message: `Hello, ${input.name}!`,
-  })
+  }),
 )
 
 export const quantityAction = createSafeServerAction(
@@ -32,9 +32,9 @@ export const quantityAction = createSafeServerAction(
     }),
   },
   async ({ input }) => ({
-    units: input.quantity,
     note: 'Validated with Zod on the server.',
-  })
+    units: input.quantity,
+  }),
 )
 
 export const tagErrDemoAction = createSafeServerAction(
@@ -52,57 +52,57 @@ export const tagErrDemoAction = createSafeServerAction(
       })
     }
     return { reserved: true, resourceId: 'demo-slot-42' }
-  }
+  },
 )
 
 export const secretAction = createSafeServerAction(
   {
-    id: 'playground/secret',
-    input: z.object({ token: z.string() }),
     authorize: async ({ input }) => {
       if (input.token !== 'anzen') {
         throw new Error('Invalid token')
       }
       return { clearance: 'ok' as const }
     },
+    id: 'playground/secret',
+    input: z.object({ token: z.string() }),
   },
   async ({ auth }) => ({
     authorized: true,
     clearance: auth.clearance,
-  })
+  }),
 )
 
 export const noteFromFormAction = createSafeServerAction(
   {
     id: 'playground/note-form',
     input: z.object({
-      title: z.string().min(1),
       body: z.string().max(200),
+      title: z.string().min(1),
     }),
   },
   async ({ input }) => ({
+    bodyLength: input.body.length,
     saved: true,
     title: input.title,
-    bodyLength: input.body.length,
-  })
+  }),
 )
 
 export const reactionAction = createSafeServerAction(
   {
     id: 'playground/reaction',
     input: z.object({
-      emoji: z.string().min(1).max(8),
       comment: z.string().max(120),
+      emoji: z.string().min(1).max(8),
     }),
   },
   async ({ input }) => ({
     echo: `${input.emoji} ${input.comment}`.trim(),
-  })
+  }),
 )
 
 export const redirectDemoAction = createSafeServerAction(
   { id: 'playground/redirect' },
   async () => {
     redirect('/playground')
-  }
+  },
 )

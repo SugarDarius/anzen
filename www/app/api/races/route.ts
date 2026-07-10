@@ -1,16 +1,16 @@
-import { object, string } from 'decoders'
 import { createSafeRouteHandler } from '@sugardarius/anzen'
+import { object, string } from 'decoders'
 
 export const POST = createSafeRouteHandler(
   {
-    id: 'POST route',
     body: object({
-      name: string,
       location: string,
+      name: string,
     }),
+    id: 'POST route',
   },
   async (ctx, req) => {
     console.log('req', req)
     return Response.json({ race: ctx.body })
-  }
+  },
 )

@@ -3,13 +3,13 @@ import { redirect } from 'next/navigation'
 
 export default createSafePageServerComponent(
   {
-    id: 'playground/notfound/page',
     debug: true,
+    id: 'playground/notfound/page',
     onError: async (err: unknown): Promise<never> => {
       throw err
     },
   },
   async () => {
     redirect('/')
-  }
+  },
 )

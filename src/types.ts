@@ -1,5 +1,5 @@
 // Internal API types
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// oxlint-disable-next-line typescript/ban-types typescript/no-empty-object-type
 export type EmptyObjectType = {}
 export type UnwrapReadonlyObject<T> = T extends Readonly<infer U> ? U : T
 

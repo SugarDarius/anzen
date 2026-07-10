@@ -2,14 +2,14 @@ import { mcpInitializeResult } from '~/lib/mcp-server-metadata'
 
 type JsonRpcId = string | number | null
 
-type JsonRpcRequest = {
+interface JsonRpcRequest {
   jsonrpc?: string
   id?: JsonRpcId
   method?: string
   params?: unknown
 }
 
-type JsonRpcResponse = {
+interface JsonRpcResponse {
   jsonrpc: '2.0'
   id: JsonRpcId
   result?: unknown
@@ -17,18 +17,18 @@ type JsonRpcResponse = {
 }
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Mcp-Session-Id',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Origin': '*',
 } as const
 
 function jsonResponse(body: unknown, init?: ResponseInit) {
-  return new Response(JSON.stringify(body), {
+  return Response.json(body, {
     ...init,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
       ...corsHeaders,
-      ...(init?.headers ?? {}),
+      ...init?.headers,
     },
   })
 }
@@ -38,9 +38,9 @@ function handleOne(req: JsonRpcRequest): JsonRpcResponse | null {
   if (method === undefined) {
     return id !== undefined && id !== null
       ? {
-          jsonrpc: '2.0',
+          error: { code: -32_600, message: 'Invalid Request' },
           id,
-          error: { code: -32600, message: 'Invalid Request' },
+          jsonrpc: '2.0',
         }
       : null
   }
@@ -49,32 +49,32 @@ function handleOne(req: JsonRpcRequest): JsonRpcResponse | null {
   }
   if (method === 'initialize') {
     return {
-      jsonrpc: '2.0',
       id,
+      jsonrpc: '2.0',
       result: mcpInitializeResult(),
     }
   }
   if (method === 'ping') {
-    return { jsonrpc: '2.0', id, result: {} }
+    return { id, jsonrpc: '2.0', result: {} }
   }
   if (method === 'tools/list') {
-    return { jsonrpc: '2.0', id, result: { tools: [] } }
+    return { id, jsonrpc: '2.0', result: { tools: [] } }
   }
   if (method === 'resources/list') {
-    return { jsonrpc: '2.0', id, result: { resources: [] } }
+    return { id, jsonrpc: '2.0', result: { resources: [] } }
   }
   if (method === 'prompts/list') {
-    return { jsonrpc: '2.0', id, result: { prompts: [] } }
+    return { id, jsonrpc: '2.0', result: { prompts: [] } }
   }
   return {
-    jsonrpc: '2.0',
+    error: { code: -32_601, message: `Method not found: ${method}` },
     id,
-    error: { code: -32601, message: `Method not found: ${method}` },
+    jsonrpc: '2.0',
   }
 }
 
 export function OPTIONS() {
-  return new Response(null, { status: 204, headers: { ...corsHeaders } })
+  return new Response(null, { headers: { ...corsHeaders }, status: 204 })
 }
 
 export async function POST(request: Request) {
@@ -84,9 +84,9 @@ export async function POST(request: Request) {
   } catch {
     return jsonResponse(
       {
-        jsonrpc: '2.0',
+        error: { code: -32_700, message: 'Parse error' },
         id: null,
-        error: { code: -32700, message: 'Parse error' },
+        jsonrpc: '2.0',
       },
       { status: 400 },
     )
@@ -99,7 +99,9 @@ export async function POST(request: Request) {
     const out: JsonRpcResponse[] = []
     for (const item of payload) {
       const res = handleOne(item as JsonRpcRequest)
-      if (res) out.push(res)
+      if (res) {
+        out.push(res)
+      }
     }
     return jsonResponse(out, { headers: headerSession })
   }
@@ -107,8 +109,8 @@ export async function POST(request: Request) {
   const single = handleOne(payload as JsonRpcRequest)
   if (single === null) {
     return new Response(null, {
-      status: 202,
       headers: { ...corsHeaders, ...headerSession },
+      status: 202,
     })
   }
   return jsonResponse(single, { headers: headerSession })

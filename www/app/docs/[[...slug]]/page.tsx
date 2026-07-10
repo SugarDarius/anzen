@@ -1,6 +1,4 @@
-import type { Metadata } from 'next'
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { findNeighbour } from 'fumadocs-core/page-tree'
 import {
   DocsBody,
   DocsDescription,
@@ -9,24 +7,25 @@ import {
   PageLastUpdate,
 } from 'fumadocs-ui/layouts/docs/page'
 import { createRelativeLink } from 'fumadocs-ui/mdx'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ExternalLinkIcon } from 'lucide-react'
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
 
+import { PageActions } from '~/components/ai/page-actions'
+import { GithubIcon } from '~/components/icons/github'
+import { RetroGrid } from '~/components/retro-grid'
+import { Button } from '~/components/ui/button'
 import { siteConfig } from '~/config/site'
 import { getPageImage, source } from '~/lib/source'
 import { getMDXComponents } from '~/mdx-components'
-import { RetroGrid } from '~/components/retro-grid'
-import { PageActions } from '~/components/ai/page-actions'
-import { GithubIcon } from '~/components/icons/github'
-import { Button } from '~/components/ui/button'
-import { ExternalLinkIcon } from 'lucide-react'
-import { findNeighbour } from 'fumadocs-core/page-tree'
 
 export async function generateStaticParams() {
   return source.generateParams()
 }
 
 export async function generateMetadata(
-  props: PageProps<'/docs/[[...slug]]'>
+  props: PageProps<'/docs/[[...slug]]'>,
 ): Promise<Metadata> {
   const params = await props.params
   const page = source.getPage(params.slug)
@@ -36,11 +35,11 @@ export async function generateMetadata(
   }
 
   return {
-    title: page.data.title,
     description: page.data.description,
     openGraph: {
       images: getPageImage(page).url,
     },
+    title: page.data.title,
   }
 }
 
@@ -52,7 +51,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
     notFound()
   }
 
-  const MDX = page.data.body
+  const MDXRenderer = page.data.body
   const githubUrl = `${siteConfig.github.url}/blob/main/www/content/docs/${page.path}`
 
   const neighbours = findNeighbour(source.pageTree, page.url)
@@ -64,7 +63,6 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       breadcrumb={{ enabled: true }}
       className='relative'
       tableOfContent={{
-        style: 'clerk',
         footer: (
           <div className='flex items-center'>
             <Button
@@ -81,9 +79,9 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
             </Button>
           </div>
         ),
+        style: 'clerk',
       }}
       footer={{
-        enabled: true,
         component: (
           <footer className='container pt-6 border-t border-border flex-noe'>
             <div className='w-full flex flex-col sm:flex-row items-center justify-between gap-2'>
@@ -112,6 +110,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
             </div>
           </footer>
         ),
+        enabled: true,
       }}
     >
       <div className='absolute top-0 w-full h-[84px] left-0 right-0'>
@@ -161,7 +160,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
         </div>
         <DocsDescription>{page.data.description}</DocsDescription>
         <DocsBody>
-          <MDX
+          <MDXRenderer
             components={getMDXComponents({
               // this allows you to link to other pages with relative file paths
               a: createRelativeLink(source, page),

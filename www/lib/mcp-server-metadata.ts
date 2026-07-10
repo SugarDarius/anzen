@@ -13,9 +13,9 @@ export const MCP_SERVER_INFO = {
 } as const
 
 export const MCP_CAPABILITIES = {
-  tools: { listChanged: false as const },
-  resources: {},
   prompts: {},
+  resources: {},
+  tools: { listChanged: false as const },
 } as const
 
 const transportEndpoint = '/mcp'
@@ -23,31 +23,31 @@ const transportEndpoint = '/mcp'
 export function mcpServerCardJson() {
   return {
     $schema: MCP_CARD_SCHEMA,
-    version: '1.0',
-    protocolVersion: MCP_PROTOCOL_VERSION,
-    serverInfo: { ...MCP_SERVER_INFO },
+    capabilities: {
+      prompts: { ...MCP_CAPABILITIES.prompts },
+      resources: { ...MCP_CAPABILITIES.resources },
+      tools: { ...MCP_CAPABILITIES.tools },
+    },
     description: siteConfig.description,
     documentationUrl: new URL('/docs', baseUrl).toString(),
+    protocolVersion: MCP_PROTOCOL_VERSION,
+    serverInfo: { ...MCP_SERVER_INFO },
     transport: {
-      type: 'streamable-http',
       endpoint: transportEndpoint,
+      type: 'streamable-http',
     },
-    capabilities: {
-      tools: { ...MCP_CAPABILITIES.tools },
-      resources: { ...MCP_CAPABILITIES.resources },
-      prompts: { ...MCP_CAPABILITIES.prompts },
-    },
+    version: '1.0',
   }
 }
 
 export function mcpInitializeResult() {
   return {
-    protocolVersion: MCP_PROTOCOL_VERSION,
     capabilities: {
-      tools: { ...MCP_CAPABILITIES.tools },
-      resources: { ...MCP_CAPABILITIES.resources },
       prompts: { ...MCP_CAPABILITIES.prompts },
+      resources: { ...MCP_CAPABILITIES.resources },
+      tools: { ...MCP_CAPABILITIES.tools },
     },
+    protocolVersion: MCP_PROTOCOL_VERSION,
     serverInfo: { ...MCP_SERVER_INFO },
   }
 }

@@ -20,16 +20,21 @@ export function shikiTokenClassTransformer(): ShikiTransformer {
   return {
     name: 'shiki-token-class',
     span(hast, _line, _col, _lineElement, token) {
-      const explanation = token.explanation
-      if (!explanation?.[0]?.scopes?.length) return
+      const { explanation } = token
+      if (!explanation?.[0]?.scopes?.length) {
+        return
+      }
 
-      const scopes = explanation[0].scopes
+      // oxlint-disable-next-line typescript/no-non-null-assertion
+      const { scopes } = explanation[0]!
       const firstSegments = new Set(
-        scopes.map((s) => (s?.scopeName ?? '').split('.')[0]).filter(Boolean)
+        scopes.map((s) => (s?.scopeName ?? '').split('.')[0]).filter(Boolean),
       )
 
       const segment = SEMANTIC_SCOPE_PRIORITY.find((s) => firstSegments.has(s))
-      if (!segment) return
+      if (!segment) {
+        return
+      }
 
       const existing = hast.properties?.className
       const classes = Array.isArray(existing)
@@ -41,7 +46,7 @@ export function shikiTokenClassTransformer(): ShikiTransformer {
       if (!classes.includes(tokenClass)) {
         classes.push(tokenClass)
       }
-      hast.properties = hast.properties ?? {}
+      hast.properties ??= {}
       hast.properties.className = classes
       return hast
     },

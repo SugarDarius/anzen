@@ -5,7 +5,7 @@ import { baseUrl } from '~/config/site'
 const DISCOVERY_SCHEMA =
   'https://schemas.agentskills.io/discovery/0.2.0/schema.json' as const
 
-type SkillBundle = {
+interface SkillBundle {
   readonly description: string
   readonly skillMd: string
 }
@@ -57,31 +57,31 @@ export const agentSkillArtifacts: Record<string, SkillBundle> = {
 export function skillArtifactUrl(skillName: string): string {
   return new URL(
     `/.well-known/agent-skills/${skillName}/SKILL.md`,
-    baseUrl
+    baseUrl,
   ).toString()
 }
 
 export function sha256DigestOfUtf8(text: string): string {
-  const hex = createHash('sha256').update(text, 'utf8').digest('hex')
+  const hex = createHash('sha256').update(text, 'utf-8').digest('hex')
   return `sha256:${hex}`
 }
 
 export function getAgentSkillsDiscoveryIndex(): {
   $schema: string
-  skills: Array<{
+  skills: {
     name: string
     type: 'skill-md'
     description: string
     url: string
     digest: string
-  }>
+  }[]
 } {
   const skills = Object.entries(agentSkillArtifacts).map(([name, bundle]) => ({
+    description: bundle.description,
+    digest: sha256DigestOfUtf8(bundle.skillMd),
     name,
     type: 'skill-md' as const,
-    description: bundle.description,
     url: skillArtifactUrl(name),
-    digest: sha256DigestOfUtf8(bundle.skillMd),
   }))
 
   skills.sort((a, b) => a.name.localeCompare(b.name))

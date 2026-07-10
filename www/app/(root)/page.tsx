@@ -1,7 +1,6 @@
-import Link from 'next/link'
-import { Metadata } from 'next'
-
 import { Card, Cards } from 'fumadocs-ui/components/card'
+import type { Metadata } from 'next'
+import Link from 'next/link'
 
 import { CodeExamples } from '~/components/code-examples'
 import { RetroGrid } from '~/components/retro-grid'
@@ -29,8 +28,8 @@ export default function Page() {
             className='inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-fd-secondary/30 text-sm text-fd-muted-foreground mb-6 shadow-2xs'
           >
             <span className='relative flex h-2 w-2'>
-              <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75'></span>
-              <span className='relative inline-flex rounded-full h-2 w-2 bg-cyan-400'></span>
+              <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75' />
+              <span className='relative inline-flex rounded-full h-2 w-2 bg-cyan-400' />
             </span>
             New server action factory is out!
           </Link>

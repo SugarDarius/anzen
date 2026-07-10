@@ -114,7 +114,7 @@ export const createThread = createSafeServerAction(
       thread: { ...input, authorId: auth.user.id },
     })
     return { inserted, actionId: id }
-  }
+  },
 )
 ```
 
@@ -177,7 +177,7 @@ export const POST = createSafeRouteHandler(
   // [!code highlight]
   async ({ auth, body }, req): Promise<Response> => {
     return Response.json({ user: auth.user, body }, { status: 200 })
-  }
+  },
 )
 ```
 
@@ -255,7 +255,7 @@ export default createSafePageServerComponent(
   async ({ auth, segments }) => {
     const account = await getAccount({ id: segments.accountId })
     return <AccountSummary user={auth.user} account={account} />
-  }
+  },
 )
 ```
 
@@ -342,7 +342,7 @@ export default createSafeLayoutServerComponent(
         {children}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -355,11 +355,7 @@ export default createSafeLayoutServerComponent(
 
 ## Philosophy
 
-While [server
-actions](https://nextjs.org/docs/app/getting-started/mutating-data), [route
-handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers),
-[page](https://nextjs.org/docs/app/api-reference/file-conventions/page), and
-[layout](https://nextjs.org/docs/app/api-reference/file-conventions/layout) Server Component files in Next.js are powerful features, they don't provide (yet) any means to validate the input data or authorize the access to the resource.
+While [server actions](https://nextjs.org/docs/app/getting-started/mutating-data), [route handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers), [page](https://nextjs.org/docs/app/api-reference/file-conventions/page), and [layout](https://nextjs.org/docs/app/api-reference/file-conventions/layout) Server Component files in Next.js are powerful features, they don't provide (yet) any means to validate the input data or authorize the access to the resource.
 
 Anzen is a library providing factories to help you create safe server actions, route handlers, page and layout Server Component files in Next.js. It's a tool that helps you create code that is safe, flexible and easy to use.
 
@@ -564,8 +560,7 @@ npm i @sugardarius/anzen
 
 ## When to use Anzen?
 
-Use `Anzen` whenever you need to validate untrusted data, and/or authorize the access to the resource. It's a tool that helps you create code that is safe, flexible and easy to use.
-You should use it for:
+Use `Anzen` whenever you need to validate untrusted data, and/or authorize the access to the resource. It's a tool that helps you create code that is safe, flexible and easy to use. You should use it for:
 
 - ✅ Full-stack Next.js applications where you want a unified pattern across all server-side entry points
 - ✅ Applications requiring authorization at multiple levels (actions, routes, pages, layouts)
@@ -593,7 +588,7 @@ export const updateProfile = createSafeServerAction(
       bio: z.string().max(500).optional(),
     }),
   },
-  async ({ input }) => ({ saved: input.displayName })
+  async ({ input }) => ({ saved: input.displayName }),
 )
 
 // decoders
@@ -604,14 +599,13 @@ export const renameSpace = createSafeServerAction(
       name: string,
     }),
   },
-  async ({ input }) => ({ id: input.spaceId, name: input.name })
+  async ({ input }) => ({ id: input.spaceId, name: input.name }),
 )
 ```
 
 ## Synchronous validations
 
-The [Standard Schema](https://github.com/standard-schema/standard-schema) contract discourages async validation. If a schema resolves validation asynchronously, behavior is undefined and may throw at runtime.
-So all Anzen's factories do not support async validations by design. An **error** will be **thrown** if you try to use async validation.
+The [Standard Schema](https://github.com/standard-schema/standard-schema) contract discourages async validation. If a schema resolves validation asynchronously, behavior is undefined and may throw at runtime. So all Anzen's factories do not support async validations by design. An **error** will be **thrown** if you try to use async validation.
 
 ## Learn more
 

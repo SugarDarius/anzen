@@ -21,7 +21,7 @@ export function ComparePane({
         'relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border/70 bg-linear-to-br p-px shadow-lg ring-1 ring-inset',
         isBefore
           ? 'from-rose-500/18 via-background to-background shadow-rose-500/12 ring-rose-500/15 dark:from-rose-500/12 dark:shadow-rose-500/8'
-          : 'from-emerald-500/18 via-background to-background shadow-emerald-500/12 ring-emerald-500/15 dark:from-emerald-500/12 dark:shadow-emerald-500/8'
+          : 'from-emerald-500/18 via-background to-background shadow-emerald-500/12 ring-emerald-500/15 dark:from-emerald-500/12 dark:shadow-emerald-500/8',
       )}
     >
       <div className='flex min-h-0 flex-1 flex-col pt-4 overflow-hidden'>
@@ -42,7 +42,7 @@ export function ComparePane({
               'rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide',
               isBefore
                 ? 'bg-rose-500/15 text-rose-800 dark:text-rose-200'
-                : 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-200'
+                : 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-200',
             )}
           >
             {label}
@@ -54,7 +54,7 @@ export function ComparePane({
         <div
           className={cn(
             'min-w-0 flex-1 [&_figure]:my-0 [&_figure]:rounded-lg [&_figure]:border [&_figure]:border-border/80 [&_figure]:shadow-sm',
-            '[&_pre]:overflow-auto [&_pre]:text-[13px] [&_pre]:leading-relaxed'
+            '[&_pre]:overflow-auto [&_pre]:text-[13px] [&_pre]:leading-relaxed',
           )}
         >
           {children}

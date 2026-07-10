@@ -37,11 +37,11 @@ function createSafeRouteHandler<
       TBody,
       TFormData
     >,
-    req: TReq
-  ) => Promise<Response>
+    req: TReq,
+  ) => Promise<Response>,
 ): (
   req: TReq,
-  providedContext: { params: Awaitable<any> | undefined }
+  providedContext: { params: Awaitable<any> | undefined },
 ) => Promise<Response>
 ```
 
@@ -72,7 +72,7 @@ export const GET = createSafeRouteHandler(
   async (ctx, req: NextRequest) => {
     console.log('pathname', req.nextUrl.pathname)
     return new Response(null, 200)
-  }
+  },
 )
 ```
 
@@ -84,8 +84,7 @@ When creating a safe route handler you can use a bunch of options for helping yo
 
 `id?: string`
 
-Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
-By default the id is set to `[unknown:route:handler]`.
+Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring. By default the id is set to `[unknown:route:handler]`.
 
 ```ts title="api/id/route.ts"
 export const POST = createSafeRouteHandler(
@@ -94,7 +93,7 @@ export const POST = createSafeRouteHandler(
   },
   async ({ id }) => {
     return Response.json({ id })
-  }
+  },
 )
 ```
 
@@ -102,18 +101,13 @@ export const POST = createSafeRouteHandler(
 
 `onErrorResponse?: (err: unknown) => Awaitable<Response>`
 
-Callback triggered when the request fails.
-By default it returns a simple `500` response and the error is logged into the console.
-Use it if your handler use custom errors and you want to manage them properly by returning a proper response.
-You can read more about it under the [Error handling](#error-handling) section.
+Callback triggered when the request fails. By default it returns a simple `500` response and the error is logged into the console. Use it if your handler use custom errors and you want to manage them properly by returning a proper response. You can read more about it under the [Error handling](#error-handling) section.
 
 #### debug
 
 `debug?: boolean`
 
-Use this options to enable debug mode. It will add logs in the handler to help you debug the request.
-By default it's set to `false` for production builds.
-In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
+Use this options to enable debug mode. It will add logs in the handler to help you debug the request. By default it's set to `false` for production builds. In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
 
 ```ts title="api/debug/route.ts"
 import { createSafeRouteHandler } from '@sugardarius/anzen'
@@ -168,7 +162,7 @@ export const GET = createSafeRouteHandler(
   },
   async ({ auth }, req): Promise<Response> => {
     return Response.json({ user: auth.user }, { status: 200 })
-  }
+  },
 )
 ```
 
@@ -195,7 +189,7 @@ export const GET = createSafeRouteHandler(
       // Check if user has access to this account
       const hasAccess = await checkAccountAccess(
         session.user.id,
-        segments.accountId
+        segments.accountId,
       )
       if (!hasAccess) {
         return new Response(null, { status: 403 })
@@ -206,7 +200,7 @@ export const GET = createSafeRouteHandler(
   },
   async ({ auth, segments }) => {
     return Response.json({ user: auth.user, segments }, { status: 200 })
-  }
+  },
 )
 ```
 
@@ -233,7 +227,7 @@ export const POST = createSafeRouteHandler(
   },
   async ({ auth, body }) => {
     return Response.json({ apiKey: auth.apiKey, body }, { status: 200 })
-  }
+  },
 )
 ```
 
@@ -260,7 +254,7 @@ export const POST = createSafeRouteHandler(
         session.user.id,
         segments.accountId,
         searchParams.role,
-        body.action
+        body.action,
       )
       if (!hasPermission) {
         return new Response(null, { status: 403 })
@@ -272,9 +266,9 @@ export const POST = createSafeRouteHandler(
   async ({ auth, segments, searchParams, body }) => {
     return Response.json(
       { user: auth.user, segments, searchParams, body },
-      { status: 200 }
+      { status: 200 },
     )
-  }
+  },
 )
 ```
 
@@ -301,7 +295,7 @@ export const GET = createSafeRouteHandler(
   },
   async ({ segments }) => {
     return Response.json({ segments })
-  }
+  },
 )
 ```
 
@@ -327,7 +321,7 @@ export const GET = createSafeRouteHandler(
   },
   async ({ segments }) => {
     return Response.json({ segments })
-  }
+  },
 )
 ```
 
@@ -352,7 +346,7 @@ export const GET = createSafeRouteHandler(
   },
   async ({ searchParams }) => {
     return Response.json({ searchParams })
-  }
+  },
 )
 ```
 
@@ -378,7 +372,7 @@ export const GET = createSafeRouteHandler(
   },
   async ({ searchParams }) => {
     return Response.json({ searchParams })
-  }
+  },
 )
 ```
 
@@ -410,7 +404,7 @@ export const POST = createSafeRouteHandler(
   },
   async ({ body }) => {
     return Response.json({ body })
-  }
+  },
 )
 ```
 
@@ -439,7 +433,7 @@ export const POST = createSafeRouteHandler(
   },
   async ({ body }) => {
     return Response.json({ body })
-  }
+  },
 )
 ```
 
@@ -470,7 +464,7 @@ export const POST = createSafeRouteHandler(
   },
   async ({ formData }) => {
     return Response.json({ formData })
-  }
+  },
 )
 ```
 
@@ -498,7 +492,7 @@ export const POST = createSafeRouteHandler(
   },
   async ({ formData }) => {
     return Response.json({ formData })
-  }
+  },
 )
 ```
 
@@ -553,7 +547,7 @@ export const GET = createSafeRouteHandler(
     }
 
     return Response.json({ data })
-  }
+  },
 )
 ```
 

@@ -7,16 +7,14 @@ export const revalidate = false
 
 const url = (path: string) => new URL(path, baseUrl).toString()
 
-const catalogUri = () => {
-  return url('/.well-known/api-catalog')
-}
+const catalogUri = () => url('/.well-known/api-catalog')
 
 export function HEAD() {
   return new Response(null, {
-    status: 204,
     headers: {
       Link: `<${catalogUri()}>; rel="api-catalog"`,
     },
+    status: 204,
   })
 }
 
@@ -38,10 +36,10 @@ export function GET() {
     ],
   }
 
-  return new Response(JSON.stringify(body), {
+  return Response.json(body, {
     headers: {
-      'Content-Type': `application/linkset+json; profile="${RFC9727_PROFILE}"`,
       'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+      'Content-Type': `application/linkset+json; profile="${RFC9727_PROFILE}"`,
     },
   })
 }

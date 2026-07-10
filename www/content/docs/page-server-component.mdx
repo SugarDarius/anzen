@@ -21,8 +21,8 @@ function createSafePageServerComponent<
 >(
   options: CreateSafePageServerComponentOptions<AC, TSegments, TSearchParams>,
   page: (
-    ctx: SafePageServerComponentContext<AC, TSegments, TSearchParams>
-  ) => Promise<React.ReactElement>
+    ctx: SafePageServerComponentContext<AC, TSegments, TSearchParams>,
+  ) => Promise<React.ReactElement>,
 ): (props: {
   params: Awaitable<any>
   searchParams: Awaitable<any>
@@ -39,8 +39,7 @@ When creating a safe page server component you can use a bunch of options for he
 
 `id?: string`
 
-Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring.
-By default the id is set to `[unknown:page:server:component]`.
+Used for logging in development or when the `debug` option is enabled. You can also use it to add extra logging or monitoring. By default the id is set to `[unknown:page:server:component]`.
 
 ```tsx title="app/races/[id]/page.tsx"
 export default createSafePageServerComponent(
@@ -49,7 +48,7 @@ export default createSafePageServerComponent(
   },
   async ({ id }) => {
     return <div>Page {id}</div>
-  }
+  },
 )
 ```
 
@@ -57,9 +56,7 @@ export default createSafePageServerComponent(
 
 `onError?: (err: unknown) => Awaitable<never>`
 
-Callback triggered when the pageserver component throws an unhandled error.
-By default it rethrows the error as a service hatch to Next.js do its job and use error boundaries. The error is logged into the console.
-Use it if you want to manage unexpected errors properly to log, trace or define behaviors like using `notFound` or `redirect`.
+Callback triggered when the pageserver component throws an unhandled error. By default it rethrows the error as a service hatch to Next.js do its job and use error boundaries. The error is logged into the console. Use it if you want to manage unexpected errors properly to log, trace or define behaviors like using `notFound` or `redirect`.
 
 ```tsx title="app/page.tsx"
 import { notFound } from 'next/navigation'
@@ -76,7 +73,7 @@ export default createSafePageServerComponent(
   },
   async () => {
     return <div>Hello</div>
-  }
+  },
 )
 ```
 
@@ -84,9 +81,7 @@ export default createSafePageServerComponent(
 
 `debug?: boolean`
 
-Use this options to enable debug mode. It will add logs in the page server component to help you debug the request.
-By default it's set to `false` for production builds.
-In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
+Use this options to enable debug mode. It will add logs in the page server component to help you debug the request. By default it's set to `false` for production builds. In development builds, it will be `true` if `NODE_ENV` is not set to `production`.
 
 ```tsx title="app/page.tsx"
 import { createSafePageServerComponent } from '@sugardarius/anzen/server-components'
@@ -134,7 +129,7 @@ export default createSafePageServerComponent(
   },
   async ({ auth }) => {
     return <div>Hello {auth.user.name}!</div>
-  }
+  },
 )
 ```
 
@@ -162,7 +157,7 @@ export default createSafePageServerComponent(
       // Check if user has access to this account
       const hasAccess = await checkAccountAccess(
         session.user.id,
-        segments.accountId
+        segments.accountId,
       )
       if (!hasAccess) {
         notFound()
@@ -177,7 +172,7 @@ export default createSafePageServerComponent(
         {auth.user.name} - {segments.accountId}/{segments.projectId}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -205,7 +200,7 @@ export default createSafePageServerComponent(
   },
   async ({ auth, searchParams }) => {
     return <div>Code: {auth.code}</div>
-  }
+  },
 )
 ```
 
@@ -231,7 +226,7 @@ export default createSafePageServerComponent(
       const hasPermission = await checkPermission(
         session.user.id,
         segments.accountId,
-        searchParams.role
+        searchParams.role,
       )
       if (!hasPermission) {
         notFound()
@@ -246,7 +241,7 @@ export default createSafePageServerComponent(
         {auth.user.name} - {segments.accountId} - {searchParams.role}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -275,7 +270,7 @@ export default createSafePageServerComponent(
         Account: {segments.accountId} - Project: {segments.projectId}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -307,7 +302,7 @@ export default createSafePageServerComponent(
         Account: {segments.accountId} - Project: {segments.projectId}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -336,7 +331,7 @@ export default createSafePageServerComponent(
         Query: {searchParams.query} - Page: {searchParams.page}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -368,7 +363,7 @@ export default createSafePageServerComponent(
         Query: {searchParams.query} - Page: {searchParams.page}
       </div>
     )
-  }
+  },
 )
 ```
 
@@ -430,7 +425,7 @@ export default createSafePageServerComponent(
     }
 
     return <div>{data.name}</div>
-  }
+  },
 )
 ```
 

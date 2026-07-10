@@ -7,7 +7,7 @@ API reference: [server-action.mdx](https://github.com/SugarDarius/anzen/blob/mai
 ## Options
 
 | Option | Purpose |
-|--------|---------|
+| --- | --- |
 | `id?` | Identifier for logs / debugging |
 | `debug?` | Verbose logging |
 | `input?` | **StandardSchemaV1** for the action input |
@@ -26,12 +26,12 @@ Returns `Promise<SafeServerActionResult<TOutput, TError>>`:
 - Success: `{ success: true, output }`
 - Failure: `{ success: false, error }` with discriminated `error.code`:
 
-| `code` | Meaning |
-|--------|---------|
-| `VALIDATION_ERROR` | Input validation failed |
-| `UNAUTHORIZED_ERROR` | `authorize` threw |
-| `SERVER_ERROR` | Uncaught error in handler (after `onError` handling) |
-| *(custom string)* | Tagged errors via `tagError` |
+| `code`               | Meaning                                              |
+| -------------------- | ---------------------------------------------------- |
+| `VALIDATION_ERROR`   | Input validation failed                              |
+| `UNAUTHORIZED_ERROR` | `authorize` threw                                    |
+| `SERVER_ERROR`       | Uncaught error in handler (after `onError` handling) |
+| _(custom string)_    | Tagged errors via `tagError`                         |
 
 ## Inferring the result type
 

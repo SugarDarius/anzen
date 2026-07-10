@@ -1,4 +1,5 @@
-import { validateWithSchema, type StandardSchemaV1 } from '../standard-schema'
+import { validateWithSchema } from '../standard-schema'
+import type { StandardSchemaV1 } from '../standard-schema'
 import type { AuthContext, Awaitable } from '../types'
 import {
   assertsNoThrow,
@@ -21,7 +22,10 @@ import type {
   TInputSchema,
 } from './types'
 
-/** @internal exported for testing only */
+/**
+ * exported for testing only
+ * @internal
+ */
 export const DEFAULT_ACTION_ID = '[unknown:server:action]'
 
 /**
@@ -35,7 +39,7 @@ export function createSafeServerAction<
   AC extends AuthContext | undefined = undefined,
 >(
   options: CreateSafeServerActionOptions<undefined, AC>,
-  handler: SafeServerActionHandler<TOutput, undefined, AC>
+  handler: SafeServerActionHandler<TOutput, undefined, AC>,
 ): CreateSafeServerActionReturnType<undefined, TOutput, SafeServerActionError>
 
 /**
@@ -47,7 +51,7 @@ export function createSafeServerAction<
   AC extends AuthContext | undefined = undefined,
 >(
   options: CreateSafeServerActionOptions<TInput, AC> & { input: TInput },
-  handler: SafeServerActionHandler<TOutput, TInput, AC>
+  handler: SafeServerActionHandler<TOutput, TInput, AC>,
 ): CreateSafeServerActionReturnType<TInput, TOutput, SafeServerActionError>
 
 /**
@@ -65,15 +69,15 @@ export function createSafeServerAction<
   AC extends AuthContext | undefined = undefined,
 >(
   options: CreateSafeServerActionOptions<TInput, AC>,
-  handler: SafeServerActionHandler<TOutput, TInput, AC>
+  handler: SafeServerActionHandler<TOutput, TInput, AC>,
 ): CreateSafeServerActionReturnType<TInput, TOutput, SafeServerActionError> {
   const log = createLogger(options.debug)
   const id = options.id ?? DEFAULT_ACTION_ID
 
-  const authorize = options.authorize ?? (async () => undefined)
+  const authorize = options.authorize ?? (async () => {})
 
   const onError_fallback = (
-    err: unknown
+    err: unknown,
   ): Awaitable<ServerActionErrorContext> => {
     log.error(`🛑 Unexpected error in server action '${id}'`, err)
 
@@ -91,7 +95,7 @@ export function createSafeServerAction<
 
   const onError_fallbackNoThrow = (err: unknown) => {
     log.error(
-      `🔴 'onError' callback in server action '${id}' threw an error. Falling back to build-in error context.`
+      `🔴 'onError' callback in server action '${id}' threw an error. Falling back to build-in error context.`,
     )
     return onError_fallback(err)
   }
@@ -99,7 +103,7 @@ export function createSafeServerAction<
   const onError = options.onError ?? onError_fallback
 
   const onInputValidationError_fallback = (
-    issues: readonly StandardSchemaV1.Issue[]
+    issues: readonly StandardSchemaV1.Issue[],
   ): Awaitable<ServerActionErrorContext> => {
     log.error(`🛑 Invalid input for server action '${id}'`, issues)
     return {
@@ -110,8 +114,8 @@ export function createSafeServerAction<
   const onInputValidationError =
     options.onInputValidationError ?? onInputValidationError_fallback
 
-  return async function (
-    providedInput?: InferServerActionProvidedInput<TInput>
+  return async function safeAction(
+    providedInput?: InferServerActionProvidedInput<TInput>,
   ): Promise<SafeServerActionResult<TOutput, SafeServerActionError>> {
     const executionClock = createExecutionClock()
     executionClock.start()
@@ -120,12 +124,10 @@ export function createSafeServerAction<
 
     let input = undefined
     if (options.input) {
-      let input_unsafe: unknown = undefined
-      if (providedInput instanceof FormData) {
-        input_unsafe = Object.fromEntries(providedInput.entries())
-      } else {
-        input_unsafe = providedInput
-      }
+      const input_unsafe =
+        providedInput instanceof FormData
+          ? Object.fromEntries(providedInput.entries())
+          : providedInput
 
       const parsedInput = validateWithSchema(options.input, input_unsafe)
       if (parsedInput.issues) {
@@ -133,19 +135,19 @@ export function createSafeServerAction<
           () => onInputValidationError(parsedInput.issues),
           () => {
             log.error(
-              `🔴 'onInputValidationError' callback in server action '${id}' threw an error while validating input. Falling back to build-in input validation error context.`
+              `🔴 'onInputValidationError' callback in server action '${id}' threw an error while validating input. Falling back to build-in input validation error context.`,
             )
 
             return onInputValidationError_fallback(parsedInput.issues)
-          }
+          },
         )
 
         return {
-          success: false,
           error: {
             code: 'VALIDATION_ERROR',
             ctx,
           },
+          success: false,
         }
       }
 
@@ -160,35 +162,35 @@ export function createSafeServerAction<
       } as ServerActionAuthFunctionParams<TInput>
 
       auth = await authorize(authParams)
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       executionClock.stop()
 
       log.error(
-        `🔴 Server action '${id}' not authorized after ${executionClock.get()}`
+        `🔴 Server action '${id}' not authorized after ${executionClock.get()}`,
       )
 
-      if (isNextNativeError(err)) {
-        throw err
+      if (isNextNativeError(error)) {
+        throw error
       }
 
       const ctx = await assertsNoThrow(
-        () => onError(err),
-        () => onError_fallbackNoThrow(err)
+        () => onError(error),
+        () => onError_fallbackNoThrow(error),
       )
 
       return {
-        success: false,
         error: {
           code: 'UNAUTHORIZED_ERROR',
           ctx,
         },
+        success: false,
       }
     }
 
     const ctx = {
       id,
-      tagErr: (code: string, ctx: ServerActionErrorContext): never => {
-        throw new KTaggedError(code, ctx)
+      tagErr: (code: string, errCtx: ServerActionErrorContext): never => {
+        throw new KTaggedError(code, errCtx)
       },
       ...(auth ? { auth } : {}),
       ...(input ? { input } : {}),
@@ -199,52 +201,52 @@ export function createSafeServerAction<
 
       executionClock.stop()
       log.info(
-        `✅ Server action '${id}' executed successfully in ${executionClock.get()}`
+        `✅ Server action '${id}' executed successfully in ${executionClock.get()}`,
       )
 
       return {
-        success: true,
         output,
+        success: true,
       }
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       executionClock.stop()
 
-      if (isNextNativeError(err)) {
+      if (isNextNativeError(error)) {
         log.info(`ℹ️ Ignoring native Next.js error in server action '${id}'`)
         log.info(
-          `✅ Server action '${id}' executed successfully in ${executionClock.get()}`
+          `✅ Server action '${id}' executed successfully in ${executionClock.get()}`,
         )
-        throw err
+        throw error
       }
 
-      if (err instanceof KTaggedError) {
+      if (error instanceof KTaggedError) {
         log.info(
-          `✅ Server action '${id}' executed successfully in ${executionClock.get()}`
+          `✅ Server action '${id}' executed successfully in ${executionClock.get()}`,
         )
         return {
-          success: false,
           error: {
-            code: err.code,
-            ctx: err.ctx,
+            code: error.code,
+            ctx: error.ctx,
           },
+          success: false,
         }
       }
 
       log.error(
-        `🔴 Server action '${id}' failed to execute after ${executionClock.get()}`
+        `🔴 Server action '${id}' failed to execute after ${executionClock.get()}`,
       )
 
-      const ctx = await assertsNoThrow(
-        () => onError(err),
-        () => onError_fallbackNoThrow(err)
+      const errCtx = await assertsNoThrow(
+        () => onError(error),
+        () => onError_fallbackNoThrow(error),
       )
 
       return {
-        success: false,
         error: {
           code: 'SERVER_ERROR',
-          ctx,
+          ctx: errCtx,
         },
+        success: false,
       }
     }
   }

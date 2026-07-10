@@ -15,7 +15,7 @@ export declare namespace StandardSchemaV1 {
     readonly vendor: string
     /** Validates unknown input values. */
     readonly validate: (
-      value: unknown
+      value: unknown,
     ) => Result<Output> | Promise<Result<Output>>
     /** Inferred types associated with the schema. */
     readonly types?: Types<Input, Output> | undefined
@@ -35,7 +35,7 @@ export declare namespace StandardSchemaV1 {
   /** The result interface if validation fails. */
   export interface FailureResult {
     /** The issues of failed validation. */
-    readonly issues: ReadonlyArray<Issue>
+    readonly issues: readonly Issue[]
   }
 
   /** The issue interface of the failure output. */
@@ -43,7 +43,7 @@ export declare namespace StandardSchemaV1 {
     /** The error message of the issue. */
     readonly message: string
     /** The path of the issue, if any. */
-    readonly path?: ReadonlyArray<PropertyKey | PathSegment> | undefined
+    readonly path?: readonly (PropertyKey | PathSegment)[] | undefined
   }
 
   /** The path segment interface of the issue. */
@@ -74,7 +74,7 @@ export declare namespace StandardSchemaV1 {
 export function validateWithSchema<TSchema extends StandardSchemaV1>(
   schema: TSchema,
   value: unknown,
-  errSyncMsg = 'Validation must be synchronous but schema returned a Promise.'
+  errSyncMsg = 'Validation must be synchronous but schema returned a Promise.',
 ): StandardSchemaV1.Result<StandardSchemaV1.InferOutput<TSchema>> {
   const result = schema['~standard'].validate(value)
   assertsSyncOperation(result, errSyncMsg)
@@ -102,7 +102,7 @@ export namespace StandardSchemaDictionary {
 
 export function parseWithDictionary<TDict extends StandardSchemaDictionary>(
   dictionary: TDict,
-  value: Record<string, unknown>
+  value: Record<string, unknown>,
 ): StandardSchemaV1.Result<StandardSchemaDictionary.InferOutput<TDict>> {
   const result: Record<string, unknown> = {}
   const issues: StandardSchemaV1.Issue[] = []
@@ -112,11 +112,12 @@ export function parseWithDictionary<TDict extends StandardSchemaDictionary>(
       continue
     }
     // NOTE: safe to assert as we're ensuring just before key isn't undefined
+    // oxlint-disable-next-line typescript/no-non-null-assertion
     const propResult = dictionary[key]!['~standard'].validate(value[key])
 
     assertsSyncOperation(
       propResult,
-      `Validation must be synchronous, but ${key} returned a Promise.`
+      `Validation must be synchronous, but ${key} returned a Promise.`,
     )
 
     if (propResult.issues) {
@@ -124,7 +125,7 @@ export function parseWithDictionary<TDict extends StandardSchemaDictionary>(
         ...propResult.issues.map((issue) => ({
           ...issue,
           path: [key, ...(issue.path ?? [])],
-        }))
+        })),
       )
       continue
     }

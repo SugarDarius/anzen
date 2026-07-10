@@ -4,19 +4,19 @@ import { notFound } from 'next/navigation'
 
 export default createSafePageServerComponent(
   {
-    id: 'playground/blob/[id]/page',
-    segments: {
-      id: string,
-    },
-    searchParams: {
-      q: optional(string),
-    },
     authorize: async ({ segments }) => {
       if (segments.id !== 'vercel') {
         notFound()
       }
 
       return { user: 'page:John Doe' }
+    },
+    id: 'playground/blob/[id]/page',
+    searchParams: {
+      q: optional(string),
+    },
+    segments: {
+      id: string,
     },
   },
   async ({ segments, searchParams, auth }) => {
@@ -27,5 +27,5 @@ export default createSafePageServerComponent(
         Blob: {segments.id} / Query: {searchParams.q ?? 'No query'}
       </div>
     )
-  }
+  },
 )

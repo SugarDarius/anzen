@@ -1,6 +1,13 @@
-import { createExecutionClock, createLogger, isNextNativeError } from '../utils'
-import { parseWithDictionary, type StandardSchemaV1 } from '../standard-schema'
+import { parseWithDictionary } from '../standard-schema'
+import type { StandardSchemaV1 } from '../standard-schema'
 import type { Awaitable, AuthContext } from '../types'
+import { createExecutionClock, createLogger, isNextNativeError } from '../utils'
+import {
+  ValidationError,
+  NoSegmentsProvidedError,
+  NoSearchParamsProvidedError,
+  MissingLayoutSlotsError,
+} from './errors'
 import type {
   TSegmentsDict,
   TSearchParamsDict,
@@ -17,14 +24,11 @@ import type {
   LayoutAuthFunctionParams,
   SafeLayoutServerComponentContext,
 } from './types'
-import {
-  ValidationError,
-  NoSegmentsProvidedError,
-  NoSearchParamsProvidedError,
-  MissingLayoutSlotsError,
-} from './errors'
 
-/** @internal exported for testing only */
+/**
+ * exported for testing only
+ * @internal
+ */
 export const DEFAULT_PAGE_ID = '[unknown:page:server:component]'
 
 /**
@@ -42,7 +46,7 @@ export function createSafePageServerComponent<
   TSearchParams extends TSearchParamsDict | undefined = undefined,
 >(
   options: CreateSafePageServerComponentOptions<AC, TSegments, TSearchParams>,
-  pageServerComponentFn: SafePageServerComponent<AC, TSegments, TSearchParams>
+  pageServerComponentFn: SafePageServerComponent<AC, TSegments, TSearchParams>,
 ): CreateSafePageServerComponentReturnType {
   const log = createLogger(options.debug)
   const id = options.id ?? DEFAULT_PAGE_ID
@@ -68,11 +72,11 @@ export function createSafePageServerComponent<
       throw new ValidationError('searchParams', id, 'page')
     })
 
-  const authorize = options.authorize ?? (async () => undefined)
+  const authorize = options.authorize ?? (async () => {})
 
   // Next.js page server component
   return async function SafePageServerComponent(
-    props: PageProvidedProps
+    props: PageProvidedProps,
   ): Promise<React.ReactElement | never> {
     const executionClock = createExecutionClock()
     executionClock.start()
@@ -88,7 +92,7 @@ export function createSafePageServerComponent<
 
       const parsedSegments = parseWithDictionary(
         options.segments,
-        params_unsafe
+        params_unsafe,
       )
       if (parsedSegments.issues) {
         await onSegmentsValidationError(parsedSegments.issues)
@@ -106,7 +110,7 @@ export function createSafePageServerComponent<
 
       const parsedSearchParams = parseWithDictionary(
         options.searchParams,
-        searchParams_unsafe
+        searchParams_unsafe,
       )
       if (parsedSearchParams.issues) {
         await onSearchParamsValidationError(parsedSearchParams.issues)
@@ -126,13 +130,13 @@ export function createSafePageServerComponent<
       } as PageAuthFunctionParams<TSegments, TSearchParams>
 
       auth = await authorize(authParams)
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       executionClock.stop()
       log.error(
-        `🛑 Page server component '${id}' not authorized after ${executionClock.get()}`
+        `🛑 Page server component '${id}' not authorized after ${executionClock.get()}`,
       )
 
-      throw err
+      throw error
     }
 
     try {
@@ -150,29 +154,32 @@ export function createSafePageServerComponent<
       // Stop the execution clock
       executionClock.stop()
       log.info(
-        `✅ Page server component '${id}' executed successfully in ${executionClock.get()}`
+        `✅ Page server component '${id}' executed successfully in ${executionClock.get()}`,
       )
 
       return PageServerComponent
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       executionClock.stop()
 
-      if (isNextNativeError(err)) {
+      if (isNextNativeError(error)) {
         log.info(
-          `ℹ️ Ignoring native Next.js error while executing page server component '${id}' after ${executionClock.get()}`
+          `ℹ️ Ignoring native Next.js error while executing page server component '${id}' after ${executionClock.get()}`,
         )
-        throw err
+        throw error
       }
 
       log.error(
-        `🛑 Page server component '${id}' failed to execute after ${executionClock.get()}`
+        `🛑 Page server component '${id}' failed to execute after ${executionClock.get()}`,
       )
-      return await onError(err)
+      return await onError(error)
     }
   }
 }
 
-/** @internal exported for testing only */
+/**
+ * exported for testing only
+ * @internal
+ */
 export const DEFAULT_LAYOUT_ID = '[unknown:layout:server:component]'
 
 /**
@@ -190,7 +197,7 @@ export function createSafeLayoutServerComponent<
   TSlots extends readonly string[] | undefined = undefined,
 >(
   options: CreateSafeLayoutServerComponentOptions<AC, TSegments, TSlots>,
-  layoutServerComponentFn: SafeLayoutServerComponent<AC, TSegments, TSlots>
+  layoutServerComponentFn: SafeLayoutServerComponent<AC, TSegments, TSlots>,
 ): CreateSafeLayoutServerComponentReturnType<TSlots> {
   const log = createLogger(options.debug)
   const id = options.id ?? DEFAULT_LAYOUT_ID
@@ -207,12 +214,12 @@ export function createSafeLayoutServerComponent<
     ((issues: readonly StandardSchemaV1.Issue[]): Awaitable<never> => {
       log.error(
         `🛑 Invalid segments for layout server component '${id}'`,
-        issues
+        issues,
       )
       throw new ValidationError('segments', id, 'page')
     })
 
-  const authorize = options.authorize ?? (async () => undefined)
+  const authorize = options.authorize ?? (async () => {})
 
   // Next.js layout server component
   return async function SafeLayoutServerComponent({
@@ -225,7 +232,7 @@ export function createSafeLayoutServerComponent<
 
     log.info(`🔄 Running layout server component'${id}'`)
 
-    let segments = undefined
+    let segments
     if (options.segments) {
       const params_unsafe = await params
       if (params_unsafe === undefined) {
@@ -234,7 +241,7 @@ export function createSafeLayoutServerComponent<
 
       const parsedSegments = parseWithDictionary(
         options.segments,
-        params_unsafe
+        params_unsafe,
       )
       if (parsedSegments.issues) {
         await onSegmentsValidationError(parsedSegments.issues)
@@ -243,7 +250,7 @@ export function createSafeLayoutServerComponent<
       }
     }
 
-    let experimental_slots = undefined
+    let experimental_slots
     if (options.experimental_slots) {
       // Validate that all expected slots exist in `layoutSlots`
       // We don't want to let pass unexpected slots to the layout server component
@@ -266,7 +273,7 @@ export function createSafeLayoutServerComponent<
     }
 
     // Authorize the server component
-    let auth = undefined
+    let auth
     try {
       // Build layout auth function params
       const authParams = {
@@ -275,12 +282,12 @@ export function createSafeLayoutServerComponent<
       } as LayoutAuthFunctionParams<TSegments>
 
       auth = await authorize(authParams)
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       executionClock.stop()
       log.error(
-        `🛑 Layout server component '${id}' not authorized after ${executionClock.get()}`
+        `🛑 Layout server component '${id}' not authorized after ${executionClock.get()}`,
       )
-      throw err
+      throw error
     }
 
     try {
@@ -299,24 +306,24 @@ export function createSafeLayoutServerComponent<
       // Stop the execution clock
       executionClock.stop()
       log.info(
-        `✅ Layout server component '${id}' executed successfully in ${executionClock.get()}`
+        `✅ Layout server component '${id}' executed successfully in ${executionClock.get()}`,
       )
 
       return LayoutServerComponent
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       executionClock.stop()
 
-      if (isNextNativeError(err)) {
+      if (isNextNativeError(error)) {
         log.info(
-          `ℹ️ Ignoring native Next.js error while executing layout server component '${id}' after ${executionClock.get()}`
+          `ℹ️ Ignoring native Next.js error while executing layout server component '${id}' after ${executionClock.get()}`,
         )
-        throw err
+        throw error
       }
 
       log.error(
-        `🛑 Layout server component '${id}' failed to execute after ${executionClock.get()}`
+        `🛑 Layout server component '${id}' failed to execute after ${executionClock.get()}`,
       )
-      return await onError(err)
+      return await onError(error)
     }
   }
 }

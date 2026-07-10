@@ -11,7 +11,7 @@ Authorization patterns: [authorization.md](authorization.md).
 Shared by page and layout:
 
 | Option | Purpose |
-|--------|---------|
+| --- | --- |
 | `id?` | Identifier for logs / debugging |
 | `debug?` | Verbose logging |
 | `segments?` | **Dictionary** of schemas for dynamic `params` |
@@ -21,7 +21,7 @@ Shared by page and layout:
 ## Page-only options
 
 | Option | Purpose |
-|--------|---------|
+| --- | --- |
 | `searchParams?` | **Dictionary** of schemas for `searchParams` |
 | `onSearchParamsValidationError?` | Search param validation issues |
 | `authorize?` | See [authorization.md](authorization.md) |
@@ -31,7 +31,7 @@ The default export is an async wrapper: Next passes `params` and `searchParams`;
 ## Layout-only options
 
 | Option | Purpose |
-|--------|---------|
+| --- | --- |
 | `authorize?` | Same contract as page (with layout `authorize` params) |
 | `experimental_slots?` | Parallel routes: slot names as a readonly string tuple |
 

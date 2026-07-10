@@ -28,24 +28,21 @@ export function decorateSidebarTree({
           const node = { ...incoming_node }
           for (const decorator of decorators) {
             // 👉🏻 Badge decorator
-            if (decorator.type === 'page-badge') {
-              if (node.url === decorator.url) {
-                node.name = decorator.component({ pageName: node.name })
-              }
+            if (decorator.type === 'page-badge' && node.url === decorator.url) {
+              node.name = decorator.component({ pageName: node.name })
             }
 
             // 👉🏻 Icon decorator
-            if (decorator.type === 'page-icon') {
-              if (node.icon) {
-                node.icon = decorator.component({ icon: node.icon })
-              }
+            if (decorator.type === 'page-icon' && node.icon) {
+              node.icon = decorator.component({ icon: node.icon })
             }
           }
 
           return node
         }
-        default:
+        default: {
           return incoming_node
+        }
       }
     }),
   }

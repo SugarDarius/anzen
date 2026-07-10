@@ -1,76 +1,71 @@
 'use client'
 
+import { AnimatePresence, motion } from 'motion/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-
-import { AnimatePresence, motion } from 'motion/react'
 import { useEffect, useState } from 'react'
 
-import { siteConfig } from '~/config/site'
 import { Button } from '~/components/ui/button'
+import { siteConfig } from '~/config/site'
 
-const GlitchText = ({ children }: { children: string }) => {
-  return (
-    <motion.span
-      className='relative inline-block'
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+const GlitchText = ({ children }: { children: string }) => (
+  <motion.span
+    className='relative inline-block'
+    initial={{ opacity: 0, scale: 0.8 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+  >
+    <span
+      className='relative z-10 bg-linear-to-r from-[#c4b5fd] via-[#a78bfa] to-[#8b5cf6] bg-clip-text text-transparent'
+      style={{
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+      }}
     >
-      <span
-        className='relative z-10 bg-linear-to-r from-[#c4b5fd] via-[#a78bfa] to-[#8b5cf6] bg-clip-text text-transparent'
-        style={{
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-        }}
-      >
-        {children}
-      </span>
-      <motion.span
-        className='absolute inset-0 text-[#a78bfa]/40'
-        style={{ clipPath: 'inset(10% 0 60% 0)' }}
-        animate={{ x: [-2, 2, -2], opacity: [0.4, 0.6, 0.4] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        aria-hidden='true'
-      >
-        {children}
-      </motion.span>
-      <motion.span
-        className='absolute inset-0 text-[#c4b5fd]/40'
-        style={{ clipPath: 'inset(60% 0 10% 0)' }}
-        animate={{ x: [2, -2, 2], opacity: [0.4, 0.6, 0.4] }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: 0.5,
-        }}
-        aria-hidden='true'
-      >
-        {children}
-      </motion.span>
+      {children}
+    </span>
+    <motion.span
+      className='absolute inset-0 text-[#a78bfa]/40'
+      style={{ clipPath: 'inset(10% 0 60% 0)' }}
+      animate={{ opacity: [0.4, 0.6, 0.4], x: [-2, 2, -2] }}
+      transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity }}
+      aria-hidden='true'
+    >
+      {children}
     </motion.span>
-  )
-}
+    <motion.span
+      className='absolute inset-0 text-[#c4b5fd]/40'
+      style={{ clipPath: 'inset(60% 0 10% 0)' }}
+      animate={{ opacity: [0.4, 0.6, 0.4], x: [2, -2, 2] }}
+      transition={{
+        delay: 0.5,
+        duration: 2,
+        ease: 'easeInOut',
+        repeat: Infinity,
+      }}
+      aria-hidden='true'
+    >
+      {children}
+    </motion.span>
+  </motion.span>
+)
 
 const LINE_REVEAL_DURATION_S = 0.3
 const TYPING_MS_PER_CHAR = 25
 
-const terminalLines = ({ pathname }: { pathname: string }) => {
-  return [
-    { text: `$ anzen route ${pathname}`, delay: 0 },
-    { text: 'Resolving route...', delay: 0.8, isSystem: true },
-    { text: 'ERROR: Route handler not found', delay: 1.6, isError: true },
-    { text: '', delay: 2.0 },
-    { text: 'Status: 404', delay: 2.2, isStatus: true },
-    { text: `Path: ${pathname}`, delay: 2.5 },
-    {
-      text: 'Suggestion: Navigate to a valid route',
-      delay: 2.8,
-      isSuggestion: true,
-    },
-  ]
-}
+const terminalLines = ({ pathname }: { pathname: string }) => [
+  { delay: 0, text: `$ anzen route ${pathname}` },
+  { delay: 0.8, isSystem: true, text: 'Resolving route...' },
+  { delay: 1.6, isError: true, text: 'ERROR: Route handler not found' },
+  { delay: 2, text: '' },
+  { delay: 2.2, isStatus: true, text: 'Status: 404' },
+  { delay: 2.5, text: `Path: ${pathname}` },
+  {
+    delay: 2.8,
+    isSuggestion: true,
+    text: 'Suggestion: Navigate to a valid route',
+  },
+]
 
 const TypingText = ({
   text,
@@ -86,6 +81,7 @@ const TypingText = ({
 
   useEffect(() => {
     if (text === '') {
+      // oxlint-disable-next-line react/react-compiler
       setDisplayed('')
       setDone(true)
       return
@@ -100,17 +96,21 @@ const TypingText = ({
       intervalId = setInterval(() => {
         if (i < text.length) {
           setDisplayed(text.slice(0, i + 1))
-          i++
+          i += 1
         } else {
           setDone(true)
-          if (intervalId !== undefined) clearInterval(intervalId)
+          if (intervalId !== undefined) {
+            clearInterval(intervalId)
+          }
         }
       }, TYPING_MS_PER_CHAR)
     }, startDelay * 1000)
 
     return () => {
       clearTimeout(timeoutId)
-      if (intervalId !== undefined) clearInterval(intervalId)
+      if (intervalId !== undefined) {
+        clearInterval(intervalId)
+      }
     }
   }, [text, startDelay])
 
@@ -135,7 +135,8 @@ const TypingText = ({
 
 const Terminal = ({ pathname }: { pathname: string }) => {
   const lines = terminalLines({ pathname })
-  const lastLine = lines[lines.length - 1]!
+  // oxlint-disable-next-line typescript/no-non-null-assertion
+  const lastLine = lines.at(-1)!
   const typingDurationS = (lastLine.text.length * TYPING_MS_PER_CHAR) / 1000
   const afterLastLineS =
     lastLine.delay + Math.max(LINE_REVEAL_DURATION_S, typingDurationS)
@@ -149,8 +150,8 @@ const Terminal = ({ pathname }: { pathname: string }) => {
   return (
     <motion.div
       className='w-full max-w-xl px-2 md:px-0'
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className='rounded-lg border border-border overflow-hidden shadow-2xl'>
@@ -160,19 +161,19 @@ const Terminal = ({ pathname }: { pathname: string }) => {
               className='w-3 h-3 rounded-full bg-fd-error/80'
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: 'spring', stiffness: 500 }}
+              transition={{ delay: 0.3, stiffness: 500, type: 'spring' }}
             />
             <motion.div
               className='w-3 h-3 rounded-full bg-fd-warning/80'
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.4, type: 'spring', stiffness: 500 }}
+              transition={{ delay: 0.4, stiffness: 500, type: 'spring' }}
             />
             <motion.div
               className='w-3 h-3 rounded-full bg-fd-success/80'
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.5, type: 'spring', stiffness: 500 }}
+              transition={{ delay: 0.5, stiffness: 500, type: 'spring' }}
             />
           </div>
           <motion.span
@@ -211,9 +212,9 @@ const Terminal = ({ pathname }: { pathname: string }) => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
                     transition={{
+                      delay: line.delay,
                       duration: LINE_REVEAL_DURATION_S,
                       ease: 'easeOut',
-                      delay: line.delay,
                     }}
                   >
                     <TypingText

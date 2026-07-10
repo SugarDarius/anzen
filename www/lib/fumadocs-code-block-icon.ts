@@ -7,10 +7,10 @@ const fumadocsLangIcon = transformerIcon()
 
 export function getFumadocsCodeBlockIconHtml(lang: string): string | undefined {
   const pre = {
-    type: 'element' as const,
-    tagName: 'pre' as const,
-    properties: {} as { icon?: string },
     children: [],
+    properties: {} as { icon?: string },
+    tagName: 'pre' as const,
+    type: 'element' as const,
   }
 
   const run = fumadocsLangIcon.pre
@@ -20,6 +20,6 @@ export function getFumadocsCodeBlockIconHtml(lang: string): string | undefined {
 
   run.call({ options: { lang } } as never, pre as never)
 
-  const icon = pre.properties.icon
+  const { icon } = pre.properties
   return icon
 }

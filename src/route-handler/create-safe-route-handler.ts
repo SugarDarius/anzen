@@ -1,10 +1,7 @@
-import { createLogger, createExecutionClock, isNextNativeError } from '../utils'
-import {
-  parseWithDictionary,
-  validateWithSchema,
-  type StandardSchemaV1,
-} from '../standard-schema'
+import { parseWithDictionary, validateWithSchema } from '../standard-schema'
+import type { StandardSchemaV1 } from '../standard-schema'
 import type { Awaitable, AuthContext } from '../types'
+import { createLogger, createExecutionClock, isNextNativeError } from '../utils'
 import type {
   TSegmentsDict,
   TSearchParamsDict,
@@ -18,17 +15,19 @@ import type {
   RouteHandlerAuthFunctionParams,
 } from './types'
 
-/** @internal exported for testing only */
+/**
+ * exported for testing only
+ * @internal
+ */
 export const DEFAULT_ID = '[unknown:route:handler]'
 
 /**
- * @internal
- *
  * Reads the request body as JSON.
  * If it fails, it calls the `onErrorResponse` callback.
+ * @internal
  */
 const readRequestBodyAsJson = async <TReq extends Request>(
-  req: TReq
+  req: TReq,
 ): Promise<unknown> => {
   const contentType = req.headers.get('content-type')
   if (contentType?.startsWith('application/json')) {
@@ -97,12 +96,12 @@ export function createSafeRouteHandler<
     TBody,
     TFormData,
     TReq
-  >
+  >,
 ): CreateSafeRouteHandlerReturnType<TReq> {
   // NOTE: `body` and `formData` options are mutually exclusive 🎭
   if (options.body && options.formData) {
     throw new Error(
-      'You cannot use both `body` and `formData` in the same route handler. They are both mutually exclusive.'
+      'You cannot use both `body` and `formData` in the same route handler. They are both mutually exclusive.',
     )
   }
 
@@ -154,11 +153,11 @@ export function createSafeRouteHandler<
       })
     })
 
-  const authorize = options.authorize ?? (async () => undefined)
+  const authorize = options.authorize ?? (async () => {})
 
-  return async function (
+  return async function safeHandler(
     req: TReq,
-    providedContext: ProvidedRouteContext
+    providedContext: ProvidedRouteContext,
   ): Promise<Response> {
     const executionClock = createExecutionClock()
     executionClock.start()
@@ -192,12 +191,12 @@ export function createSafeRouteHandler<
 
       const parsedSearchParams = parseWithDictionary(
         options.searchParams,
-        Object.fromEntries(queryParams_unsafe)
+        Object.fromEntries(queryParams_unsafe),
       )
 
       if (parsedSearchParams.issues) {
         return await onSearchParamsValidationErrorResponse(
-          parsedSearchParams.issues
+          parsedSearchParams.issues,
         )
       }
 
@@ -218,14 +217,14 @@ export function createSafeRouteHandler<
       let body_unsafe: unknown
       try {
         body_unsafe = await readRequestBodyAsJson(clonedReq_forBody)
-      } catch (err) {
-        return await onErrorResponse(err)
+      } catch (error) {
+        return await onErrorResponse(error)
       }
 
       const parsedBody = validateWithSchema(
         options.body,
         body_unsafe,
-        'Request body validation must be synchronous'
+        'Request body validation must be synchronous',
       )
 
       if (parsedBody.issues) {
@@ -257,13 +256,13 @@ export function createSafeRouteHandler<
       try {
         // NOTE: 🤔 maybe find a better way to counter the deprecation warning?
         formData_unsafe = await clonedReq_forBody.formData()
-      } catch (err) {
-        return await onErrorResponse(err)
+      } catch (error) {
+        return await onErrorResponse(error)
       }
 
       const parsedFormData = parseWithDictionary(
         options.formData,
-        Object.fromEntries(formData_unsafe.entries())
+        Object.fromEntries(formData_unsafe.entries()),
       )
 
       if (parsedFormData.issues) {
@@ -280,8 +279,8 @@ export function createSafeRouteHandler<
       const clonedReq_forAuth = req.clone()
       const authParams = {
         id,
-        url,
         req: clonedReq_forAuth,
+        url,
         ...(segments ? { segments } : {}),
         ...(searchParams ? { searchParams } : {}),
         ...(body ? { body } : {}),
@@ -296,29 +295,29 @@ export function createSafeRouteHandler<
       if (authOrResponse instanceof Response) {
         executionClock.stop()
         log.error(
-          `🛑 Request not authorized for route handler '${id}' after ${executionClock.get()}`
+          `🛑 Request not authorized for route handler '${id}' after ${executionClock.get()}`,
         )
         return authOrResponse
       }
 
       auth = authOrResponse
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       executionClock.stop()
 
       log.error(
-        `🛑 Request not authorized for route handler '${id}' after ${executionClock.get()}`
+        `🛑 Request not authorized for route handler '${id}' after ${executionClock.get()}`,
       )
 
-      if (isNextNativeError(err)) {
-        throw err
+      if (isNextNativeError(error)) {
+        throw error
       }
-      return await onErrorResponse(err)
+      return await onErrorResponse(error)
     }
 
     const ctx = {
       id,
       url,
-      ...(auth ? { auth: auth } : {}),
+      ...(auth ? { auth } : {}),
       ...(segments ? { segments } : {}),
       ...(searchParams ? { searchParams } : {}),
       ...(body ? { body } : {}),
@@ -336,26 +335,26 @@ export function createSafeRouteHandler<
 
       executionClock.stop()
       log.info(
-        `✅ Route handler '${id}' executed successfully in ${executionClock.get()}`
+        `✅ Route handler '${id}' executed successfully in ${executionClock.get()}`,
       )
 
       return response
-    } catch (err) {
+    } catch (error) {
       executionClock.stop()
 
-      if (isNextNativeError(err)) {
+      if (isNextNativeError(error)) {
         log.info('ℹ️ Ignoring native Next.js error')
         log.info(
-          `✅ Route handler '${id}' executed successfully in ${executionClock.get()}`
+          `✅ Route handler '${id}' executed successfully in ${executionClock.get()}`,
         )
 
-        throw err
+        throw error
       }
 
       log.error(
-        `🛑 Route handler '${id} failed to execute after ${executionClock.get()}'`
+        `🛑 Route handler '${id} failed to execute after ${executionClock.get()}'`,
       )
-      return await onErrorResponse(err)
+      return await onErrorResponse(error)
     }
   }
 }

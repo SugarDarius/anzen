@@ -1,3 +1,5 @@
+import { string, numeric, array } from 'decoders'
+import React from 'react'
 import {
   describe,
   test,
@@ -7,9 +9,8 @@ import {
   beforeEach,
   vi,
 } from 'vitest'
-import React from 'react'
-import { string, numeric, array } from 'decoders'
 import { z } from 'zod'
+
 import {
   DEFAULT_PAGE_ID,
   DEFAULT_LAYOUT_ID,
@@ -23,12 +24,19 @@ import {
   MissingLayoutSlotsError,
 } from './errors'
 
+type DefaultPageContext = {
+  readonly id: string
+}
+
+type DefaultLayoutContext = {
+  readonly id: string
+  readonly children: React.ReactNode
+}
+
 describe('createSafePageServerComponent - default context', () => {
   test('provides default context', async () => {
     const Page = createSafePageServerComponent({}, async (ctx) => {
-      expectTypeOf(ctx).toEqualTypeOf<{
-        readonly id: string
-      }>()
+      expectTypeOf(ctx).toEqualTypeOf<DefaultPageContext>()
       expect(ctx.id).toBe(DEFAULT_PAGE_ID)
 
       return <div>Hello, world!</div>
@@ -40,7 +48,7 @@ describe('createSafePageServerComponent - default context', () => {
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 })
 
@@ -66,17 +74,20 @@ describe('createSafePageServerComponent - id customization', () => {
     })
 
     expect(logSpy).toHaveBeenCalledWith(
-      `🔄 Running page server component'${DEFAULT_PAGE_ID}'`
+      `🔄 Running page server component'${DEFAULT_PAGE_ID}'`,
     )
   })
 
   test('should use custom id if provided', async () => {
-    const id = 'custom-page-id'
-    const Page = createSafePageServerComponent({ id }, async ({ id }) => {
-      expectTypeOf(id).toEqualTypeOf<string>()
-      expect(id).toBe('custom-page-id')
-      return <div>Hello, world!</div>
-    })
+    const pageId = 'custom-page-id'
+    const Page = createSafePageServerComponent(
+      { id: pageId },
+      async ({ id }) => {
+        expectTypeOf(id).toEqualTypeOf<string>()
+        expect(id).toBe('custom-page-id')
+        return <div>Hello, world!</div>
+      },
+    )
 
     await Page({
       params: undefined,
@@ -84,7 +95,7 @@ describe('createSafePageServerComponent - id customization', () => {
     })
 
     expect(logSpy).toHaveBeenCalledWith(
-      `🔄 Running page server component'${id}'`
+      `🔄 Running page server component'${pageId}'`,
     )
   })
 })
@@ -111,7 +122,7 @@ describe('createSafePageServerComponent - authorize', () => {
         expect(auth.user.name).toBe(user.name)
 
         return <div>{auth.user.name}</div>
-      }
+      },
     )
 
     const result = await Page({
@@ -120,7 +131,7 @@ describe('createSafePageServerComponent - authorize', () => {
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('should throw error for unauthorized requests', async () => {
@@ -131,36 +142,34 @@ describe('createSafePageServerComponent - authorize', () => {
           throw unauthorizedError
         },
       },
-      async () => {
-        return <div>Hello, world!</div>
-      }
+      async () => <div>Hello, world!</div>,
     )
 
     await expect(
       Page({
         params: undefined,
         searchParams: undefined,
-      })
+      }),
     ).rejects.toThrow('Unauthorized')
   })
 
   test('authorize receives segments and searchParams when provided', async () => {
     const Page = createSafePageServerComponent(
       {
-        segments: { id: string },
-        searchParams: { query: string },
         authorize: async ({ segments, searchParams }) => {
           expect(segments.id).toBe('test-id')
           expect(searchParams.query).toBe('test-query')
           return { authorized: true }
         },
+        searchParams: { query: string },
+        segments: { id: string },
       },
       async ({ auth }) => {
         expectTypeOf(auth).toEqualTypeOf<{
           authorized: boolean
         }>()
         return <div>Authorized</div>
-      }
+      },
     )
 
     const result = await Page({
@@ -169,7 +178,7 @@ describe('createSafePageServerComponent - authorize', () => {
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 })
 
@@ -179,14 +188,14 @@ describe('createSafePageServerComponent - on error', () => {
       { id: 'error-page' },
       async () => {
         throw new Error('Unexpected error')
-      }
+      },
     )
 
     await expect(
       Page({
         params: undefined,
         searchParams: undefined,
-      })
+      }),
     ).rejects.toThrow('Unexpected error')
   })
 
@@ -200,14 +209,14 @@ describe('createSafePageServerComponent - on error', () => {
       },
       async () => {
         throw new Error('Unexpected error')
-      }
+      },
     )
 
     await expect(
       Page({
         params: undefined,
         searchParams: undefined,
-      })
+      }),
     ).rejects.toThrow('Custom error')
   })
 })
@@ -228,22 +237,22 @@ describe('createSafePageServerComponent - Next.js native errors logging', () => 
     redirectError.digest = 'NEXT_REDIRECT;replace;/redirect-path;307;'
 
     const Page = createSafePageServerComponent(
-      { id: 'redirect-page', debug: true },
+      { debug: true, id: 'redirect-page' },
       async () => {
         throw redirectError
-      }
+      },
     )
 
     await expect(
       Page({
         params: undefined,
         searchParams: undefined,
-      })
-    ).rejects.toThrow()
+      }),
+    ).rejects.toThrow('NEXT_REDIRECT')
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -254,22 +263,22 @@ describe('createSafePageServerComponent - Next.js native errors logging', () => 
     notFoundError.digest = 'NEXT_HTTP_ERROR_FALLBACK;404'
 
     const Page = createSafePageServerComponent(
-      { id: 'notfound-page', debug: true },
+      { debug: true, id: 'notfound-page' },
       async () => {
         throw notFoundError
-      }
+      },
     )
 
     await expect(
       Page({
         params: undefined,
         searchParams: undefined,
-      })
-    ).rejects.toThrow()
+      }),
+    ).rejects.toThrow('NEXT_NOT_FOUND')
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -280,22 +289,22 @@ describe('createSafePageServerComponent - Next.js native errors logging', () => 
     forbiddenError.digest = 'NEXT_HTTP_ERROR_FALLBACK;403'
 
     const Page = createSafePageServerComponent(
-      { id: 'forbidden-page', debug: true },
+      { debug: true, id: 'forbidden-page' },
       async () => {
         throw forbiddenError
-      }
+      },
     )
 
     await expect(
       Page({
         params: undefined,
         searchParams: undefined,
-      })
-    ).rejects.toThrow()
+      }),
+    ).rejects.toThrow('NEXT_FORBIDDEN')
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -306,22 +315,22 @@ describe('createSafePageServerComponent - Next.js native errors logging', () => 
     unauthorizedError.digest = 'NEXT_HTTP_ERROR_FALLBACK;401'
 
     const Page = createSafePageServerComponent(
-      { id: 'unauthorized-page', debug: true },
+      { debug: true, id: 'unauthorized-page' },
       async () => {
         throw unauthorizedError
-      }
+      },
     )
 
     await expect(
       Page({
         params: undefined,
         searchParams: undefined,
-      })
-    ).rejects.toThrow()
+      }),
+    ).rejects.toThrow('NEXT_UNAUTHORIZED')
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -329,21 +338,21 @@ describe('createSafePageServerComponent - Next.js native errors logging', () => 
     const regularError = new Error('Regular error')
 
     const Page = createSafePageServerComponent(
-      { id: 'regular-error-page', debug: true },
+      { debug: true, id: 'regular-error-page' },
       async () => {
         throw regularError
-      }
+      },
     )
 
     await expect(
       Page({
         params: undefined,
         searchParams: undefined,
-      })
+      }),
     ).rejects.toThrow('Regular error')
 
     expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining(`🛑 Page server component 'regular-error-page'`)
+      expect.stringContaining(`🛑 Page server component 'regular-error-page'`),
     )
   })
 })
@@ -365,7 +374,7 @@ describe('createSafePageServerComponent - route dynamic segments validation', ()
             {ctx.segments.id} - {ctx.segments.page}
           </div>
         )
-      }
+      },
     )
 
     const result = await Page({
@@ -374,7 +383,7 @@ describe('createSafePageServerComponent - route dynamic segments validation', ()
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('validates segments correctly with non-promise params', async () => {
@@ -388,7 +397,7 @@ describe('createSafePageServerComponent - route dynamic segments validation', ()
         }>()
 
         return <div>{ctx.segments.id}</div>
-      }
+      },
     )
 
     const result = await Page({
@@ -397,7 +406,7 @@ describe('createSafePageServerComponent - route dynamic segments validation', ()
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('throws ValidationError for invalid segments', async () => {
@@ -405,20 +414,18 @@ describe('createSafePageServerComponent - route dynamic segments validation', ()
       {
         segments: { id: string, page: numeric },
       },
-      async (ctx) => {
-        return (
-          <div>
-            {ctx.segments.id} - {ctx.segments.page}
-          </div>
-        )
-      }
+      async (ctx) => (
+        <div>
+          {ctx.segments.id} - {ctx.segments.page}
+        </div>
+      ),
     )
 
     await expect(
       Page({
-        params: Promise.resolve({ ppid: 'suzuka', page: 'unknown' }),
+        params: Promise.resolve({ page: 'unknown', ppid: 'suzuka' }),
         searchParams: undefined,
-      })
+      }),
     ).rejects.toThrow(ValidationError)
   })
 
@@ -426,25 +433,23 @@ describe('createSafePageServerComponent - route dynamic segments validation', ()
     const customError = new Error('Custom segments error')
     const Page = createSafePageServerComponent(
       {
-        segments: { id: string, page: numeric },
         onSegmentsValidationError: () => {
           throw customError
         },
+        segments: { id: string, page: numeric },
       },
-      async (ctx) => {
-        return (
-          <div>
-            {ctx.segments.id} - {ctx.segments.page}
-          </div>
-        )
-      }
+      async (ctx) => (
+        <div>
+          {ctx.segments.id} - {ctx.segments.page}
+        </div>
+      ),
     )
 
     await expect(
       Page({
-        params: Promise.resolve({ ppid: 'suzuka', page: 'unknown' }),
+        params: Promise.resolve({ page: 'unknown', ppid: 'suzuka' }),
         searchParams: undefined,
-      })
+      }),
     ).rejects.toThrow('Custom segments error')
   })
 
@@ -453,20 +458,18 @@ describe('createSafePageServerComponent - route dynamic segments validation', ()
       {
         segments: { id: string, page: numeric },
       },
-      async (ctx) => {
-        return (
-          <div>
-            {ctx.segments.id} - {ctx.segments.page}
-          </div>
-        )
-      }
+      async (ctx) => (
+        <div>
+          {ctx.segments.id} - {ctx.segments.page}
+        </div>
+      ),
     )
 
     await expect(
       Page({
         params: undefined,
         searchParams: undefined,
-      })
+      }),
     ).rejects.toThrow(NoSegmentsProvidedError)
   })
 })
@@ -475,7 +478,7 @@ describe('createSafePageServerComponent - URL search params validation', () => {
   test('validates search params correctly', async () => {
     const Page = createSafePageServerComponent(
       {
-        searchParams: { query: string, page: numeric },
+        searchParams: { page: numeric, query: string },
       },
       async ({ searchParams }) => {
         expectTypeOf(searchParams).toEqualTypeOf<{
@@ -488,16 +491,16 @@ describe('createSafePageServerComponent - URL search params validation', () => {
             {searchParams.query} - {searchParams.page}
           </div>
         )
-      }
+      },
     )
 
     const result = await Page({
       params: undefined,
-      searchParams: Promise.resolve({ query: 'luke', page: '2' }),
+      searchParams: Promise.resolve({ page: '2', query: 'luke' }),
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('validates search params correctly with non-promise searchParams', async () => {
@@ -511,7 +514,7 @@ describe('createSafePageServerComponent - URL search params validation', () => {
         }>()
 
         return <div>{searchParams.query}</div>
-      }
+      },
     )
 
     const result = await Page({
@@ -520,7 +523,7 @@ describe('createSafePageServerComponent - URL search params validation', () => {
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('validates search params correctly with arrays', async () => {
@@ -536,7 +539,7 @@ describe('createSafePageServerComponent - URL search params validation', () => {
         }>()
 
         return <div>{searchParams.query.join(', ')}</div>
-      }
+      },
     )
 
     const result = await Page({
@@ -545,28 +548,26 @@ describe('createSafePageServerComponent - URL search params validation', () => {
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('throws ValidationError for invalid search params', async () => {
     const Page = createSafePageServerComponent(
       {
-        searchParams: { query: string, page: numeric },
+        searchParams: { page: numeric, query: string },
       },
-      async ({ searchParams }) => {
-        return (
-          <div>
-            {searchParams.query} - {searchParams.page}
-          </div>
-        )
-      }
+      async ({ searchParams }) => (
+        <div>
+          {searchParams.query} - {searchParams.page}
+        </div>
+      ),
     )
 
     await expect(
       Page({
         params: undefined,
-        searchParams: Promise.resolve({ q: 'luke', page: 'unknown' }),
-      })
+        searchParams: Promise.resolve({ page: 'unknown', q: 'luke' }),
+      }),
     ).rejects.toThrow(ValidationError)
   })
 
@@ -574,25 +575,23 @@ describe('createSafePageServerComponent - URL search params validation', () => {
     const customError = new Error('Custom search params error')
     const Page = createSafePageServerComponent(
       {
-        searchParams: { query: string, page: numeric },
         onSearchParamsValidationError: () => {
           throw customError
         },
+        searchParams: { page: numeric, query: string },
       },
-      async ({ searchParams }) => {
-        return (
-          <div>
-            {searchParams.query} - {searchParams.page}
-          </div>
-        )
-      }
+      async ({ searchParams }) => (
+        <div>
+          {searchParams.query} - {searchParams.page}
+        </div>
+      ),
     )
 
     await expect(
       Page({
         params: undefined,
-        searchParams: Promise.resolve({ q: 'luke', page: 'unknown' }),
-      })
+        searchParams: Promise.resolve({ page: 'unknown', q: 'luke' }),
+      }),
     ).rejects.toThrow('Custom search params error')
   })
 
@@ -601,16 +600,14 @@ describe('createSafePageServerComponent - URL search params validation', () => {
       {
         searchParams: { query: string },
       },
-      async ({ searchParams }) => {
-        return <div>{searchParams.query}</div>
-      }
+      async ({ searchParams }) => <div>{searchParams.query}</div>,
     )
 
     await expect(
       Page({
         params: undefined,
         searchParams: undefined,
-      })
+      }),
     ).rejects.toThrow(NoSearchParamsProvidedError)
   })
 })
@@ -619,17 +616,15 @@ describe('createSafePageServerComponent - combined validations', () => {
   test('validates segments and search params correctly', async () => {
     const Page = createSafePageServerComponent(
       {
+        searchParams: { page: numeric, query: string },
         segments: { accountId: string, projectId: string },
-        searchParams: { query: string, page: numeric },
       },
-      async ({ segments, searchParams }) => {
-        return (
-          <div>
-            {segments.accountId}/{segments.projectId}?query={searchParams.query}
-            &page={searchParams.page}
-          </div>
-        )
-      }
+      async ({ segments, searchParams }) => (
+        <div>
+          {segments.accountId}/{segments.projectId}?query={searchParams.query}
+          &page={searchParams.page}
+        </div>
+      ),
     )
 
     const result = await Page({
@@ -637,27 +632,25 @@ describe('createSafePageServerComponent - combined validations', () => {
         accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
         projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
       }),
-      searchParams: Promise.resolve({ query: 'liveblocks', page: '2' }),
+      searchParams: Promise.resolve({ page: '2', query: 'liveblocks' }),
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('throws error for invalid segments and valid search params', async () => {
     const Page = createSafePageServerComponent(
       {
+        searchParams: { page: numeric, query: string },
         segments: { accountId: string, projectId: string },
-        searchParams: { query: string, page: numeric },
       },
-      async ({ segments, searchParams }) => {
-        return (
-          <div>
-            {segments.accountId}/{segments.projectId}?query={searchParams.query}
-            &page={searchParams.page}
-          </div>
-        )
-      }
+      async ({ segments, searchParams }) => (
+        <div>
+          {segments.accountId}/{segments.projectId}?query={searchParams.query}
+          &page={searchParams.page}
+        </div>
+      ),
     )
 
     await expect(
@@ -666,25 +659,23 @@ describe('createSafePageServerComponent - combined validations', () => {
           accid: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
           pjid: '141399a5-14c5-47aa-bc04-2a281380b6e3',
         }),
-        searchParams: Promise.resolve({ query: 'liveblocks', page: '2' }),
-      })
+        searchParams: Promise.resolve({ page: '2', query: 'liveblocks' }),
+      }),
     ).rejects.toThrow(ValidationError)
   })
 
   test('throws error for valid segments and invalid search params', async () => {
     const Page = createSafePageServerComponent(
       {
+        searchParams: { page: numeric, query: string },
         segments: { accountId: string, projectId: string },
-        searchParams: { query: string, page: numeric },
       },
-      async ({ segments, searchParams }) => {
-        return (
-          <div>
-            {segments.accountId}/{segments.projectId}?query={searchParams.query}
-            &page={searchParams.page}
-          </div>
-        )
-      }
+      async ({ segments, searchParams }) => (
+        <div>
+          {segments.accountId}/{segments.projectId}?query={searchParams.query}
+          &page={searchParams.page}
+        </div>
+      ),
     )
 
     await expect(
@@ -693,8 +684,8 @@ describe('createSafePageServerComponent - combined validations', () => {
           accountId: '0e0378fd-808d-4e1c-8707-bb5c918c1ed2',
           projectId: '141399a5-14c5-47aa-bc04-2a281380b6e3',
         }),
-        searchParams: Promise.resolve({ q: 'liveblocks', page: '2' }),
-      })
+        searchParams: Promise.resolve({ page: '2', q: 'liveblocks' }),
+      }),
     ).rejects.toThrow(ValidationError)
   })
 })
@@ -703,35 +694,30 @@ describe('createSafePageServerComponent - framework validation agnostic', () => 
   test('validates correctly with zod schemas', async () => {
     const Page = createSafePageServerComponent(
       {
+        searchParams: { page: z.coerce.number(), query: z.string() },
         segments: { id: z.string() },
-        searchParams: { query: z.string(), page: z.coerce.number() },
       },
-      async ({ segments, searchParams }) => {
-        return (
-          <div>
-            {segments.id}?query={searchParams.query}&page={searchParams.page}
-          </div>
-        )
-      }
+      async ({ segments, searchParams }) => (
+        <div>
+          {segments.id}?query={searchParams.query}&page={searchParams.page}
+        </div>
+      ),
     )
 
     const result = await Page({
       params: Promise.resolve({ id: 'test-id' }),
-      searchParams: Promise.resolve({ query: 'test', page: '42' }),
+      searchParams: Promise.resolve({ page: '42', query: 'test' }),
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 })
 
 describe('createSafeLayoutServerComponent - default context', () => {
   test('provides default context', async () => {
     const Layout = createSafeLayoutServerComponent({}, async (ctx) => {
-      expectTypeOf(ctx).toEqualTypeOf<{
-        readonly id: string
-        readonly children: React.ReactNode
-      }>()
+      expectTypeOf(ctx).toEqualTypeOf<DefaultLayoutContext>()
       expect(ctx.id).toBe(DEFAULT_LAYOUT_ID)
       expect(ctx.children).toBeDefined()
 
@@ -739,12 +725,12 @@ describe('createSafeLayoutServerComponent - default context', () => {
     })
 
     const result = await Layout({
-      params: undefined,
       children: <div>Children</div>,
+      params: undefined,
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 })
 
@@ -765,30 +751,33 @@ describe('createSafeLayoutServerComponent - id customization', () => {
     })
 
     await Layout({
-      params: undefined,
       children: <div>Children</div>,
+      params: undefined,
     })
 
     expect(logSpy).toHaveBeenCalledWith(
-      `🔄 Running layout server component'${DEFAULT_LAYOUT_ID}'`
+      `🔄 Running layout server component'${DEFAULT_LAYOUT_ID}'`,
     )
   })
 
   test('should use custom id if provided', async () => {
-    const id = 'custom-layout-id'
-    const Layout = createSafeLayoutServerComponent({ id }, async ({ id }) => {
-      expectTypeOf(id).toEqualTypeOf<string>()
-      expect(id).toBe('custom-layout-id')
-      return <div>Layout</div>
-    })
+    const layoutId = 'custom-layout-id'
+    const Layout = createSafeLayoutServerComponent(
+      { id: layoutId },
+      async ({ id }) => {
+        expectTypeOf(id).toEqualTypeOf<string>()
+        expect(id).toBe('custom-layout-id')
+        return <div>Layout</div>
+      },
+    )
 
     await Layout({
-      params: undefined,
       children: <div>Children</div>,
+      params: undefined,
     })
 
     expect(logSpy).toHaveBeenCalledWith(
-      `🔄 Running layout server component'${id}'`
+      `🔄 Running layout server component'${layoutId}'`,
     )
   })
 })
@@ -820,16 +809,16 @@ describe('createSafeLayoutServerComponent - authorize', () => {
             {children}
           </div>
         )
-      }
+      },
     )
 
     const result = await Layout({
-      params: undefined,
       children: <div>Children</div>,
+      params: undefined,
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('should throw error for unauthorized requests', async () => {
@@ -840,43 +829,41 @@ describe('createSafeLayoutServerComponent - authorize', () => {
           throw unauthorizedError
         },
       },
-      async ({ children }) => {
-        return <div>{children}</div>
-      }
+      async ({ children }) => <div>{children}</div>,
     )
 
     await expect(
       Layout({
-        params: undefined,
         children: <div>Children</div>,
-      })
+        params: undefined,
+      }),
     ).rejects.toThrow('Unauthorized')
   })
 
   test('authorize receives segments when provided', async () => {
     const Layout = createSafeLayoutServerComponent(
       {
-        segments: { id: string },
         authorize: async ({ segments }) => {
           expect(segments.id).toBe('test-id')
           return { authorized: true }
         },
+        segments: { id: string },
       },
       async ({ auth, children }) => {
         expectTypeOf(auth).toEqualTypeOf<{
           authorized: boolean
         }>()
         return <div>{children}</div>
-      }
+      },
     )
 
     const result = await Layout({
-      params: Promise.resolve({ id: 'test-id' }),
       children: <div>Children</div>,
+      params: Promise.resolve({ id: 'test-id' }),
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 })
 
@@ -886,14 +873,14 @@ describe('createSafeLayoutServerComponent - on error', () => {
       { id: 'error-layout' },
       async () => {
         throw new Error('Unexpected error')
-      }
+      },
     )
 
     await expect(
       Layout({
-        params: undefined,
         children: <div>Children</div>,
-      })
+        params: undefined,
+      }),
     ).rejects.toThrow('Unexpected error')
   })
 
@@ -907,14 +894,14 @@ describe('createSafeLayoutServerComponent - on error', () => {
       },
       async () => {
         throw new Error('Unexpected error')
-      }
+      },
     )
 
     await expect(
       Layout({
-        params: undefined,
         children: <div>Children</div>,
-      })
+        params: undefined,
+      }),
     ).rejects.toThrow('Custom error')
   })
 })
@@ -935,22 +922,22 @@ describe('createSafeLayoutServerComponent - Next.js native errors logging', () =
     redirectError.digest = 'NEXT_REDIRECT;replace;/redirect-path;307;'
 
     const Layout = createSafeLayoutServerComponent(
-      { id: 'redirect-layout', debug: true },
+      { debug: true, id: 'redirect-layout' },
       async () => {
         throw redirectError
-      }
+      },
     )
 
     await expect(
       Layout({
-        params: undefined,
         children: <div>Children</div>,
-      })
-    ).rejects.toThrow()
+        params: undefined,
+      }),
+    ).rejects.toThrow('NEXT_REDIRECT')
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -961,22 +948,22 @@ describe('createSafeLayoutServerComponent - Next.js native errors logging', () =
     notFoundError.digest = 'NEXT_HTTP_ERROR_FALLBACK;404'
 
     const Layout = createSafeLayoutServerComponent(
-      { id: 'notfound-layout', debug: true },
+      { debug: true, id: 'notfound-layout' },
       async () => {
         throw notFoundError
-      }
+      },
     )
 
     await expect(
       Layout({
-        params: undefined,
         children: <div>Children</div>,
-      })
-    ).rejects.toThrow()
+        params: undefined,
+      }),
+    ).rejects.toThrow('NEXT_NOT_FOUND')
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -987,22 +974,22 @@ describe('createSafeLayoutServerComponent - Next.js native errors logging', () =
     forbiddenError.digest = 'NEXT_HTTP_ERROR_FALLBACK;403'
 
     const Layout = createSafeLayoutServerComponent(
-      { id: 'forbidden-layout', debug: true },
+      { debug: true, id: 'forbidden-layout' },
       async () => {
         throw forbiddenError
-      }
+      },
     )
 
     await expect(
       Layout({
-        params: undefined,
         children: <div>Children</div>,
-      })
-    ).rejects.toThrow()
+        params: undefined,
+      }),
+    ).rejects.toThrow('NEXT_FORBIDDEN')
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -1013,22 +1000,22 @@ describe('createSafeLayoutServerComponent - Next.js native errors logging', () =
     unauthorizedError.digest = 'NEXT_HTTP_ERROR_FALLBACK;401'
 
     const Layout = createSafeLayoutServerComponent(
-      { id: 'unauthorized-layout', debug: true },
+      { debug: true, id: 'unauthorized-layout' },
       async () => {
         throw unauthorizedError
-      }
+      },
     )
 
     await expect(
       Layout({
-        params: undefined,
         children: <div>Children</div>,
-      })
-    ).rejects.toThrow()
+        params: undefined,
+      }),
+    ).rejects.toThrow('NEXT_UNAUTHORIZED')
 
     expect(errorSpy).not.toHaveBeenCalledWith(
       expect.stringContaining('failed to execute'),
-      expect.anything()
+      expect.anything(),
     )
   })
 
@@ -1036,23 +1023,23 @@ describe('createSafeLayoutServerComponent - Next.js native errors logging', () =
     const regularError = new Error('Regular error')
 
     const Layout = createSafeLayoutServerComponent(
-      { id: 'regular-error-layout', debug: true },
+      { debug: true, id: 'regular-error-layout' },
       async () => {
         throw regularError
-      }
+      },
     )
 
     await expect(
       Layout({
-        params: undefined,
         children: <div>Children</div>,
-      })
+        params: undefined,
+      }),
     ).rejects.toThrow('Regular error')
 
     expect(errorSpy).toHaveBeenCalledWith(
       expect.stringContaining(
-        `🛑 Layout server component 'regular-error-layout'`
-      )
+        `🛑 Layout server component 'regular-error-layout'`,
+      ),
     )
   })
 })
@@ -1075,16 +1062,16 @@ describe('createSafeLayoutServerComponent - route dynamic segments validation', 
             {ctx.children}
           </div>
         )
-      }
+      },
     )
 
     const result = await Layout({
-      params: Promise.resolve({ id: 'suzuka', page: '256' }),
       children: <div>Children</div>,
+      params: Promise.resolve({ id: 'suzuka', page: '256' }),
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('validates segments correctly with non-promise params', async () => {
@@ -1103,16 +1090,16 @@ describe('createSafeLayoutServerComponent - route dynamic segments validation', 
             {ctx.children}
           </div>
         )
-      }
+      },
     )
 
     const result = await Layout({
-      params: { id: 'test-id' },
       children: <div>Children</div>,
+      params: { id: 'test-id' },
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('throws ValidationError for invalid segments', async () => {
@@ -1120,21 +1107,19 @@ describe('createSafeLayoutServerComponent - route dynamic segments validation', 
       {
         segments: { id: string, page: numeric },
       },
-      async (ctx) => {
-        return (
-          <div>
-            {ctx.segments.id} - {ctx.segments.page}
-            {ctx.children}
-          </div>
-        )
-      }
+      async (ctx) => (
+        <div>
+          {ctx.segments.id} - {ctx.segments.page}
+          {ctx.children}
+        </div>
+      ),
     )
 
     await expect(
       Layout({
-        params: Promise.resolve({ ppid: 'suzuka', page: 'unknown' }),
         children: <div>Children</div>,
-      })
+        params: Promise.resolve({ page: 'unknown', ppid: 'suzuka' }),
+      }),
     ).rejects.toThrow(ValidationError)
   })
 
@@ -1142,26 +1127,24 @@ describe('createSafeLayoutServerComponent - route dynamic segments validation', 
     const customError = new Error('Custom segments error')
     const Layout = createSafeLayoutServerComponent(
       {
-        segments: { id: string, page: numeric },
         onSegmentsValidationError: () => {
           throw customError
         },
+        segments: { id: string, page: numeric },
       },
-      async (ctx) => {
-        return (
-          <div>
-            {ctx.segments.id} - {ctx.segments.page}
-            {ctx.children}
-          </div>
-        )
-      }
+      async (ctx) => (
+        <div>
+          {ctx.segments.id} - {ctx.segments.page}
+          {ctx.children}
+        </div>
+      ),
     )
 
     await expect(
       Layout({
-        params: Promise.resolve({ ppid: 'suzuka', page: 'unknown' }),
         children: <div>Children</div>,
-      })
+        params: Promise.resolve({ page: 'unknown', ppid: 'suzuka' }),
+      }),
     ).rejects.toThrow('Custom segments error')
   })
 
@@ -1170,45 +1153,41 @@ describe('createSafeLayoutServerComponent - route dynamic segments validation', 
       {
         segments: { id: string, page: numeric },
       },
-      async (ctx) => {
-        return (
-          <div>
-            {ctx.segments.id} - {ctx.segments.page}
-            {ctx.children}
-          </div>
-        )
-      }
+      async (ctx) => (
+        <div>
+          {ctx.segments.id} - {ctx.segments.page}
+          {ctx.children}
+        </div>
+      ),
     )
 
     await expect(
       Layout({
-        params: undefined,
         children: <div>Children</div>,
-      })
+        params: undefined,
+      }),
     ).rejects.toThrow(NoSegmentsProvidedError)
   })
 })
 
 describe('createSafeLayoutServerComponent - children handling', () => {
   test('passes children correctly', async () => {
-    const Layout = createSafeLayoutServerComponent({}, async ({ children }) => {
-      return (
-        <div>
-          <header>Header</header>
-          {children}
-          <footer>Footer</footer>
-        </div>
-      )
-    })
+    const Layout = createSafeLayoutServerComponent({}, async ({ children }) => (
+      <div>
+        <header>Header</header>
+        {children}
+        <footer>Footer</footer>
+      </div>
+    ))
 
     const children = <main>Content</main>
     const result = await Layout({
-      params: undefined,
       children,
+      params: undefined,
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 })
 
@@ -1218,23 +1197,21 @@ describe('createSafeLayoutServerComponent - framework validation agnostic', () =
       {
         segments: { id: z.string() },
       },
-      async ({ segments, children }) => {
-        return (
-          <div>
-            {segments.id}
-            {children}
-          </div>
-        )
-      }
+      async ({ segments, children }) => (
+        <div>
+          {segments.id}
+          {children}
+        </div>
+      ),
     )
 
     const result = await Layout({
-      params: Promise.resolve({ id: 'test-id' }),
       children: <div>Children</div>,
+      params: Promise.resolve({ id: 'test-id' }),
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 })
 
@@ -1260,18 +1237,18 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
             {experimental_slots.analytics}
           </div>
         )
-      }
+      },
     )
 
     const result = await Layout({
-      params: undefined,
-      children: <div>children</div>,
       analytics: <div>analytics</div>,
+      children: <div>children</div>,
+      params: undefined,
       teams: <header>teams</header>,
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('infer slots type correctly', async () => {
@@ -1290,100 +1267,94 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
             {experimental_slots.teams}
           </div>
         )
-      }
+      },
     )
 
     const result = await Layout({
-      params: undefined,
-      children: <div>children</div>,
       analytics: <aside>analytics</aside>,
+      children: <div>children</div>,
+      params: undefined,
       teams: <footer>teams</footer>,
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('throws `MissingLayoutSlotsError` when expected slots are missing', async () => {
     const Layout = createSafeLayoutServerComponent(
       {
-        id: 'missing-slots-layout',
         experimental_slots: ['analytics', 'header'] as const,
+        id: 'missing-slots-layout',
       },
-      async ({ experimental_slots, children }) => {
-        return (
-          <div>
-            {experimental_slots.header}
-            {children}
-            {experimental_slots.analytics}
-          </div>
-        )
-      }
+      async ({ experimental_slots, children }) => (
+        <div>
+          {experimental_slots.header}
+          {children}
+          {experimental_slots.analytics}
+        </div>
+      ),
     )
 
     await expect(
       // @ts-expect-error - We are testing the error case.
       Layout({
-        params: undefined,
         children: <div>children</div>,
-      })
+        params: undefined,
+      }),
     ).rejects.toThrow(MissingLayoutSlotsError)
   })
 
   test('throws `MissingLayoutSlotsError` with correct message for missing slots', async () => {
     const Layout = createSafeLayoutServerComponent(
       {
-        id: 'test-layout',
         experimental_slots: ['analytics', 'header', 'footer'] as const,
+        id: 'test-layout',
       },
-      async ({ experimental_slots, children }) => {
-        return (
-          <div>
-            {experimental_slots.header}
-            {children}
-            {experimental_slots.analytics}
-            {experimental_slots.footer}
-          </div>
-        )
-      }
+      async ({ experimental_slots, children }) => (
+        <div>
+          {experimental_slots.header}
+          {children}
+          {experimental_slots.analytics}
+          {experimental_slots.footer}
+        </div>
+      ),
     )
 
     await expect(
       // @ts-expect-error - We are testing the error case.
       Layout({
-        params: undefined,
         children: <div>children</div>,
-      })
+        params: undefined,
+      }),
     ).rejects.toThrow(
-      "Missing slots ['analytics', 'header', 'footer'] for layout server component 'test-layout'"
+      "Missing slots ['analytics', 'header', 'footer'] for layout server component 'test-layout'",
     )
   })
 
   test('throws `MissingLayoutSlotsError` when only some slots are missing', async () => {
     const Layout = createSafeLayoutServerComponent(
       {
-        id: 'partial-slots-layout',
         experimental_slots: ['analytics', 'header', 'footer'] as const,
+        id: 'partial-slots-layout',
       },
-      async ({ experimental_slots, children }) => {
-        return (
-          <div>
-            {experimental_slots.header}
-            {children}
-            {experimental_slots.analytics}
-            {experimental_slots.footer}
-          </div>
-        )
-      }
+      async ({ experimental_slots, children }) => (
+        <div>
+          {experimental_slots.header}
+          {children}
+          {experimental_slots.analytics}
+          {experimental_slots.footer}
+        </div>
+      ),
     )
 
     await expect(
       // @ts-expect-error - We are testing the error case.
       Layout({
-        params: undefined,
-        children: <div>Children</div>,
         analytics: <div>Analytics</div>,
-      })
+        children: <div>Children</div>,
+        params: undefined,
+      }),
     ).rejects.toThrow(MissingLayoutSlotsError)
   })
 
@@ -1402,37 +1373,34 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
             {children}
           </div>
         )
-      }
+      },
     )
 
     const result = await Layout({
-      params: undefined,
-      children: <div>children</div>,
       analytics: <aside>analytics</aside>,
+      children: <div>children</div>,
+      params: undefined,
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('does not include slots in context when `experimental_slots` is not defined', async () => {
     const Layout = createSafeLayoutServerComponent({}, async (ctx) => {
-      expectTypeOf(ctx).toEqualTypeOf<{
-        readonly id: string
-        readonly children: React.ReactNode
-      }>()
-      expect('experimental_slots' in ctx).toBe(false)
+      expectTypeOf(ctx).toEqualTypeOf<DefaultLayoutContext>()
+      expect('experimental_slots' in ctx).toBeFalsy()
 
       return <div>{ctx.children}</div>
     })
 
     const result = await Layout({
-      params: undefined,
       children: <div>Children</div>,
+      params: undefined,
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 
   test('does not include slots in context when `experimental_slots` is an empty array', async () => {
@@ -1441,19 +1409,19 @@ describe('createSafeLayoutServerComponent - experimental slots', () => {
         experimental_slots: [] as const,
       },
       async ({ experimental_slots, children }) => {
-        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+        // oxlint-disable-next-line @typescript-eslint/no-empty-object-type typescript/ban-types
         expectTypeOf(experimental_slots).toEqualTypeOf<{}>()
-        expect(experimental_slots).toEqual({})
+        expect(experimental_slots).toStrictEqual({})
         return <div>{children}</div>
-      }
+      },
     )
 
     const result = await Layout({
-      params: undefined,
       children: <div>Children</div>,
+      params: undefined,
     })
 
     expect(result).toBeDefined()
-    expect(React.isValidElement(result)).toBe(true)
+    expect(React.isValidElement(result)).toBeTruthy()
   })
 })

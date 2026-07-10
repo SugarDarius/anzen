@@ -4,10 +4,6 @@ import { notFound } from 'next/navigation'
 
 export default createSafeLayoutServerComponent(
   {
-    id: 'playground/blob/[id]/layout',
-    segments: {
-      id: string,
-    },
     authorize: async ({ segments }) => {
       if (segments.id !== 'vercel') {
         notFound()
@@ -15,9 +11,13 @@ export default createSafeLayoutServerComponent(
 
       return { user: 'layout:John Doe' }
     },
+    id: 'playground/blob/[id]/layout',
+    segments: {
+      id: string,
+    },
   },
   async ({ children, auth }) => {
     console.log('auth', auth)
     return <div>{children}</div>
-  }
+  },
 )
