@@ -3,11 +3,7 @@
   "version": "2.3.2",
   "description": "Fast, flexible, framework validation agnostic, type‑safe factories for creating server actions, route handlers, page and layout Server Component files in Next.js.",
   "license": "MIT",
-  "packageManager": "npm@11.8.0",
-  "workspaces": [
-    ".",
-    "www"
-  ],
+  "packageManager": "pnpm@11.10.0",
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.cjs",
@@ -71,33 +67,37 @@
     "dev:www": "turbo run dev --filter=www",
     "build:www": "turbo run build --filter=www",
     "test": "vitest run --silent",
-    "lint": "npm run lint:eslint && npm run lint:tsc && npm run lint:package",
+    "lint": "pnpm run lint:eslint && pnpm run lint:tsc && pnpm run lint:package",
     "lint:eslint": "eslint src/",
     "lint:tsc": "tsc --noEmit",
     "lint:package": "publint --strict && attw --pack . --profile node16",
     "format": "prettier --write src/",
-    "release": "release-it"
+    "release": "release-it",
+    "postinstall": "syncpack lint"
   },
   "peerDependencies": {
     "next": "^16 || ^15 || ^14"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
-    "@eslint/eslintrc": "^3.3.5",
-    "@eslint/js": "^9.39.4",
+    "@eslint/eslintrc": "catalog:",
+    "@eslint/js": "catalog:",
     "@release-it/keep-a-changelog": "^7.1.0",
-    "@types/node": "^26.1.1",
-    "@types/react": "^19.2.17",
-    "decoders": "^2.9.3",
-    "eslint": "^9.39.4",
-    "prettier": "^3.9.5",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "decoders": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "publint": "^0.3.21",
     "release-it": "^20.2.1",
     "tsup": "^8.5.1",
     "turbo": "^2.10.4",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.63.0",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:",
     "vitest": "^4.1.10",
-    "zod": "^4.4.3"
+    "zod": "catalog:"
+  },
+  "dependencies": {
+    "syncpack": "^15.3.2"
   }
 }

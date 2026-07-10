@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/syncpack/schema.json",
+  "versionGroups": [
+    {
+      "label": "Packages peer deps — broad ranges authorized, not synced with apps",
+      "dependencyTypes": ["peer"],
+      "isIgnored": true
+    }
+  ]
+}

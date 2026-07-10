@@ -23,22 +23,22 @@ npm ci
 Useful scripts:
 
 ```sh
-npm run dev      # watch mode
-npm run build    # build the package
-npm run test     # run tests
-npm run lint     # eslint, tsc, and package checks
-npm run format   # format src/
+pnpm dev      # watch mode
+pnpm build    # build the package
+pnpm test     # run tests
+pnpm lint     # eslint, tsc, and package checks
+pnpm format   # format src/
 ```
 
 ## Project structure
 
 This repo is an npm workspace with two packages:
 
-| Path | Purpose |
-| --- | --- |
-| `src/` | Library source — what gets published to npm |
-| `www/` | Docs site and playground (Next.js + Fumadocs) |
-| `skills/` | Agent skill definitions for AI assistants |
+| Path      | Purpose                                       |
+| --------- | --------------------------------------------- |
+| `src/`    | Library source — what gets published to npm   |
+| `www/`    | Docs site and playground (Next.js + Fumadocs) |
+| `skills/` | Agent skill definitions for AI assistants     |
 
 The library is split into two entry points (see `tsup.config.ts`):
 

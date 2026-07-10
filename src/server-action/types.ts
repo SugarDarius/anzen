@@ -61,10 +61,7 @@ export type TaggedError = {
 }
 
 export type SafeServerActionError =
-  | ValidationError
-  | UnauthorizedError
-  | ServerError
-  | TaggedError
+  ValidationError | UnauthorizedError | ServerError | TaggedError
 
 export type SafeServerActionResultSuccess<TOutput> = {
   readonly success: true
