@@ -2,8 +2,33 @@
   "name": "@sugardarius/anzen",
   "version": "2.3.2",
   "description": "Fast, flexible, framework validation agnostic, type‑safe factories for creating server actions, route handlers, page and layout Server Component files in Next.js.",
+  "keywords": [
+    "framework agnostic validation",
+    "nextjs",
+    "safe layout server components",
+    "safe page server components",
+    "safe route handlers",
+    "safe server actions",
+    "type-safe authorization",
+    "type-safe validation"
+  ],
+  "bugs": {
+    "url": "https://github.com/SugarDarius/anzen/issues"
+  },
   "license": "MIT",
-  "packageManager": "pnpm@11.10.0",
+  "author": {
+    "name": "Aurélien Dupays Dexemple",
+    "url": "https://aureliendupaysdexemple.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SugarDarius/anzen"
+  },
+  "files": [
+    "dist/**",
+    "README.md",
+    "LICENSE"
+  ],
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.cjs",
@@ -32,32 +57,6 @@
       }
     }
   },
-  "files": [
-    "dist/**",
-    "README.md",
-    "LICENSE"
-  ],
-  "author": {
-    "name": "Aurélien Dupays Dexemple",
-    "url": "https://aureliendupaysdexemple.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/SugarDarius/anzen"
-  },
-  "bugs": {
-    "url": "https://github.com/SugarDarius/anzen/issues"
-  },
-  "keywords": [
-    "nextjs",
-    "safe server actions",
-    "safe route handlers",
-    "safe page server components",
-    "safe layout server components",
-    "framework agnostic validation",
-    "type-safe validation",
-    "type-safe authorization"
-  ],
   "publishConfig": {
     "access": "public"
   },
@@ -67,38 +66,37 @@
     "dev:www": "turbo run dev --filter=www",
     "build:www": "turbo run build --filter=www",
     "test": "vitest run --silent",
-    "lint": "pnpm run lint:eslint && pnpm run lint:tsc && pnpm run lint:package",
-    "lint:eslint": "eslint src/",
+    "lint": "pnpm run lint:check && pnpm run lint:tsc && pnpm run lint:package",
+    "lint:check": "ultracite check",
     "lint:tsc": "tsc --noEmit",
     "lint:package": "publint --strict && attw --pack . --profile node16",
-    "format": "prettier --write src/",
+    "lint:fix": "ultracite fix",
     "release": "release-it",
     "postinstall": "syncpack lint"
   },
-  "peerDependencies": {
-    "next": "^16 || ^15 || ^14"
+  "dependencies": {
+    "syncpack": "^15.3.2"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
-    "@eslint/eslintrc": "catalog:",
-    "@eslint/js": "catalog:",
     "@release-it/keep-a-changelog": "^7.1.0",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "react": "catalog:",
     "decoders": "catalog:",
-    "eslint": "catalog:",
-    "prettier": "catalog:",
+    "oxfmt": "^0.58.0",
+    "oxlint": "^1.73.0",
     "publint": "^0.3.21",
+    "react": "catalog:",
     "release-it": "^20.2.1",
     "tsup": "^8.5.1",
     "turbo": "^2.10.4",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:",
+    "ultracite": "^7.9.3",
     "vitest": "^4.1.10",
     "zod": "catalog:"
   },
-  "dependencies": {
-    "syncpack": "^15.3.2"
-  }
+  "peerDependencies": {
+    "next": "^16 || ^15 || ^14"
+  },
+  "packageManager": "pnpm@11.10.0"
 }
