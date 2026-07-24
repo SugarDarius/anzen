@@ -14,7 +14,7 @@
     "@radix-ui/react-slot": "^1.3.1",
     "@sugardarius/anzen": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.11",
-    "@takumi-rs/image-response": "^2.0.2",
+    "@takumi-rs/image-response": "^2.4.2",
     "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
