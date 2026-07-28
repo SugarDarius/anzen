@@ -79,7 +79,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
-    "@release-it/keep-a-changelog": "^7.1.0",
+    "@release-it/keep-a-changelog": "^8.0.0",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "decoders": "catalog:",
@@ -87,7 +87,7 @@
     "oxlint": "^1.75.0",
     "publint": "^0.3.22",
     "react": "catalog:",
-    "release-it": "^20.2.1",
+    "release-it": "^21.0.0",
     "tsup": "^8.5.1",
     "turbo": "^2.10.7",
     "typescript": "catalog:",
