@@ -31,6 +31,7 @@ export default defineConfig({
     'eslint/require-await': 'off',
     'eslint/require-unicode-regexp': 'off',
     'react/button-has-type': 'off',
+    'react/function-component-definition': 'off',
     'typescript/consistent-type-definitions': 'off',
     'typescript/no-invalid-void-type': 'off',
     'typescript/no-namespace': 'off',
