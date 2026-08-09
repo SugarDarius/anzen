@@ -89,7 +89,7 @@
     "react": "catalog:",
     "release-it": "^21.0.1",
     "tsup": "^8.5.1",
-    "turbo": "^2.10.7",
+    "turbo": "^2.10.9",
     "typescript": "catalog:",
     "ultracite": "^7.10.1",
     "vitest": "^4.1.10",
