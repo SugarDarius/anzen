@@ -37,11 +37,7 @@ export function shikiTokenClassTransformer(): ShikiTransformer {
       }
 
       const existing = hast.properties?.className
-      const classes = Array.isArray(existing)
-        ? [...existing]
-        : typeof existing === 'string'
-          ? existing.split(/\s+/).filter(Boolean)
-          : []
+      const classes = Array.isArray(existing) ? [...existing] : []
       const tokenClass = `tk-${segment}`
       if (!classes.includes(tokenClass)) {
         classes.push(tokenClass)
