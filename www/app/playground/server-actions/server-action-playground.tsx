@@ -155,21 +155,21 @@ function CodeSnippetPair({
   usage: string
 }) {
   return (
-    <div className='mb-4 grid gap-3 border-b border-border/70 pb-4 sm:grid-cols-2'>
+    <div className='border-border/70 mb-4 grid gap-3 border-b pb-4 sm:grid-cols-2'>
       <div className='min-w-0 space-y-1.5'>
-        <p className='text-xs font-medium text-fd-muted-foreground'>
-          <code className='font-mono text-fd-foreground/80'>actions.ts</code>{' '}
+        <p className='text-fd-muted-foreground text-xs font-medium'>
+          <code className='text-fd-foreground/80 font-mono'>actions.ts</code>{' '}
           (declaration)
         </p>
-        <pre className='max-h-64 overflow-auto rounded-lg border border-border bg-fd-muted/30 p-3 text-left text-[11px] leading-snug font-mono whitespace-pre text-fd-foreground'>
+        <pre className='border-border bg-fd-muted/30 text-fd-foreground max-h-64 overflow-auto rounded-lg border p-3 text-left font-mono text-[11px] leading-snug whitespace-pre'>
           {declaration}
         </pre>
       </div>
       <div className='min-w-0 space-y-1.5'>
-        <p className='text-xs font-medium text-fd-muted-foreground'>
+        <p className='text-fd-muted-foreground text-xs font-medium'>
           Client (this page)
         </p>
-        <pre className='max-h-64 overflow-auto rounded-lg border border-border bg-fd-muted/30 p-3 text-left text-[11px] leading-snug font-mono whitespace-pre text-fd-foreground'>
+        <pre className='border-border bg-fd-muted/30 text-fd-foreground max-h-64 overflow-auto rounded-lg border p-3 text-left font-mono text-[11px] leading-snug whitespace-pre'>
           {usage}
         </pre>
       </div>
@@ -180,10 +180,10 @@ function CodeSnippetPair({
 function ResultPanel({ label, result }: { label: string; result: unknown }) {
   return (
     <div className='space-y-2'>
-      <p className='text-xs font-medium uppercase tracking-wide text-fd-muted-foreground'>
+      <p className='text-fd-muted-foreground text-xs font-medium tracking-wide uppercase'>
         {label}
       </p>
-      <pre className='max-h-48 overflow-auto rounded-lg border border-border bg-fd-muted/40 p-3 text-left text-xs leading-relaxed font-mono text-fd-foreground'>
+      <pre className='border-border bg-fd-muted/40 text-fd-foreground max-h-48 overflow-auto rounded-lg border p-3 text-left font-mono text-xs leading-relaxed'>
         {JSON.stringify(result, null, 2)}
       </pre>
     </div>
@@ -202,10 +202,10 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className='rounded-xl border border-border bg-card/40 p-5 shadow-sm'>
+    <section className='border-border bg-card/40 rounded-xl border p-5 shadow-sm'>
       <div className='mb-4 space-y-1'>
         <h2 className='text-base font-semibold tracking-tight'>{title}</h2>
-        <p className='text-sm text-fd-muted-foreground'>{description}</p>
+        <p className='text-fd-muted-foreground text-sm'>{description}</p>
       </div>
       {snippets ? (
         <CodeSnippetPair
@@ -245,28 +245,28 @@ export function ServerActionPlayground() {
       <div className='space-y-2'>
         <Link
           href='/playground'
-          className='text-sm text-fd-muted-foreground transition-colors hover:text-fd-foreground'
+          className='text-fd-muted-foreground hover:text-fd-foreground text-sm transition-colors'
         >
           ← Playground
         </Link>
         <h1 className='text-2xl font-semibold tracking-tight'>
           Safe server actions
         </h1>
-        <p className='text-sm text-fd-muted-foreground'>
+        <p className='text-fd-muted-foreground text-sm'>
           Examples using{' '}
-          <code className='rounded bg-fd-muted px-1.5 py-0.5 font-mono text-xs'>
+          <code className='bg-fd-muted rounded px-1.5 py-0.5 font-mono text-xs'>
             createSafeServerAction
           </code>{' '}
           from anzen: success payloads, validation,{' '}
-          <code className='rounded bg-fd-muted px-1.5 py-0.5 font-mono text-xs'>
+          <code className='bg-fd-muted rounded px-1.5 py-0.5 font-mono text-xs'>
             tagErr
           </code>
           , authorization, FormData,{' '}
-          <code className='rounded bg-fd-muted px-1.5 py-0.5 font-mono text-xs'>
+          <code className='bg-fd-muted rounded px-1.5 py-0.5 font-mono text-xs'>
             useActionState
           </code>
           , and Next.js{' '}
-          <code className='rounded bg-fd-muted px-1.5 py-0.5 font-mono text-xs'>
+          <code className='bg-fd-muted rounded px-1.5 py-0.5 font-mono text-xs'>
             redirect
           </code>
           .
@@ -314,7 +314,7 @@ export function ServerActionPlayground() {
               id='greet-name'
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+              className='border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:ring-2'
             />
           </div>
           <Button
@@ -354,7 +354,7 @@ export function ServerActionPlayground() {
               max={99}
               value={quantity}
               onChange={(e) => setQuantity(Number(e.target.value))}
-              className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+              className='border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:ring-2'
             />
           </div>
           <Button
@@ -393,7 +393,7 @@ export function ServerActionPlayground() {
               onChange={(e) =>
                 setTagErrOutcome(e.target.value as 'success' | 'conflict')
               }
-              className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+              className='border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:ring-2'
             >
               <option value='success'>Success (reserved)</option>
               <option value='conflict'>Conflict (tagErr)</option>
@@ -434,7 +434,7 @@ export function ServerActionPlayground() {
               value={token}
               onChange={(e) => setToken(e.target.value)}
               placeholder='try: anzen'
-              className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+              className='border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:ring-2'
             />
           </div>
           <Button
@@ -475,7 +475,7 @@ export function ServerActionPlayground() {
           >
             Go to playground home
           </Button>
-          <p className='text-xs text-fd-muted-foreground'>
+          <p className='text-fd-muted-foreground text-xs'>
             You should land on <code className='font-mono'>/playground</code>{' '}
             with no JSON result panel — the redirect ends the action.
           </p>
@@ -504,7 +504,7 @@ export function ServerActionPlayground() {
                 required
                 defaultValue='👍'
                 maxLength={8}
-                className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                className='border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:ring-2'
               />
             </div>
             <div className='flex flex-col gap-2'>
@@ -516,7 +516,7 @@ export function ServerActionPlayground() {
                 name='comment'
                 defaultValue='Nice API'
                 maxLength={120}
-                className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                className='border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:ring-2'
               />
             </div>
           </div>
@@ -553,7 +553,7 @@ export function ServerActionPlayground() {
                 name='title'
                 required
                 defaultValue='Note'
-                className='h-9 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                className='border-input bg-background focus-visible:ring-ring h-9 rounded-md border px-3 text-sm shadow-xs outline-none focus-visible:ring-2'
               />
             </div>
             <div className='flex flex-col gap-2'>
@@ -565,7 +565,7 @@ export function ServerActionPlayground() {
                 name='body'
                 rows={3}
                 defaultValue='Sent via FormData.'
-                className='rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring'
+                className='border-input bg-background focus-visible:ring-ring rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2'
               />
             </div>
           </div>

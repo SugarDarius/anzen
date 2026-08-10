@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <div className='flex flex-col w-full h-full relative'>
-      <div className='absolute top-0 max-w-4xl inset-x-0 mx-auto h-[84px]'>
+    <div className='relative flex h-full w-full flex-col'>
+      <div className='absolute inset-x-0 top-0 mx-auto h-[84px] max-w-4xl'>
         <div className='absolute inset-0'>
           <RetroGrid />
         </div>
@@ -25,24 +25,24 @@ export default function Page() {
         <div className='container mx-auto px-4 text-center'>
           <Link
             href='/docs/server-action'
-            className='inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-fd-secondary/30 text-sm text-fd-muted-foreground mb-6 shadow-2xs'
+            className='border-border bg-fd-secondary/30 text-fd-muted-foreground mb-6 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm shadow-2xs'
           >
             <span className='relative flex h-2 w-2'>
-              <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75' />
-              <span className='relative inline-flex rounded-full h-2 w-2 bg-cyan-400' />
+              <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75' />
+              <span className='relative inline-flex h-2 w-2 rounded-full bg-cyan-400' />
             </span>
             New server action factory is out!
           </Link>
-          <h1 className='text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-balance max-w-4xl mx-auto'>
+          <h1 className='mx-auto max-w-4xl text-4xl font-bold tracking-tight text-balance md:text-6xl lg:text-7xl'>
             Type-safe factories for{' '}
             <span className='text-fd-muted-foreground'>Next.js</span>
           </h1>
-          <p className='mt-6 text-lg md:text-xl text-fd-muted-foreground max-w-2xl mx-auto text-balance'>
+          <p className='text-fd-muted-foreground mx-auto mt-6 max-w-2xl text-lg text-balance md:text-xl'>
             Fast, flexible, framework validation agnostic factories for creating
             server actions, route handlers, page and layout Server Components.
           </p>
         </div>
-        <div className='mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 pb-12'>
+        <div className='mt-10 flex flex-col items-center justify-center gap-4 pb-12 sm:flex-row'>
           <Button asChild size='lg' className='font-medium'>
             <Link href='/docs'>Read the docs</Link>
           </Button>
@@ -67,19 +67,19 @@ export default function Page() {
         </div>
       </section>
 
-      <section className='py-24 md:py-32 border-t border-border'>
+      <section className='border-border border-t py-24 md:py-32'>
         <div className='container mx-auto px-4'>
-          <h2 className='text-2xl md:text-3xl font-bold text-center mb-4'>
+          <h2 className='mb-4 text-center text-2xl font-bold md:text-3xl'>
             Why Anzen?
           </h2>
-          <p className='text-fd-muted-foreground text-center mb-12 max-w-2xl mx-auto'>
+          <p className='text-fd-muted-foreground mx-auto mb-12 max-w-2xl text-center'>
             Anzen means &quot;safe&quot; in Japanese. Build secure, type-safe
             Next.js APIs with confidence.
           </p>
-          <Cards className='grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto'>
+          <Cards className='mx-auto grid max-w-5xl gap-6 md:grid-cols-2 lg:grid-cols-3'>
             <Card
               icon={
-                <div className='flex items-center justify-center size-6'>
+                <div className='flex size-6 items-center justify-center'>
                   🔧
                 </div>
               }
@@ -90,7 +90,7 @@ export default function Page() {
 
             <Card
               icon={
-                <div className='flex items-center justify-center size-6'>
+                <div className='flex size-6 items-center justify-center'>
                   🧠
                 </div>
               }
@@ -101,7 +101,7 @@ export default function Page() {
 
             <Card
               icon={
-                <div className='flex items-center justify-center size-6'>
+                <div className='flex size-6 items-center justify-center'>
                   🧹
                 </div>
               }
@@ -112,7 +112,7 @@ export default function Page() {
 
             <Card
               icon={
-                <div className='flex items-center justify-center size-6'>
+                <div className='flex size-6 items-center justify-center'>
                   🔒
                 </div>
               }
@@ -123,7 +123,7 @@ export default function Page() {
 
             <Card
               icon={
-                <div className='flex items-center justify-center size-6'>
+                <div className='flex size-6 items-center justify-center'>
                   🌱
                 </div>
               }
@@ -134,7 +134,7 @@ export default function Page() {
 
             <Card
               icon={
-                <div className='flex items-center justify-center size-6'>
+                <div className='flex size-6 items-center justify-center'>
                   🪶
                 </div>
               }
@@ -146,16 +146,16 @@ export default function Page() {
         </div>
       </section>
 
-      <section className='py-16 border-t border-border'>
+      <section className='border-border border-t py-16'>
         <div className='container mx-auto px-4 text-center'>
-          <h2 className='text-2xl md:text-3xl font-bold mb-4'>
+          <h2 className='mb-4 text-2xl font-bold md:text-3xl'>
             Framework validation agnostic
           </h2>
-          <p className='text-fd-muted-foreground max-w-2xl mx-auto mb-8'>
+          <p className='text-fd-muted-foreground mx-auto mb-8 max-w-2xl'>
             Use any validation library that implements the{' '}
             <a
               href='https://standardschema.dev'
-              className='text-fd-foreground underline underline-offset-4 hover:text-fd-muted-foreground transition-colors'
+              className='text-fd-foreground hover:text-fd-muted-foreground underline underline-offset-4 transition-colors'
             >
               Standard Schema
             </a>{' '}
@@ -175,7 +175,7 @@ export default function Page() {
                 href={href}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='px-4 py-2 rounded-full border border-border bg-fd-secondary/30 text-sm font-medium text-fd-foreground hover:bg-fd-secondary/50 hover:border-fd-border transition-colors'
+                className='border-border bg-fd-secondary/30 text-fd-foreground hover:bg-fd-secondary/50 hover:border-fd-border rounded-full border px-4 py-2 text-sm font-medium transition-colors'
               >
                 {label}
               </a>
@@ -184,26 +184,26 @@ export default function Page() {
         </div>
       </section>
 
-      <footer className='py-8 border-t border-border'>
-        <div className='container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4'>
+      <footer className='border-border border-t py-8'>
+        <div className='container mx-auto flex flex-col items-center justify-between gap-4 px-4 sm:flex-row'>
           <div className='flex items-center gap-2'>
-            <span className='text-sm text-fd-muted-foreground'>
+            <span className='text-fd-muted-foreground text-sm'>
               &copy; 2026{' '}
               <a
                 href={`${siteConfig.github.url}/blob/main/LICENSE`}
                 rel='noreferrer'
                 target='_blank'
-                className='transition-colors duration-150 ease-out font-semibold text-fd-foreground underline underline-offset-2'
+                className='text-fd-foreground font-semibold underline underline-offset-2 transition-colors duration-150 ease-out'
               >
                 MIT License
               </a>
             </span>
           </div>
-          <p className='text-sm text-fd-muted-foreground'>
+          <p className='text-fd-muted-foreground text-sm'>
             Built with ❤️ by{' '}
             <a
               href='https://github.com/SugarDarius'
-              className='text-fd-foreground hover:underline underline-offset-4'
+              className='text-fd-foreground underline-offset-4 hover:underline'
             >
               {siteConfig.creator}
             </a>

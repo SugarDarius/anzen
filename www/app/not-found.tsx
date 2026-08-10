@@ -154,30 +154,30 @@ const Terminal = ({ pathname }: { pathname: string }) => {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className='rounded-lg border border-border overflow-hidden shadow-2xl'>
-        <div className='bg-fd-muted px-4 py-3 flex items-center gap-2 border-b border-border'>
+      <div className='border-border overflow-hidden rounded-lg border shadow-2xl'>
+        <div className='bg-fd-muted border-border flex items-center gap-2 border-b px-4 py-3'>
           <div className='flex gap-2'>
             <motion.div
-              className='w-3 h-3 rounded-full bg-fd-error/80'
+              className='bg-fd-error/80 h-3 w-3 rounded-full'
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, stiffness: 500, type: 'spring' }}
             />
             <motion.div
-              className='w-3 h-3 rounded-full bg-fd-warning/80'
+              className='bg-fd-warning/80 h-3 w-3 rounded-full'
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.4, stiffness: 500, type: 'spring' }}
             />
             <motion.div
-              className='w-3 h-3 rounded-full bg-fd-success/80'
+              className='bg-fd-success/80 h-3 w-3 rounded-full'
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.5, stiffness: 500, type: 'spring' }}
             />
           </div>
           <motion.span
-            className='ml-3 text-xs text-fd-muted-foreground font-mono'
+            className='text-fd-muted-foreground ml-3 font-mono text-xs'
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
@@ -186,7 +186,7 @@ const Terminal = ({ pathname }: { pathname: string }) => {
           </motion.span>
         </div>
 
-        <div className='bg-fd-background p-4 sm:p-6 font-mono text-sm min-h-[280px] text-fd-'>
+        <div className='bg-fd-background text-fd- min-h-[280px] p-4 font-mono text-sm sm:p-6'>
           <div className='space-y-2'>
             <AnimatePresence>
               {lines.map((line, index) => {
@@ -261,20 +261,20 @@ const Terminal = ({ pathname }: { pathname: string }) => {
 export default function NotFound() {
   const pathname = usePathname()
   return (
-    <div className='flex flex-col w-full h-full min-h-screen relative'>
-      <main className='flex-1 flex flex-col items-center justify-center'>
-        <div className='w-full max-w-2xl flex flex-col items-center py-4 md:py-0'>
+    <div className='relative flex h-full min-h-screen w-full flex-col'>
+      <main className='flex flex-1 flex-col items-center justify-center'>
+        <div className='flex w-full max-w-2xl flex-col items-center py-4 md:py-0'>
           <motion.div
             className='mb-8 text-center'
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <h1 className='text-7xl sm:text-8xl font-extrabold font-mono mb-2'>
+            <h1 className='mb-2 font-mono text-7xl font-extrabold sm:text-8xl'>
               <GlitchText>404</GlitchText>
             </h1>
             <motion.p
-              className='text-fd-muted-foreground text-sm font-mono'
+              className='text-fd-muted-foreground font-mono text-sm'
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
@@ -286,7 +286,7 @@ export default function NotFound() {
           <Terminal pathname={pathname} />
 
           <motion.div
-            className='mt-8 flex flex-col sm:flex-row items-center gap-3'
+            className='mt-8 flex flex-col items-center gap-3 sm:flex-row'
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 4.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -318,26 +318,26 @@ export default function NotFound() {
         </div>
       </main>
 
-      <footer className='py-8 border-t border-border flex-noe'>
-        <div className='container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4'>
+      <footer className='border-border flex-noe border-t py-8'>
+        <div className='container mx-auto flex flex-col items-center justify-between gap-4 px-4 sm:flex-row'>
           <div className='flex items-center gap-2'>
-            <span className='text-sm text-fd-muted-foreground'>
+            <span className='text-fd-muted-foreground text-sm'>
               &copy; 2026{' '}
               <a
                 href={`${siteConfig.github.url}/blob/main/LICENSE`}
                 rel='noreferrer'
                 target='_blank'
-                className='transition-colors duration-150 ease-out font-semibold text-fd-foreground underline underline-offset-2'
+                className='text-fd-foreground font-semibold underline underline-offset-2 transition-colors duration-150 ease-out'
               >
                 MIT License
               </a>
             </span>
           </div>
-          <p className='text-sm text-fd-muted-foreground'>
+          <p className='text-fd-muted-foreground text-sm'>
             Built with ❤️ by{' '}
             <a
               href='https://github.com/SugarDarius'
-              className='text-fd-foreground hover:underline underline-offset-4'
+              className='text-fd-foreground underline-offset-4 hover:underline'
             >
               {siteConfig.creator}
             </a>

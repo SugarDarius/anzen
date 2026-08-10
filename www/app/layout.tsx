@@ -73,7 +73,7 @@ export default function RootLayout({
         className={cn(
           GeistSans.variable,
           GeistMono.variable,
-          'font-sans antialiased flex flex-col min-h-screen',
+          'flex min-h-screen flex-col font-sans antialiased',
         )}
       >
         <RootProvider>{children}</RootProvider>

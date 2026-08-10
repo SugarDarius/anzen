@@ -18,7 +18,7 @@ export function baseOptions(): BaseLayoutProps {
     ],
     nav: {
       title: (
-        <div className='flex items-center border bg-fd-background justify-center w-fit rounded-full gap-1 transition-all shadow-xs hover:bg-fd-accent px-2 py-1'>
+        <div className='bg-fd-background hover:bg-fd-accent flex w-fit items-center justify-center gap-1 rounded-full border px-2 py-1 shadow-xs transition-all'>
           <BoxIcon className='size-4' />
           <span className='text-sm font-medium'>{siteConfig.title}</span>
         </div>

@@ -69,12 +69,12 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
               asChild
               size='xs'
               variant='ghost'
-              className='w-full justify-start border-transparent border hover:border-fd-border group gap-1.5'
+              className='hover:border-fd-border group w-full justify-start gap-1.5 border border-transparent'
             >
               <Link href={githubUrl} target='_blank' rel='noopener noreferrer'>
                 <GithubIcon className='size-3.5' />
                 Edit on Github
-                <ExternalLinkIcon className='size-3 -ml-0.5 opacity-0 transition duration-150 ease-out group-hover:opacity-100' />
+                <ExternalLinkIcon className='-ml-0.5 size-3 opacity-0 transition duration-150 ease-out group-hover:opacity-100' />
               </Link>
             </Button>
           </div>
@@ -83,26 +83,26 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       }}
       footer={{
         component: (
-          <footer className='container pt-6 border-t border-border flex-noe'>
-            <div className='w-full flex flex-col sm:flex-row items-center justify-between gap-2'>
+          <footer className='border-border flex-noe container border-t pt-6'>
+            <div className='flex w-full flex-col items-center justify-between gap-2 sm:flex-row'>
               <div className='flex items-center gap-2'>
-                <span className='text-sm text-fd-muted-foreground'>
+                <span className='text-fd-muted-foreground text-sm'>
                   &copy; 2026{' '}
                   <a
                     href={`${siteConfig.github.url}/blob/main/LICENSE`}
                     rel='noreferrer'
                     target='_blank'
-                    className='transition-colors duration-150 ease-out font-semibold text-fd-foreground underline underline-offset-2'
+                    className='text-fd-foreground font-semibold underline underline-offset-2 transition-colors duration-150 ease-out'
                   >
                     MIT License
                   </a>
                 </span>
               </div>
-              <p className='text-sm text-fd-muted-foreground'>
+              <p className='text-fd-muted-foreground text-sm'>
                 Built with ❤️ by{' '}
                 <a
                   href='https://github.com/SugarDarius'
-                  className='text-fd-foreground hover:underline underline-offset-4'
+                  className='text-fd-foreground underline-offset-4 hover:underline'
                 >
                   {siteConfig.creator}
                 </a>
@@ -113,17 +113,17 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
         enabled: true,
       }}
     >
-      <div className='absolute top-0 w-full h-[84px] left-0 right-0'>
+      <div className='absolute top-0 right-0 left-0 h-[84px] w-full'>
         <div className='absolute inset-0'>
           <RetroGrid />
         </div>
       </div>
-      <div className='flex flex-col w-full z-1'>
-        <div className='flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4 mb-8'>
-          <DocsTitle className='text-lg md:text-[1.75em] flex-1'>
+      <div className='z-1 flex w-full flex-col'>
+        <div className='mb-8 flex flex-col items-center justify-between gap-2 md:flex-row md:gap-4'>
+          <DocsTitle className='flex-1 text-lg md:text-[1.75em]'>
             {page.data.title}
           </DocsTitle>
-          <div className='flex items-center gap-2 flex-none'>
+          <div className='flex flex-none items-center gap-2'>
             <PageActions
               markdownUrl={`${page.url}.mdx`}
               githubUrl={githubUrl}
@@ -134,7 +134,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
                   asChild
                   variant='secondary'
                   size='icon'
-                  className='bg-fd-popover shadow-xs border border-md border-fd-border transition-colors duration-150 ease-in-out hover:bg-fd-accent hover:text-fd-accent-foreground'
+                  className='bg-fd-popover border-md border-fd-border hover:bg-fd-accent hover:text-fd-accent-foreground border shadow-xs transition-colors duration-150 ease-in-out'
                 >
                   <Link href={neighbours.previous.url}>
                     <ArrowLeft className='size-4' />
@@ -147,7 +147,7 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
                   asChild
                   variant='secondary'
                   size='icon'
-                  className='bg-fd-popover shadow-xs border border-md border-fd-border transition-colors duration-150 ease-in-out hover:bg-fd-accent hover:text-fd-accent-foreground'
+                  className='bg-fd-popover border-md border-fd-border hover:bg-fd-accent hover:text-fd-accent-foreground border shadow-xs transition-colors duration-150 ease-in-out'
                 >
                   <Link href={neighbours.next.url}>
                     <ArrowRight className='size-4' />

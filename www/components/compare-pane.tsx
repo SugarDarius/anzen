@@ -18,13 +18,13 @@ export function ComparePane({
   return (
     <div
       className={cn(
-        'relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border/70 bg-linear-to-br p-px shadow-lg ring-1 ring-inset',
+        'border-border/70 relative flex min-h-0 flex-col overflow-hidden rounded-2xl border bg-linear-to-br p-px shadow-lg ring-1 ring-inset',
         isBefore
-          ? 'from-rose-500/18 via-background to-background shadow-rose-500/12 ring-rose-500/15 dark:from-rose-500/12 dark:shadow-rose-500/8'
-          : 'from-emerald-500/18 via-background to-background shadow-emerald-500/12 ring-emerald-500/15 dark:from-emerald-500/12 dark:shadow-emerald-500/8',
+          ? 'via-background to-background from-rose-500/18 shadow-rose-500/12 ring-rose-500/15 dark:from-rose-500/12 dark:shadow-rose-500/8'
+          : 'via-background to-background from-emerald-500/18 shadow-emerald-500/12 ring-emerald-500/15 dark:from-emerald-500/12 dark:shadow-emerald-500/8',
       )}
     >
-      <div className='flex min-h-0 flex-1 flex-col pt-4 overflow-hidden'>
+      <div className='flex min-h-0 flex-1 flex-col overflow-hidden pt-4'>
         <div className='mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 px-4'>
           {isBefore ? (
             <AlertTriangle
@@ -53,7 +53,7 @@ export function ComparePane({
         </div>
         <div
           className={cn(
-            'min-w-0 flex-1 [&_figure]:my-0 [&_figure]:rounded-lg [&_figure]:border [&_figure]:border-border/80 [&_figure]:shadow-sm',
+            '[&_figure]:border-border/80 min-w-0 flex-1 [&_figure]:my-0 [&_figure]:rounded-lg [&_figure]:border [&_figure]:shadow-sm',
             '[&_pre]:overflow-auto [&_pre]:text-[13px] [&_pre]:leading-relaxed',
           )}
         >

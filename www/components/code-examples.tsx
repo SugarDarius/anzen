@@ -62,7 +62,7 @@ export function CodeExamples({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'not-prose flex flex-col w-full max-w-4xl mx-auto mt-2',
+        'not-prose mx-auto mt-2 flex w-full max-w-4xl flex-col',
         className,
       )}
     >

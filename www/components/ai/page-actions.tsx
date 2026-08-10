@@ -85,18 +85,18 @@ const AiPlatformItem = ({
     href={href}
     rel='noreferrer noopener'
     target='_blank'
-    className='text-sm p-2 rounded-lg flex items-start gap-2 hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4 [&_svg]:mt-0.5 [&_svg]:shrink-0'
+    className='hover:text-fd-accent-foreground hover:bg-fd-accent flex items-start gap-2 rounded-lg p-2 text-sm [&_svg]:mt-0.5 [&_svg]:size-4 [&_svg]:shrink-0'
   >
     {icon}
 
     <span className='flex flex-col gap-0.5'>
       <span className='font-medium'>{title}</span>
       {subtitle ? (
-        <span className='text-xs text-fd-muted-foreground'>{subtitle}</span>
+        <span className='text-fd-muted-foreground text-xs'>{subtitle}</span>
       ) : null}
     </span>
 
-    <ExternalLinkIcon className='text-fd-muted-foreground size-3.5 ms-auto' />
+    <ExternalLinkIcon className='text-fd-muted-foreground ms-auto size-3.5' />
   </a>
 )
 
@@ -339,17 +339,17 @@ export function PageActions({
 
   return (
     <Popover>
-      <div className='inline-flex items-center rounded-md border border-fd-border text-sm [&_svg]:size-3.5 [&_svg]:text-fd-muted-foreground bg-fd-popover shadow-xs flex-none'>
+      <div className='border-fd-border [&_svg]:text-fd-muted-foreground bg-fd-popover inline-flex flex-none items-center rounded-md border text-sm shadow-xs [&_svg]:size-3.5'>
         <button
           disabled={loading}
           onClick={onCopy}
-          className='inline-flex items-center gap-1.5 px-2.5 py-1.5 cursor-pointer rounded-l-[5px] hover:bg-fd-accent hover:text-fd-accent-foreground'
+          className='hover:bg-fd-accent hover:text-fd-accent-foreground inline-flex cursor-pointer items-center gap-1.5 rounded-l-[5px] px-2.5 py-1.5'
         >
           {checked ? <Check /> : <Copy />}
           {checked ? 'Copied!' : 'Copy page'}
         </button>
-        <span className='w-px self-stretch bg-fd-border' />
-        <PopoverTrigger className='inline-flex items-center self-stretch px-1.5 cursor-pointer rounded-r-[5px] hover:bg-fd-accent hover:text-fd-accent-foreground transition-colors duration-150 ease-in-out'>
+        <span className='bg-fd-border w-px self-stretch' />
+        <PopoverTrigger className='hover:bg-fd-accent hover:text-fd-accent-foreground inline-flex cursor-pointer items-center self-stretch rounded-r-[5px] px-1.5 transition-colors duration-150 ease-in-out'>
           <ChevronDown />
         </PopoverTrigger>
       </div>
@@ -360,18 +360,18 @@ export function PageActions({
       >
         <button
           disabled={loading}
-          className='text-sm p-2 rounded-lg flex items-start gap-2 text-start hover:text-fd-accent-foreground hover:bg-fd-accent [&_svg]:size-4 [&_svg]:mt-0.5 [&_svg]:shrink-0 cursor-pointer'
+          className='hover:text-fd-accent-foreground hover:bg-fd-accent flex cursor-pointer items-start gap-2 rounded-lg p-2 text-start text-sm [&_svg]:mt-0.5 [&_svg]:size-4 [&_svg]:shrink-0'
           onClick={onCopy}
         >
           {checked ? <Check /> : <Copy />}
           <span className='flex flex-col gap-0.5'>
             <span className='font-medium'>Copy page</span>
-            <span className='text-xs text-fd-muted-foreground'>
+            <span className='text-fd-muted-foreground text-xs'>
               Copy as Markdown for LLMs
             </span>
           </span>
         </button>
-        <hr className='my-1 border-fd-border' />
+        <hr className='border-fd-border my-1' />
         {items.map((item, index) =>
           item.type === 'action' ? (
             <Fragment key={index}>
@@ -387,7 +387,7 @@ export function PageActions({
               )}
             </Fragment>
           ) : (
-            <hr key={index} className='my-1 border-fd-border' />
+            <hr key={index} className='border-fd-border my-1' />
           ),
         )}
       </PopoverContent>
