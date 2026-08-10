@@ -82,8 +82,8 @@ importers:
         specifier: 'catalog:'
         version: 6.0.3
       ultracite:
-        specifier: ^7.10.1
-        version: 7.10.1(oxfmt@0.62.0)(oxlint@1.77.0)
+        specifier: ^7.10.2
+        version: 7.10.2(oxfmt@0.62.0)(oxlint@1.77.0)
       vitest:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@26.2.0)(vite@8.0.8(@types/node@26.2.0)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0))
@@ -4422,8 +4422,8 @@ packages:
   ufo@1.6.1:
     resolution: {integrity: sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA==}
 
-  ultracite@7.10.1:
-    resolution: {integrity: sha512-2WbhHS9+rNsPIfV5kHnuHsvFscvMwLIVsUgvEUnTUP3tFRUBpwWN1wmt2K+A6uecjE3Qv7iUOR6gszXBkrv/qg==}
+  ultracite@7.10.2:
+    resolution: {integrity: sha512-WP1Hu/BKy/BDgntaiU33uq2Y8hKL2gEO5li2wfg7XFvmlyIkGDEy8qbWg7GHsxTEjEpWOAKpyFSF8aqc3JNEGQ==}
     hasBin: true
     peerDependencies:
       oxfmt: '>=0.1.0'
@@ -8680,7 +8680,7 @@ snapshots:
 
   ufo@1.6.1: {}
 
-  ultracite@7.10.1(oxfmt@0.62.0)(oxlint@1.77.0):
+  ultracite@7.10.2(oxfmt@0.62.0)(oxlint@1.77.0):
     dependencies:
       '@clack/prompts': 1.7.0
       commander: 15.0.0
