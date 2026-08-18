@@ -8,7 +8,8 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "out/**"]
+      "outputs": ["dist/**", ".next/**", "out/**"],
+      "env": ["ENABLE_EXPERIMENTAL_COREPACK"]
     },
     "lint:check": {
       "cache": false,
