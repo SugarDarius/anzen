@@ -14,7 +14,7 @@ catalog:
   'decoders': ^2.9.3
   'typescript': ^6.0.3
   'zod': ^4.4.3
-  oxfmt: ^0.63.0"
+  oxfmt: ^0.63.0
   oxlint: ^1.78.0
 
 minimumReleaseAgeExclude:

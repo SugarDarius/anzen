@@ -75,7 +75,7 @@
     "postinstall": "syncpack lint"
   },
   "dependencies": {
-    "syncpack": "^15.3.3"
+    "syncpack": "^15.3.2"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
@@ -83,11 +83,11 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "decoders": "catalog:",
-    "oxfmt": "^0.63.0",
+    "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "publint": "^0.3.23",
     "react": "catalog:",
-    "release-it": "^21.0.2",
+    "release-it": "^21.0.1",
     "tsup": "^8.5.1",
     "turbo": "^2.10.10",
     "typescript": "catalog:",
