@@ -87,7 +87,7 @@
     "oxlint": "catalog:",
     "publint": "^0.3.23",
     "react": "catalog:",
-    "release-it": "^21.0.1",
+    "release-it": "^21.0.2",
     "tsup": "^8.5.1",
     "turbo": "^2.10.10",
     "typescript": "catalog:",
