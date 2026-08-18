@@ -75,7 +75,7 @@
     "postinstall": "syncpack lint"
   },
   "dependencies": {
-    "syncpack": "^15.3.2"
+    "syncpack": "^15.3.3"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
