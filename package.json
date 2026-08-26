@@ -85,7 +85,7 @@
     "decoders": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
-    "publint": "^0.3.23",
+    "publint": "^0.3.24",
     "react": "catalog:",
     "release-it": "^21.0.1",
     "tsup": "^8.5.1",
