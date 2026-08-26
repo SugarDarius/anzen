@@ -92,7 +92,7 @@
     "turbo": "^2.10.12",
     "typescript": "catalog:",
     "ultracite": "^7.10.6",
-    "vitest": "^4.1.10",
+    "vitest": "^4.1.11",
     "zod": "catalog:"
   },
   "peerDependencies": {
