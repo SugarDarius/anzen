@@ -28,7 +28,7 @@ catalogs:
       specifier: ^6.0.3
       version: 6.0.3
     zod:
-      specifier: ^4.4.3
+      specifier: ^4.5.4
       version: 4.4.3
 
 importers:
@@ -89,7 +89,7 @@ importers:
         version: 4.1.11(@types/node@26.4.1)(vite@8.0.8(@types/node@26.4.1)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0))
       zod:
         specifier: 'catalog:'
-        version: 4.4.3
+        version: 4.5.4
 
   www:
     dependencies:
@@ -7123,7 +7123,7 @@ snapshots:
       vfile: 6.0.3
       yaml: 2.9.0
       yuku-analyzer: 0.8.7
-      zod: 4.4.3
+      zod: 4.5.4
     optionalDependencies:
       '@types/mdast': 4.0.4
       '@types/mdx': 2.0.14
