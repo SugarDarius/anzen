@@ -81,7 +81,7 @@ const TypingText = ({
 
   useEffect(() => {
     if (text === '') {
-      // oxlint-disable-next-line react/react-compiler
+      // oxlint-disable-next-line react/react-compiler react/set-state-in-effect
       setDisplayed('')
       setDone(true)
       return

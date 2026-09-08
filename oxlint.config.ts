@@ -26,6 +26,7 @@ export default defineConfig({
     'eslint/no-empty-function': 'off',
     'eslint/no-inline-comments': 'off',
     'eslint/no-nested-ternary': 'off',
+    'eslint/no-redeclare': 'off',
     'eslint/no-throw-literal': 'off',
     'eslint/no-warning-comments': 'off',
     'eslint/require-await': 'off',

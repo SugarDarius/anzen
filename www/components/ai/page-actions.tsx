@@ -332,6 +332,9 @@ export function PageActions({
           }),
         }),
       ])
+    } catch (err) {
+      console.error(err)
+      // oxlint-disable-next-line react/todo
     } finally {
       setLoading(false)
     }
