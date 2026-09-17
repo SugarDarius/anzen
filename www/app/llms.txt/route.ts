@@ -4,6 +4,7 @@ import { source } from '~/lib/source'
 
 export const revalidate = false
 
-export function GET() {
-  return new Response(llms(source).index())
+export async function GET() {
+  const content = await llms(source).index()
+  return new Response(content)
 }
