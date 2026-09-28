@@ -8,15 +8,15 @@ allowBuilds:
   unrs-resolver: true
 
 catalog:
-  '@types/node': ^26.6.2
+  '@types/node': ^26.6.3
   '@types/react': ^19.3.0
   'react': ^19.3.0
-  'decoders': ^2.10.1
+  'decoders': ^2.12.1
   'typescript': ^6.0.3
   'zod': ^4.6.5
-  oxfmt: ^0.68.0
-  oxlint: ^1.83.0
-  vitest: ^5.0.1
+  oxfmt: ^0.70.0
+  oxlint: ^1.85.0
+  vitest: ^5.0.2
 
 minimumReleaseAgeExclude:
   - '@arethetypeswrong/cli@0.18.5'
