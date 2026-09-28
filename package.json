@@ -61,8 +61,8 @@
     "access": "public"
   },
   "scripts": {
-    "dev": "tsup --watch",
-    "build": "tsup --minify",
+    "dev": "tsdown --watch",
+    "build": "tsdown --minify",
     "dev:www": "turbo run dev --filter=www",
     "build:www": "turbo run build --filter=www",
     "test": "vitest run --silent",
@@ -88,7 +88,7 @@
     "publint": "^0.3.24",
     "react": "catalog:",
     "release-it": "^21.1.0",
-    "tsup": "^8.5.1",
+    "tsdown": "catalog:",
     "turbo": "^2.11.4",
     "typescript": "catalog:",
     "ultracite": "^7.12.0",
