@@ -83,7 +83,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "decoders": "catalog:",
-    "oxfmt": "^0.70.0",
+    "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "publint": "^0.3.24",
     "react": "catalog:",

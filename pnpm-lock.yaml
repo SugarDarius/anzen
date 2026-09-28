@@ -173,6 +173,9 @@ catalogs:
     decoders:
       specifier: ^2.12.1
       version: 2.12.1
+    oxfmt:
+      specifier: ^0.70.0
+      version: 0.70.0
     oxlint:
       specifier: ^1.85.0
       version: 1.85.0
@@ -216,7 +219,7 @@ importers:
         specifier: 'catalog:'
         version: 2.12.1
       oxfmt:
-        specifier: ^0.70.0
+        specifier: 'catalog:'
         version: 0.70.0
       oxlint:
         specifier: 'catalog:'
