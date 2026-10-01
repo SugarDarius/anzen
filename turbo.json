@@ -6,8 +6,11 @@
       "dependsOn": ["^build"],
       "cache": false
     },
+    "//#build": {
+      "outputs": ["dist/**"]
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "//#build"],
       "outputs": ["dist/**", ".next/**", "out/**"],
       "env": ["ENABLE_EXPERIMENTAL_COREPACK"]
     },
