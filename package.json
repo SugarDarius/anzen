@@ -83,7 +83,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "decoders": "catalog:",
-    "oxfmt": "^0.71.0",
+    "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "publint": "^0.3.24",
     "react": "catalog:",
@@ -98,5 +98,5 @@
   "peerDependencies": {
     "next": "^16 || ^15 || ^14"
   },
-  "packageManager": "pnpm@12.8.1"
+  "packageManager": "pnpm@12.5.1"
 }
