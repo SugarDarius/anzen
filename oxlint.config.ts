@@ -12,6 +12,7 @@ export default defineConfig({
       files: ['**/*.{test,spec}.{ts,tsx}'],
       plugins: ['vitest'],
       rules: {
+        'vitest/consistent-test-it': 'off',
         'vitest/max-expects': 'off',
         'vitest/no-conditional-expect': 'off',
       },
