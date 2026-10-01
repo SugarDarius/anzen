@@ -83,20 +83,20 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "decoders": "catalog:",
-    "oxfmt": "catalog:",
+    "oxfmt": "^0.71.0",
     "oxlint": "catalog:",
     "publint": "^0.3.24",
     "react": "catalog:",
     "release-it": "^21.1.0",
     "tsdown": "catalog:",
-    "turbo": "^2.11.4",
+    "turbo": "^2.11.5",
     "typescript": "catalog:",
-    "ultracite": "^7.12.0",
+    "ultracite": "^7.12.2",
     "vitest": "catalog:",
     "zod": "catalog:"
   },
   "peerDependencies": {
     "next": "^16 || ^15 || ^14"
   },
-  "packageManager": "pnpm@12.5.1"
+  "packageManager": "pnpm@12.8.1"
 }

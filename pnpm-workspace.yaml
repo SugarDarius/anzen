@@ -11,12 +11,12 @@ catalog:
   '@types/node': ^26.6.3
   '@types/react': ^19.3.0
   'react': ^19.3.0
-  'decoders': ^2.12.1
+  'decoders': ^2.12.2
   'typescript': ^6.0.3
   'zod': ^4.6.5
-  oxfmt: ^0.70.0
-  oxlint: ^1.85.0
-  vitest: ^5.0.2
+  'oxfmt': ^0.71.0
+  oxlint: ^1.86.0
+  vitest: ^5.0.3
   tsdown: ^0.23.0
 
 minimumReleaseAgeExclude:
