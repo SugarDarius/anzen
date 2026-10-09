@@ -39,6 +39,7 @@ Use `InferSafeServerActionResult<typeof myAction>` instead of manually writing `
 
 ```ts
 import type { InferSafeServerActionResult } from '@sugardarius/anzen'
+
 import { signInWithEmail } from '~/actions/sign-in-with-email'
 
 export type SignInWithEmailResult = InferSafeServerActionResult<

@@ -85,18 +85,18 @@
     "decoders": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
-    "publint": "^0.3.24",
+    "publint": "^0.3.25",
     "react": "catalog:",
-    "release-it": "^21.1.0",
+    "release-it": "^21.1.1",
     "tsdown": "catalog:",
-    "turbo": "^2.11.5",
+    "turbo": "^2.11.7",
     "typescript": "catalog:",
-    "ultracite": "^7.12.2",
+    "ultracite": "^7.12.4",
     "vitest": "catalog:",
     "zod": "catalog:"
   },
   "peerDependencies": {
     "next": "^16 || ^15 || ^14"
   },
-  "packageManager": "pnpm@12.5.1"
+  "packageManager": "pnpm@12.10.1"
 }
