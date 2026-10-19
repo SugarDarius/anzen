@@ -14,7 +14,7 @@ catalog:
   'decoders': ^2.12.2
   'typescript': ^6.0.3
   'zod': ^4.6.7
-  vitest: ^5.0.4
+  vitest: ^5.0.5
   tsdown: ^0.23.1
 
 minimumReleaseAgeExclude:
