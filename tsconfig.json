@@ -8,7 +8,7 @@
     "lib": ["es2024"],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "types": ["node"],
+    "types": ["node", "react"],
     "noEmit": true,
     "esModuleInterop": true,
     "stripInternal": true,
