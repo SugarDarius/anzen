@@ -36,3 +36,7 @@ minimumReleaseAgeExclude:
   - takumi-js@2.0.2 || 2.4.2
   - fumadocs-core@16.12.1
   - fumadocs-ui@16.12.1
+
+permissions:
+  ultracite:
+    skills: true

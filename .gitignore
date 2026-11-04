@@ -47,5 +47,8 @@ next-env.d.ts
 # npm
 .npmrc
 
+#pnpm
+.pnpm-store/
+
 # generated content
 .source
