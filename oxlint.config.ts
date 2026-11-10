@@ -41,5 +41,6 @@ export default defineConfig({
     'unicorn/no-array-reduce': 'off',
     'unicorn/no-array-sort': 'off',
     'unicorn/no-nested-ternary': 'off',
+    'unicorn/no-useless-undefined': 'off',
   },
 })
