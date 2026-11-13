@@ -89,9 +89,9 @@
     "react": "catalog:",
     "release-it": "^21.1.2",
     "tsdown": "catalog:",
-    "turbo": "^2.11.10",
+    "turbo": "^2.11.11",
     "typescript": "catalog:",
-    "ultracite": "^8.1.1",
+    "ultracite": "^8.2.0",
     "vitest": "catalog:",
     "zod": "catalog:"
   },

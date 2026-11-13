@@ -38,5 +38,11 @@ minimumReleaseAgeExclude:
   - fumadocs-ui@16.12.1
 
 permissions:
+  tsdown:
+    skills: true
   ultracite:
     skills: true
+
+skills:
+  dirs:
+    - .cursor/skills
