@@ -91,12 +91,12 @@
     "tsdown": "catalog:",
     "turbo": "^2.11.11",
     "typescript": "catalog:",
-    "ultracite": "^8.2.0",
+    "ultracite": "^8.2.1",
     "vitest": "catalog:",
     "zod": "catalog:"
   },
   "peerDependencies": {
     "next": "^16 || ^15 || ^14"
   },
-  "packageManager": "pnpm@12.18.0"
+  "packageManager": "pnpm@12.21.0"
 }
