@@ -75,7 +75,7 @@
     "postinstall": "syncpack lint"
   },
   "dependencies": {
-    "syncpack": "^15.3.3"
+    "syncpack": "^15.3.4"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
@@ -98,5 +98,5 @@
   "peerDependencies": {
     "next": "^16 || ^15 || ^14"
   },
-  "packageManager": "pnpm@12.21.0"
+  "packageManager": "pnpm@12.23.0"
 }
